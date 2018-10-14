@@ -1,0 +1,41 @@
+{
+    "common": {
+        "name": "roomba",
+        "version": "0.1.0",
+        "title": "iRobot Roomba adapter",
+        "desc": {
+            "en": "ioBroker iRobot Roomba Adapter",
+            "de": "ioBroker iRobot Roomba Adapter",
+            "ru": "ioBroker iRobot Roomba драйвер"
+        },
+        "news": {
+            "0.1.0": {
+                "en": "initial checkin",
+                "de": "Erste version",
+                "ru": "первая версия"
+            }
+        },
+        "platform": "Javascript/Node.js",
+        "mode": "daemon",
+        "icon": "",
+        "extIcon": "",
+        "keywords": [
+            "roomba",
+            "irobot"
+        ],
+        "readme": "https://github.com/ioBroker/ioBroker.roomba/blob/master/README.md",
+        "loglevel": "info",
+        "type": "",
+        "authors": [
+            {
+                "name": "Zefau",
+                "email": "zefau@mailbox.org"
+            }
+        ]
+    },
+    "native": {
+    },
+    "objects": [],
+    "instanceObjects": [
+    ]
+}
