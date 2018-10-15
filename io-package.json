@@ -23,7 +23,7 @@
             "roomba",
             "irobot"
         ],
-        "readme": "https://github.com/ioBroker/ioBroker.roomba/blob/master/README.md",
+        "readme": "https://github.com/Zefau/ioBroker.roomba/blob/master/README.md",
         "loglevel": "info",
         "type": "",
         "authors": [
