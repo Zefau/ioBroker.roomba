@@ -1,0 +1,38 @@
+{
+  "name": "iobroker.roomba",
+  "version": "0.1.0",
+  "description": "ioBroker iRobot Roomba Adapter",
+  "author": {
+    "name": "zefau",
+    "email": "zefau@mailbox.org"
+  },
+  "contributors": [
+    {
+      "name": "zefau",
+      "email": "zefau@mailbox.org"
+    }
+  ],
+  "homepage": "https://github.com/Zefau/ioBroker.roomba",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "roomba",
+    "irobot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zefau/ioBroker.roomba"
+  },
+  "dependencies": {
+    "dorita980": "^3.0.12"
+  },
+  "devDependencies": {
+  },
+  "main": "main.js",
+  "scripts": {
+  },
+  "bugs": {
+    "url": "https://github.com/Zefau/ioBroker.roomba/issues"
+  },
+  "readmeFilename": "README.md"
+}
