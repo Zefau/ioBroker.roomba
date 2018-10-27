@@ -17,15 +17,15 @@
         },
         "platform": "Javascript/Node.js",
         "mode": "daemon",
-        "icon": "",
-        "extIcon": "",
+        "icon": "roomba.png",
+        "extIcon": "https://raw.githubusercontent.com/Zefau/ioBroker.roomba/master/admin/roomba.png",
         "keywords": [
             "roomba",
             "irobot"
         ],
         "readme": "https://github.com/Zefau/ioBroker.roomba/blob/master/README.md",
         "loglevel": "info",
-        "type": "",
+        "type": "household",
         "authors": [
             {
                 "name": "Zefau",
