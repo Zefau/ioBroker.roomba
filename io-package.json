@@ -68,6 +68,14 @@
                 "name": "States"
             },
             "native": {}
+        },
+        {
+            "_id": "statistics",
+            "type": "channel",
+            "common": {
+                "name": "Statistics"
+            },
+            "native": {}
         }
     ]
 }
