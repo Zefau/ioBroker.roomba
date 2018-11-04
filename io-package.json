@@ -37,5 +37,37 @@
     },
     "objects": [],
     "instanceObjects": [
+        {
+            "_id": "cleaning",
+            "type": "channel",
+            "common": {
+                "name": "Cleaning information and commands"
+            },
+            "native": {}
+        },
+        {
+            "_id": "device",
+            "type": "channel",
+            "common": {
+                "name": "Device hardware, software and network information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "preferences",
+            "type": "channel",
+            "common": {
+                "name": "Preferences settings"
+            },
+            "native": {}
+        },
+        {
+            "_id": "states",
+            "type": "channel",
+            "common": {
+                "name": "States"
+            },
+            "native": {}
+        }
     ]
 }
