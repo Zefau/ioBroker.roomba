@@ -17,6 +17,15 @@
 			fields: ['password']
 		}
 	}
+	
+	//
+	$(window).on('load', function()
+	{
+		$('.btn.btn-save, .btn.btn-save-close').on('click', function()
+		{
+			$('#refresh').val(parseInt($('#refresh').val()));
+		});
+	});
 	// -->
 	</script>
 	<script type="text/javascript" src="admin.js"></script>
@@ -33,14 +42,16 @@
 <div class="m adapter-container">
 
 	<div class="row">
+		<!--
 		<div class="col s12">
 			<ul class="tabs">
 				<li class="tab col s2"><a href="#tab-main" class="translate active">main</a></li>
 			</ul>
 		</div>
+		-->
 		
 		<div id="tab-main" class="col s12 page">
-			<div class="col s12">
+			<div class="row">
 				<p class="translate title">auth</p>
 				<p class="translate">auth_info</p>
 
@@ -55,6 +66,12 @@
 				<div class="input-field col s12 m4">
 					<input class="value" data-crypt="1" type="text" id="ip"/>
 					<label for="ip" class="translate">ip</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="input-field col s12 m4">
+					<input class="value" data-crypt="1" type="number" id="refresh" placeholder="60" />
+					<label for="refresh" class="translate">refresh</label>
 				</div>
 			</div>
 		</div>
