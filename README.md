@@ -17,6 +17,9 @@ Coming soon..
 
 ## Changelog
 
+### 0.2.0 (2018-11-18)
+- (zefau) improved admin interface to automatically retrieve authentication credentials
+
 ### 0.1.0 (2018-11-04)
 - (zefau) initial version
 
