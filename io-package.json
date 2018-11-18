@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "iRobot Roomba adapter",
         "desc": {
             "en": "ioBroker iRobot Roomba Adapter",
@@ -9,6 +9,10 @@
             "ru": "ioBroker iRobot Roomba драйвер"
         },
         "news": {
+            "0.2.0": {
+                "en": "Improved admin interface to automatically retrieve authentication credentials",
+                "de": "Admin Interface verbessert, damit nun automatisch die Zugangsdaten geladen werden"
+            },
             "0.1.0": {
                 "en": "initial checkin",
                 "de": "Erste version",
@@ -25,6 +29,8 @@
         ],
         "readme": "https://github.com/Zefau/ioBroker.roomba/blob/master/README.md",
         "loglevel": "info",
+        "messagebox": true,
+		"subscribe": "messagebox",
         "type": "household",
         "authors": [
             {
@@ -37,45 +43,5 @@
     },
     "objects": [],
     "instanceObjects": [
-        {
-            "_id": "cleaning",
-            "type": "channel",
-            "common": {
-                "name": "Cleaning information and commands"
-            },
-            "native": {}
-        },
-        {
-            "_id": "device",
-            "type": "channel",
-            "common": {
-                "name": "Device hardware, software and network information"
-            },
-            "native": {}
-        },
-        {
-            "_id": "preferences",
-            "type": "channel",
-            "common": {
-                "name": "Preferences settings"
-            },
-            "native": {}
-        },
-        {
-            "_id": "states",
-            "type": "channel",
-            "common": {
-                "name": "States"
-            },
-            "native": {}
-        },
-        {
-            "_id": "statistics",
-            "type": "channel",
-            "common": {
-                "name": "Statistics"
-            },
-            "native": {}
-        }
     ]
 }

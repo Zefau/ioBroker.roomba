@@ -21,6 +21,34 @@
 	//
 	$(window).on('load', function()
 	{
+		M.Tabs.init($('.tabs'));
+		
+		// retrieve ip and authentication credentials
+		var fieldUser = $('#username');
+		var fieldPassword = $('#password');
+		var fieldIp = $('#ip');
+		
+		$('#button_getCredentials').on('click', function()
+		{
+			$('.errorMessage').text('');
+			console.log("Retrieving credentials..");
+			
+			// get credentials
+			sendTo(null, 'getCredentials', null, function(res)
+			{
+				if (res.result === true)
+				{
+					console.log("Retrieved credentials (" + JSON.stringify(res) + ").");
+					fieldIp.val(res.ip).focus().trigger('change');
+					fieldPassword.val(res.credentials.password).focus().trigger('change');
+					fieldUser.val(res.credentials.user).focus().trigger('change');
+				}
+				else
+					$('.errorMessage').text('ERROR: Could not retrieve credentials! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!');
+			});
+		});
+		
+		// validation
 		$('.btn.btn-save, .btn.btn-save-close').on('click', function()
 		{
 			$('#refresh').val(parseInt($('#refresh').val()));
@@ -31,8 +59,22 @@
 	<script type="text/javascript" src="admin.js"></script>
 	<script type="text/javascript" src="words.js"></script>
 	<style>
-		.m .select-wrapper+label {
-			top: 100%;
+		.m select {display: block !important}
+		.hidden {display: none}
+		.box {
+			padding-top: 5px !important;
+			margin: 0 !important;
+			background-color: #fff; /*#acd8fa*/
+		}
+		
+		img {margin: 5px}
+		a.active {font-weight: bold}
+		p.title {margin-bottom: 0}
+		p.subtitle {padding: 0 .75rem}
+		p.errorMessage {
+			padding: 0 5px;
+			margin: 0;
+			color: #c00;
 		}
 	</style>
 </head>
@@ -42,42 +84,103 @@
 <div class="m adapter-container">
 
 	<div class="row">
-		<!--
+		
+		<!-- TABS -->
 		<div class="col s12">
 			<ul class="tabs">
-				<li class="tab col s2"><a href="#tab-main" class="translate active">main</a></li>
+				<li class="tab col s3"><a class="active translate" href="#config">tab_config</a></li>
+				<li class="tab col s3"><a class="translate" href="#info">tab_info</a></li>
 			</ul>
 		</div>
-		-->
 		
-		<div id="tab-main" class="col s12 page">
+		<!-- CONFIG -->
+		<div id="config" class="col s12">
+			
 			<div class="row">
-				<p class="translate title">auth</p>
-				<p class="translate">auth_info</p>
-
-				<div class="input-field col s12 m4">
-					<input class="value" data-crypt="1" id="username" type="text"/>
-					<label for="username" class="translate">username</label>
-				</div>
-				<div class="input-field col s12 m4">
-					<input class="value" data-crypt="1" type="password" id="password"/>
-					<label for="password" class="translate">password</label>
-				</div>
-				<div class="input-field col s12 m4">
-					<input class="value" data-crypt="1" type="text" id="ip"/>
-					<label for="ip" class="translate">ip</label>
+				<div class="col s12 m12 page">
+					<div class="row" style="margin-bottom: 0">
+						<div class="col s12 m12">
+							<p class="translate title">auth</p>
+						</div>
+					</div>
+					<div class="row box">
+						<p class="subtitle translate">auth_info</p>
+						
+						<div class="input-field col s2 m2">
+							<input class="value" id="username" type="text"/>
+							<label for="username" class="translate">username</label>
+						</div>
+						<div class="input-field col s2 m2">
+							<input class="value" type="password" id="password"/>
+							<label for="password" class="translate">password</label>
+						</div>
+						<div class="input-field col s2 m2">
+							<input class="value" type="text" id="ip"/>
+							<label for="ip" class="translate">ip</label>
+						</div>
+						<div class="input-field col s2 m2 center">
+							<a class="btn red translate" id="button_getCredentials">button_getCredentials</a>
+						</div>
+						<div class="input-field col s4 m4">
+							<p class="errorMessage"></p>
+						</div>
+					</div>
+					
 				</div>
 			</div>
 			<div class="row">
-				<div class="input-field col s12 m4">
-					<input class="value" data-crypt="1" type="number" id="refresh" placeholder="60" />
-					<label for="refresh" class="translate">refresh</label>
+				<div class="col s12 m12 page">
+					<div class="row" style="margin-bottom: 0">
+						<div class="col s12 m12">
+							<p class="translate title">other</p>
+						</div>
+					</div>
+					<div class="row box">
+						
+						<div class="input-field col s4 m4">
+							<input class="value" type="number" id="refresh" placeholder="60" />
+							<label for="refresh" class="translate">refresh</label>
+						</div>
+						
+					</div>
+					
+				</div>
+			</div>
+			
+		</div>
+		
+		<!-- INFO -->
+		<div id="info" class="col s12">
+			
+			<div class="row">
+				<div class="col s12 m12 page">
+					<div class="row box">
+					<!--
+						<div class="col s12 m12">
+							<a target="_blank" href="https://www.npmjs.com/package/iobroker.nello">
+								<img src="https://camo.githubusercontent.com/d1d9548f021f712a2838de2229b6ed3deb95b504/68747470733a2f2f6e6f6465692e636f2f6e706d2f696f62726f6b65722e6e656c6c6f2e706e673f646f776e6c6f6164733d74727565" />
+							</a>
+							<br />
+							
+							<img src="https://camo.githubusercontent.com/416f011b2ea9c9180638ce851126d72b8d7700e7/687474703a2f2f696d672e736869656c64732e696f2f6e706d2f762f696f62726f6b65722e6e656c6c6f2e737667" />
+							<img src="https://camo.githubusercontent.com/f3384c5a305415756b92302e6df1f5acb8d526e7/68747470733a2f2f696d672e736869656c64732e696f2f6e706d2f646d2f696f62726f6b65722e6e656c6c6f2e737667" />
+							<br />
+							
+							<ul>
+								<li>For setup instructions please <a target="_blank" href="https://github.com/Zefau/ioBroker.nello#setup-instructions-english">see manual on Github</a>.</li>
+								<li>For smart home / alexa integration please <a target="_blank" href="https://github.com/Zefau/ioBroker.nello#smart-home--alexa-integration-using-iobrokerjavascript">see ideas on Github</a>.</li>
+								<li>If you experience issues please <a target="_blank" href="https://github.com/Zefau/ioBroker.nello/issues">submit a ticket on Github</a> or <a target="_blank" href="https://forum.iobroker.net/viewtopic.php?f=35&t=12835">ask on the ioBroker forum</a>.</li>
+							</ul>
+						</div>
+					-->
+					</div>
+					
 				</div>
 			</div>
 		</div>
 		
 	</div>
-
+	
 </div>
 
 </body>

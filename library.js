@@ -1,10 +1,12 @@
+'use strict';
+
 /**
  * Library
  *
  * @description Library of general functions as well as helping functions handling ioBroker
  * @author Zefau <https://github.com/Zefau/>
  * @license MIT License
- * @version 0.2
+ * @version 0.5.0
  *
  */
 class Library
@@ -74,6 +76,26 @@ class Library
 	}
 	
 	/**
+	 * Sends a message to another adapter.
+	 *
+	 * @param	{string}	receiver	
+	 * @param	{string}	command		
+	 * @param	{*}			message		Message to send to receiver, shall be an object and will be converted to such if another is given
+	 * @param	{function}	(optional)	Callback
+	 * @return	void
+	 *
+	 */
+	msg(receiver, command, message, callback)
+	{
+		this._adapter.sendTo(
+			receiver,
+			command,
+			typeof message !== 'object' ? {message: message} : message,
+			callback === undefined ? function() {} : callback
+		);
+	}
+
+	/**
 	 * Convert a timestamp to datetime.
 	 *
 	 * @param	{integer}	timestamp		Timestamp to be converted to date-time format
@@ -82,7 +104,7 @@ class Library
 	 */
 	getDateTime(timestamp)
 	{
-		if (timestamp === undefined)
+		if (timestamp === undefined || timestamp <= 0)
 			return '';
 		
 		var date    = new Date(timestamp);
@@ -146,19 +168,12 @@ class Library
 	 */
 	_createNode(node, callback)
 	{
-		this._adapter.setObject(
-			node.node,
-			{
-				common: Object.assign(node.common || {}, {
-					name: node.description || '',
-					role: node.common !== undefined && node.common.role ? node.common.role : 'state',
-					type: node.common !== undefined && node.common.type ? node.common.type : 'string'
-				}),
-				type: 'state',
-				native: node.native || {}
-			},
-			callback
-		);
+		var common = {};
+		if (node.description !== undefined) common.name = node.description;
+		if (node.role !== undefined) common.role = node.role;
+		if (node.type !== undefined) common.type = node.type;
+		
+		this._adapter.setObject(node.node, {common: Object.assign({role: 'state', type: 'string'}, node.common || {}, common), type: 'state', native: node.native || {}}, callback);
 	}
 
 	/**

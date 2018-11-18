@@ -2,18 +2,21 @@
 const utils = require(__dirname + '/lib/utils'); // Get common adapter utils
 const adapter = utils.Adapter('roomba');
 
+const dgram = require('dgram');
+const tls = require('tls');
+const Roomba = require('dorita980');
+
 
 /*
  * internal libraries
  */
 const Library = require(__dirname + '/library.js');
-const Roomba = require('dorita980');
 
 
 /*
  * variables initiation
  */
-var library;
+var library = new Library(adapter);;
 var robot;
 var settings = {
 	decode: {
@@ -138,19 +141,28 @@ adapter.on('ready', function()
 		return;
 	}
 	
-	library = new Library(adapter);
-	
 	// connect to Roomba
 	robot = new Roomba.Local(adapter.config.username, library.decode(settings.decode.key, adapter.config.password), adapter.config.ip); // username, password, ip
+	
 	
 	// check if connection is successful
 	var nodeConnected = {'node': 'states._connected', 'description': 'Connection state'};
 	
 	/*
+	 * ROBOT ERROR
+	 */
+	robot.on('error', function(err)
+	{
+		adapter.log.warn(err.message);
+		library.set(nodeConnected, false);
+	});
+	 
+	/*
 	 * ROBOT CONNECT
 	 */
 	robot.on('connect', function()
 	{
+		adapter.log.debug('Roomba Connection established.');
 		library.set(nodeConnected, true);
 	});
 	
@@ -159,8 +171,8 @@ adapter.on('ready', function()
 	 */
 	robot.on('close', function(res)
 	{
+		adapter.log.debug('Roomba Connection closed.');
 		library.set(nodeConnected, false);
-		adapter.log.debug(JSON.stringify(res));
 	});
 	
 	/*
@@ -168,8 +180,8 @@ adapter.on('ready', function()
 	 */
 	robot.on('offline', function(res)
 	{
+		adapter.log.debug('Roomba offline.');
 		library.set(nodeConnected, false);
-		adapter.log.debug(JSON.stringify(res));
 	});
 	
 	/*
@@ -178,67 +190,14 @@ adapter.on('ready', function()
 	robot.on('mission', function(res)
 	{
 		//adapter.log.debug(JSON.stringify(res));
+		//library.set(Object.assign(node, {common: {role: 'button', 'type': 'boolean'}}), false);
+		
+		
 	});
 	
 	/*
 	 * ROBOT PREFERENCES
 	 */
-	function updPreferences()
-	{
-		var tmp, preference, index;
-		robot.getPreferences().then((preferences) =>
-		{
-			adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
-			
-			nodes.forEach(function(node)
-			{
-				try
-				{
-					// action
-					if (node.action !== undefined)
-					{
-						library.set(Object.assign(node, {common: {role: 'button', 'type': 'boolean'}}), false);
-						adapter.subscribeStates(node.node); // attach state listener
-					}
-					
-					// preference
-					if (node.preference !== undefined)
-					{
-						tmp = Object.assign({}, preferences);
-						preference = node.preference;
-						
-						while (preference.indexOf('.') > -1)
-						{
-							index = preference.substr(0, preference.indexOf('.'));
-							preference = preference.substr(preference.indexOf('.')+1);
-							tmp = tmp[index];
-						}
-						
-						if (node.type !== undefined)
-						{
-							switch(node.type.toLowerCase())
-							{
-								case "ip":
-									tmp[preference] = library.getIP(tmp[preference]);
-									break;
-								
-								case "datetime":
-									tmp[preference] = library.getDateTime(tmp[preference]*1000);
-									break;
-							}
-						}
-						
-						library.set(node, tmp[preference]);
-					}
-				}
-				catch(err) {adapter.log.error(JSON.stringify(err.message))}
-			});
-		});
-		
-		library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update'}, Math.floor(Date.now()/1000));
-		library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update'}, library.getDateTime(Date.now()));
-	};
-	
 	updPreferences();
 	setInterval(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 60000);
 });
@@ -258,3 +217,232 @@ adapter.on('stateChange', function(node, state)
 		robot[action]();
 	}
 });
+
+/*
+ * HANDLE MESSAGES
+ *
+ */
+adapter.on('message', function(msg)
+{
+	adapter.log.debug('Message: ' + JSON.stringify(msg));
+	
+	switch(msg.command)
+	{
+		case 'getIp':
+			Roomba.getRobotIP(function(err, ip)
+			{
+				adapter.log.debug('Retrieved IP address: ' + ip);
+				library.msg(msg.from, msg.command, err ? {result: false, error: err.message} : {result: true, ip: ip}, msg.callback);
+			});
+			break;
+			
+		case 'getCredentials':
+			getCredentials(function(res)
+			{
+				adapter.log.debug('Retrieved credentials: ' + JSON.stringify(res));
+				library.msg(msg.from, msg.command, res, msg.callback);
+			});
+			
+			break;
+	}
+});
+
+
+/**
+ * Get Credentials.
+ *
+ * @param	{string}	ip
+ * @param	{function}	callback
+ * @return	{object}	result
+ *
+ */
+function getCredentials(callback)
+{
+	getRobotData(function(res1)
+	{
+		if (res1.result === true)
+		{
+			getPassword(res1.data.ip, function(res2)
+			{
+				if (res2.result === true)
+					callback({result: true, credentials: {user: res1.data.user, password: res2.password}, ip: res1.data.ip, data: res1.data});
+				else
+					callback({result: false, error: 'Could not retrieve robot password!'});
+			});
+		}
+		else
+			callback({result: false, error: 'Could not retrieve robot data!'});
+	});
+	
+}
+
+
+/**
+ * Get password.
+ *
+ * @param	{string}	ip
+ * @param	{function}	callback
+ * @return	{object}	result
+ *
+ */
+function getPassword(ip, callback)
+{
+	// connect to Roomba
+	var client;
+	try
+	{
+		// connect
+		client = tls.connect(8883, ip, {rejectUnauthorized: false}, function()
+		{
+			adapter.log.debug("Connected to Roomba!");
+			client.write(new Buffer('f005efcc3b2900', 'hex'));
+		});
+		
+		// extract password
+		try
+		{
+			var sliceFrom = 13;
+			client.on('data', function(data)
+			{
+				if (data.length === 2)
+				{
+					sliceFrom = 9;
+					return;
+				}
+				
+				if (data.length <= 7)
+					callback({result: false, error: 'Failed getting password! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!'});
+				
+				else
+				{
+					adapter.log.debug('Successfully retrieved password.');
+					callback({result: true, password: new Buffer(data).slice(sliceFrom).toString()});
+				}
+				
+				client.end();
+			});
+			
+			client.setEncoding('utf-8');
+		}
+		catch(err)
+		{
+			adapter.log.debug('ERROR: ' + err.message);
+			callback({result: false, error: 'Could not retrieve password from Roomba! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!'});
+		}
+	}
+	catch(err)
+	{
+		adapter.log.debug('ERROR: ' + err.message);
+		callback({result: false, error: 'Could not connected to Roomba!'});
+	}
+}
+
+
+/**
+ * Get user.
+ *
+ * @param	{function}	callback
+ * @return	{object}	result
+ *
+ */
+function getRobotData(callback)
+{
+	const server = dgram.createSocket('udp4');
+	
+	server.on('error', function(err)
+	{
+		server.close();
+		callback({result: false, error: err});
+	});
+
+	server.on('message', function(msg)
+	{
+		try
+		{
+			let parsedMsg = JSON.parse(msg);
+			if (parsedMsg.hostname && parsedMsg.ip && parsedMsg.hostname.split('-')[0] === 'Roomba')
+			{
+				server.close();
+				parsedMsg.user = parsedMsg.hostname.split('-')[1];
+				callback({result: true, data: parsedMsg});
+			}
+		}
+		catch(err)
+		{
+			server.close();
+			callback({result: false, error: err});
+		}
+	});
+
+	server.bind(5678, function()
+	{
+		const message = new Buffer('irobotmcs');
+		//server.setBroadcast(true);
+		//server.send(message, 0, message.length, 5678, '255.255.255.255');
+		server.send(message, 0, message.length, 5678, '192.168.178.37');
+	});
+}
+
+
+/**
+ * Update preferences.
+ *
+ * @param	none
+ * @return	void
+ *
+ */
+function updPreferences()
+{
+	var tmp, preference, index;
+	robot.getPreferences().then((preferences) =>
+	{
+		adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
+		
+		nodes.forEach(function(node)
+		{
+			try
+			{
+				// action
+				if (node.action !== undefined)
+				{
+					library.set(Object.assign(node, {common: {role: 'button', 'type': 'boolean'}}), false);
+					adapter.subscribeStates(node.node); // attach state listener
+				}
+				
+				// preference
+				if (node.preference !== undefined)
+				{
+					tmp = Object.assign({}, preferences);
+					preference = node.preference;
+					
+					while (preference.indexOf('.') > -1)
+					{
+						index = preference.substr(0, preference.indexOf('.'));
+						preference = preference.substr(preference.indexOf('.')+1);
+						tmp = tmp[index];
+					}
+					
+					if (node.type !== undefined)
+					{
+						switch(node.type.toLowerCase())
+						{
+							case "ip":
+								tmp[preference] = library.getIP(tmp[preference]);
+								break;
+							
+							case "datetime":
+								tmp[preference] = library.getDateTime(tmp[preference]*1000);
+								break;
+						}
+					}
+					
+					library.set(node, tmp[preference]);
+				}
+			}
+			catch(err) {adapter.log.error(JSON.stringify(err.message))}
+		});
+	});
+	
+	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update'}, Math.floor(Date.now()/1000));
+	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update'}, library.getDateTime(Date.now()));
+};
