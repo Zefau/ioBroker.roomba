@@ -28,85 +28,85 @@ var settings = {
 var listeners = ['start', 'stop', 'pause', 'resume', 'dock']; // state that trigger actions
 var nodes = [
 	// cleaning
-	{'node': 'cleaning.start', 'description': 'Start a cleaning process', 'action': 'start'},
-	{'node': 'cleaning.stop', 'description': 'Stop the current cleaning process', 'action': 'stop'},
-	{'node': 'cleaning.pause', 'description': 'Pause the current cleaning process', 'action': 'pause'},
-	{'node': 'cleaning.resume', 'description': 'Resume the current cleaning process', 'action': 'resume'},
-	{'node': 'cleaning.dock', 'description': 'Send the robot to the docking station', 'action': 'dock'},
+	{'node': 'cleaning.start', 'description': 'Start a cleaning process', 'action': 'start', 'role': 'button.start', 'type': 'boolean'},
+	{'node': 'cleaning.stop', 'description': 'Stop the current cleaning process', 'action': 'stop', 'role': 'button.stop', 'type': 'boolean'},
+	{'node': 'cleaning.pause', 'description': 'Pause the current cleaning process', 'action': 'pause', 'role': 'button.pause', 'type': 'boolean'},
+	{'node': 'cleaning.resume', 'description': 'Resume the current cleaning process', 'action': 'resume', 'role': 'button.resume', 'type': 'boolean'},
+	{'node': 'cleaning.dock', 'description': 'Send the robot to the docking station', 'action': 'dock', 'role': 'button', 'type': 'boolean'},
 	
 	// cleaning - schedule
-	{'node': 'cleaning.schedule.cycle', 'description': 'Schedule cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.cycle'},
-	{'node': 'cleaning.schedule.hours', 'description': 'Hour to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.h'},
-	{'node': 'cleaning.schedule.minutes', 'description': 'Minute to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.m'},
+	{'node': 'cleaning.schedule.cycle', 'description': 'Schedule cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.cycle', 'role': 'text'},
+	{'node': 'cleaning.schedule.hours', 'description': 'Hour to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.h', 'role': 'text'},
+	{'node': 'cleaning.schedule.minutes', 'description': 'Minute to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.m', 'role': 'text'},
 	
 	// cleaning - last command
-	{'node': 'cleaning.last.command', 'description': 'Last command sent to robot', 'preference': 'lastCommand.command'},
-	{'node': 'cleaning.last.timestamp', 'description': 'Timestamp last command was sent', 'preference': 'lastCommand.time'},
-	{'node': 'cleaning.last.datetime', 'description': 'DateTime last command was sent', 'preference': 'lastCommand.time', 'type': 'datetime'},
-	{'node': 'cleaning.last.initiator', 'description': 'Initiator of last command', 'preference': 'lastCommand.initiator'},
+	{'node': 'cleaning.last.command', 'description': 'Last command sent to robot', 'preference': 'lastCommand.command', 'role': 'text'},
+	{'node': 'cleaning.last.timestamp', 'description': 'Timestamp last command was sent', 'preference': 'lastCommand.time', 'role': 'value'},
+	{'node': 'cleaning.last.datetime', 'description': 'DateTime last command was sent', 'preference': 'lastCommand.time', 'kind': 'datetime', 'role': 'text'},
+	{'node': 'cleaning.last.initiator', 'description': 'Initiator of last command', 'preference': 'lastCommand.initiator', 'role': 'text'},
 	
 	// device
-	{'node': 'device.mac', 'description': 'Mac address of the robot', 'preference': 'mac'},
-	{'node': 'device.name', 'description': 'Name of the robot', 'preference': 'name'},
+	{'node': 'device.mac', 'description': 'Mac address of the robot', 'preference': 'mac', 'role': 'info.mac'},
+	{'node': 'device.name', 'description': 'Name of the robot', 'preference': 'name', 'role': 'info.name'},
 	
 	// device - network
 	{'node': 'device.network.dhcp', 'description': 'State whether DHCP is activated', 'preference': 'netinfo.dhcp'},
-	{'node': 'device.network.router', 'description': 'Mac address of router', 'preference': 'netinfo.bssid'},
-	{'node': 'device.network.ip', 'description': 'IP address', 'preference': 'netinfo.addr', 'type': 'ip'},
-	{'node': 'device.network.subnet', 'description': 'Subnet adress', 'preference': 'netinfo.mask', 'type': 'ip'},
-	{'node': 'device.network.gateway', 'description': 'Gateway address', 'preference': 'netinfo.gw', 'type': 'ip'},
-	{'node': 'device.network.dns1', 'description': 'Primary DNS address', 'preference': 'netinfo.dns1', 'type': 'ip'},
-	{'node': 'device.network.dns2', 'description': 'Secondary DNS address', 'preference': 'netinfo.dns2', 'type': 'ip'},
+	{'node': 'device.network.router', 'description': 'Mac address of router', 'preference': 'netinfo.bssid', 'role': 'text'},
+	{'node': 'device.network.ip', 'description': 'IP address', 'preference': 'netinfo.addr', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.subnet', 'description': 'Subnet adress', 'preference': 'netinfo.mask', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.gateway', 'description': 'Gateway address', 'preference': 'netinfo.gw', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.dns1', 'description': 'Primary DNS address', 'preference': 'netinfo.dns1', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.dns2', 'description': 'Secondary DNS address', 'preference': 'netinfo.dns2', 'kind': 'ip', 'role': 'info.ip'},
 	
 	// device - versions
-	{'node': 'device.versions.hardwareRev', 'description': '', 'preference': 'hardwareRev'},
-	{'node': 'device.versions.batteryType', 'description': '', 'preference': 'batteryType'},
-	{'node': 'device.versions.soundVer', 'description': '', 'preference': 'soundVer'},
-	{'node': 'device.versions.uiSwVer', 'description': '', 'preference': 'uiSwVer'},
-	{'node': 'device.versions.navSwVer', 'description': '', 'preference': 'navSwVer'},
-	{'node': 'device.versions.wifiSwVer', 'description': '', 'preference': 'wifiSwVer'},
-	{'node': 'device.versions.mobilityVer', 'description': '', 'preference': 'mobilityVer'},
-	{'node': 'device.versions.bootloaderVer', 'description': '', 'preference': 'bootloaderVer'},
-	{'node': 'device.versions.umiVer', 'description': '', 'preference': 'umiVer'},
-	{'node': 'device.versions.softwareVer', 'description': '', 'preference': 'softwareVer'},
+	{'node': 'device.versions.hardwareRev', 'description': '', 'preference': 'hardwareRev', 'role': 'text'},
+	{'node': 'device.versions.batteryType', 'description': '', 'preference': 'batteryType', 'role': 'text'},
+	{'node': 'device.versions.soundVer', 'description': '', 'preference': 'soundVer', 'role': 'text'},
+	{'node': 'device.versions.uiSwVer', 'description': '', 'preference': 'uiSwVer', 'role': 'text'},
+	{'node': 'device.versions.navSwVer', 'description': '', 'preference': 'navSwVer', 'role': 'text'},
+	{'node': 'device.versions.wifiSwVer', 'description': '', 'preference': 'wifiSwVer', 'role': 'text'},
+	{'node': 'device.versions.mobilityVer', 'description': '', 'preference': 'mobilityVer', 'role': 'text'},
+	{'node': 'device.versions.bootloaderVer', 'description': '', 'preference': 'bootloaderVer', 'role': 'text'},
+	{'node': 'device.versions.umiVer', 'description': '', 'preference': 'umiVer', 'role': 'text'},
+	{'node': 'device.versions.softwareVer', 'description': '', 'preference': 'softwareVer', 'role': 'text'},
 	
 	// preferences
-	{'node': 'device.preferences.noAutoPasses', 'description': 'One Pass: Roomba will cover all areas with a single cleaning pass.', 'preference': 'noAutoPasses'},
-	{'node': 'device.preferences.noPP', 'description': '', 'preference': 'noPP'},
-	{'node': 'device.preferences.binPause', 'description': '', 'preference': 'binPause'},
-	{'node': 'device.preferences.openOnly', 'description': '', 'preference': 'openOnly'},
-	{'node': 'device.preferences.twoPass', 'description': 'Roomba will cover all areas a second time. This may be helpful in homes with pets or for occasional deep cleaning.', 'preference': 'twoPass'},
-	{'node': 'device.preferences.schedHold', 'description': '', 'preference': 'schedHold'},
+	{'node': 'device.preferences.noAutoPasses', 'description': 'One Pass: Roomba will cover all areas with a single cleaning pass.', 'preference': 'noAutoPasses', 'role': 'state', 'type': 'boolean'},
+	{'node': 'device.preferences.noPP', 'description': '', 'preference': 'noPP', 'role': 'state', 'type': 'boolean'},
+	{'node': 'device.preferences.binPause', 'description': '', 'preference': 'binPause', 'role': 'state', 'type': 'boolean'},
+	{'node': 'device.preferences.openOnly', 'description': '', 'preference': 'openOnly', 'role': 'state', 'type': 'boolean'},
+	{'node': 'device.preferences.twoPass', 'description': 'Roomba will cover all areas a second time. This may be helpful in homes with pets or for occasional deep cleaning.', 'preference': 'twoPass', 'role': 'state', 'type': 'boolean'},
+	{'node': 'device.preferences.schedHold', 'description': '', 'preference': 'schedHold', 'role': 'state', 'type': 'boolean'},
 	
-	{'node': 'device.preferences.carpetBoostAuto', 'description': 'Automatic: Roomba will automatically boost its vacuum power to deep clean carpets.', 'preference': 'carpetBoost'},
-	{'node': 'device.preferences.carpetBoostHigh', 'description': 'Performance Mode: Roomba will always boost its vacuum to maximise cleaning performance on all floor surfaces.', 'preference': 'vacHigh'},
-	{'node': 'device.preferences.ecoCharge', 'description': '', 'preference': 'ecoCharge'},
+	{'node': 'device.preferences.carpetBoostAuto', 'description': 'Automatic: Roomba will automatically boost its vacuum power to deep clean carpets.', 'preference': 'carpetBoost', 'role': 'state', 'type': 'boolean'},
+	{'node': 'device.preferences.carpetBoostHigh', 'description': 'Performance Mode: Roomba will always boost its vacuum to maximise cleaning performance on all floor surfaces.', 'preference': 'vacHigh', 'role': 'state', 'type': 'boolean'},
+	{'node': 'device.preferences.ecoCharge', 'description': '', 'preference': 'ecoCharge', 'role': 'state', 'type': 'boolean'},
 	
 	
 	// states
-	{'node': 'states.battery', 'description': 'Battery level of the robot', 'preference': 'batPct'},
-	{'node': 'states.docked', 'description': 'State whether robot is docked', 'preference': 'dock.known'},
-	{'node': 'states.binInserted', 'description': 'State whether bin is inserted', 'preference': 'bin.present'},
-	{'node': 'states.binFull', 'description': 'State whether bin status is full', 'preference': 'bin.full'},
-	{'node': 'states.status', 'description': 'Current status of the robot', 'preference': 'cleanMissionStatus.phase'},
-	{'node': 'states.signal', 'description': 'Signal strength', 'preference': 'signal.snr'},
+	{'node': 'states.battery', 'description': 'Battery level of the robot', 'preference': 'batPct', 'role': 'value'},
+	{'node': 'states.docked', 'description': 'State whether robot is docked', 'preference': 'dock.known', 'role': 'state', 'type': 'boolean'},
+	{'node': 'states.binInserted', 'description': 'State whether bin is inserted', 'preference': 'bin.present', 'role': 'state', 'type': 'boolean'},
+	{'node': 'states.binFull', 'description': 'State whether bin status is full', 'preference': 'bin.full', 'role': 'state', 'type': 'boolean'},
+	{'node': 'states.status', 'description': 'Current status of the robot', 'preference': 'cleanMissionStatus.phase', 'role': 'text'},
+	{'node': 'states.signal', 'description': 'Signal strength', 'preference': 'signal.snr', 'role': 'value'},
 	
 	// statistics - missions
-	{'node': 'statistics.time.avgMin', 'description': '', 'preference': 'bbchg3.avgMin'},
-	{'node': 'statistics.time.hOnDock', 'description': '', 'preference': 'bbchg3.hOnDock'},
-	{'node': 'statistics.time.nAvail', 'description': '', 'preference': 'bbchg3.nAvail'},
-	{'node': 'statistics.time.estCap', 'description': '', 'preference': 'bbchg3.estCap'},
-	{'node': 'statistics.time.nLithChrg', 'description': '', 'preference': 'bbchg3.nLithChrg'},
-	{'node': 'statistics.time.nNimhChrg', 'description': '', 'preference': 'bbchg3.nNimhChrg'},
-	{'node': 'statistics.time.nDocks', 'description': '', 'preference': 'bbchg3.nDocks'},
+	{'node': 'statistics.time.avgMin', 'description': '', 'preference': 'bbchg3.avgMin', 'role': 'value'},
+	{'node': 'statistics.time.hOnDock', 'description': '', 'preference': 'bbchg3.hOnDock', 'role': 'value'},
+	{'node': 'statistics.time.nAvail', 'description': '', 'preference': 'bbchg3.nAvail', 'role': 'value'},
+	{'node': 'statistics.time.estCap', 'description': '', 'preference': 'bbchg3.estCap', 'role': 'value'},
+	{'node': 'statistics.time.nLithChrg', 'description': '', 'preference': 'bbchg3.nLithChrg', 'role': 'value'},
+	{'node': 'statistics.time.nNimhChrg', 'description': '', 'preference': 'bbchg3.nNimhChrg', 'role': 'value'},
+	{'node': 'statistics.time.nDocks', 'description': '', 'preference': 'bbchg3.nDocks', 'role': 'value'},
 	
 	// statistics - missions
-	{'node': 'statistics.missions.total', 'description': 'Number of cleaning jobs', 'preference': 'bbmssn.nMssn'},
-	{'node': 'statistics.missions.succeed', 'description': 'Number of successful cleaning jobs', 'preference': 'bbmssn.nMssnOk'},
-	//{'node': 'statistics.missionsC', 'description': '', 'preference': 'bbmssn.nMssnC'},
-	{'node': 'statistics.missions.failed', 'description': 'Number of failed cleaning jobs', 'preference': 'bbmssn.nMssnF'},
-	//{'node': 'statistics.missions', 'description': '', 'preference': 'bbmssn.aMssnM'},
-	//{'node': 'statistics.missions', 'description': '', 'preference': 'bbmssn.aCycleM'},
+	{'node': 'statistics.missions.total', 'description': 'Number of cleaning jobs', 'preference': 'bbmssn.nMssn', 'role': 'value'},
+	{'node': 'statistics.missions.succeed', 'description': 'Number of successful cleaning jobs', 'preference': 'bbmssn.nMssnOk', 'role': 'value'},
+	//{'node': 'statistics.missionsC', 'description': '', 'preference': 'bbmssn.nMssnC', 'role': 'value'},
+	{'node': 'statistics.missions.failed', 'description': 'Number of failed cleaning jobs', 'preference': 'bbmssn.nMssnF', 'role': 'value'},
+	//{'node': 'statistics.missions', 'description': '', 'preference': 'bbmssn.aMssnM', 'role': 'value'},
+	//{'node': 'statistics.missions', 'description': '', 'preference': 'bbmssn.aCycleM', 'role': 'value'},
 ];
 
 
@@ -342,10 +342,11 @@ function getPassword(ip, callback)
  * Get user.
  *
  * @param	{function}	callback
+ * @param	{string}	ip			(optional) IP address (otherwise broadcast will be tried)
  * @return	{object}	result
  *
  */
-function getRobotData(callback)
+function getRobotData(callback, ip)
 {
 	const server = dgram.createSocket('udp4');
 	
@@ -377,9 +378,13 @@ function getRobotData(callback)
 	server.bind(5678, function()
 	{
 		const message = new Buffer('irobotmcs');
-		//server.setBroadcast(true);
-		//server.send(message, 0, message.length, 5678, '255.255.255.255');
-		server.send(message, 0, message.length, 5678, '192.168.178.37');
+		if (ip === undefined)
+		{
+			server.setBroadcast(true);
+			server.send(message, 0, message.length, 5678, '255.255.255.255');
+		}
+		else
+			server.send(message, 0, message.length, 5678, ip);
 	});
 }
 
@@ -397,6 +402,7 @@ function updPreferences()
 	robot.getPreferences().then((preferences) =>
 	{
 		adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
+		library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(preferences));
 		
 		nodes.forEach(function(node)
 		{
@@ -415,6 +421,7 @@ function updPreferences()
 					tmp = Object.assign({}, preferences);
 					preference = node.preference;
 					
+					// go through preferences
 					while (preference.indexOf('.') > -1)
 					{
 						index = preference.substr(0, preference.indexOf('.'));
@@ -422,9 +429,9 @@ function updPreferences()
 						tmp = tmp[index];
 					}
 					
-					if (node.type !== undefined)
+					if (node.kind !== undefined)
 					{
-						switch(node.type.toLowerCase())
+						switch(node.kind.toLowerCase())
 						{
 							case "ip":
 								tmp[preference] = library.getIP(tmp[preference]);
@@ -443,6 +450,6 @@ function updPreferences()
 		});
 	});
 	
-	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update'}, Math.floor(Date.now()/1000));
-	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update'}, library.getDateTime(Date.now()));
+	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
+	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
 };
