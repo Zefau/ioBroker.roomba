@@ -29,6 +29,7 @@
         ],
         "readme": "https://github.com/Zefau/ioBroker.roomba/blob/master/README.md",
         "loglevel": "info",
+		"enabled": true,
         "messagebox": true,
 		"subscribe": "messagebox",
         "type": "household",
