@@ -9,13 +9,49 @@ systemDictionary = {
 		"en": "Information",
 		"de": "Informationen"
 	},
+	"message_action-connecting": {
+		"en": "Connecting to adapter..",
+		"de": "Verbinde zum Adapter.."
+	},
+	"message_error-noconnection": {
+		"en": "No connection to adapter! Please start adapter first.",
+		"de": "Keine Verbindung zum Adapter! Bitte zunächst den Adapter starten."
+	},
+	"message_info-connected": {
+		"en": "Connected to adapter. Retrieving credentials..",
+		"de": "Verbunden zum Adapter. Lade Zugangsdaten.."
+	},
+	"message_action-getcredentials": {
+		"en": "Retrieve credentials..",
+		"de": "Lade Zugangsdaten.."
+	},
+	"message_error-nocredentials": {
+		"en": "Could not retrieve credentials! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!",
+		"de": "Zugangsdaten konnten nicht geladen werden! Folge der Anleitung und versuche es nochmal."
+	},
+	"message_success-gotcredentials": {
+		"en": "Successfully retrieved credentials!",
+		"de": "Erfolgreich Zugangsdaten geladen!"
+	},
+	"message_action-getpassword": {
+		"en": "Get passowrd..",
+		"de": "Lade Passwort.."
+	},
+	"message_error-nopassword": {
+		"en": "Could not retrieve password!",
+		"de": "Passwort konnte nicht geladen werden!"
+	},
+	"message_success-gotpassword": {
+		"en": "Successfully retrieved password!",
+		"de": "Erfolgreich Passwort geladen!"
+	},
 	"auth": {
 		"en": "Authentication Credentials",
 		"de": "Authentifizierung"
 	},
 	"auth_info": {
-		"en": "Fill in authentication credentials of your robot or retrieve credentials using the button &quot;Retrieve credentials&quot;. ATTENTION: The authentication credentials are not the same as you are using in the smartphone app!<br />NOTE: To retrieve IP and credentials, push and hold the HOME button on your Roomba for 2 seconds until it beeps!",
-		"de": "Trage die Zugangsdaten deines Robots ein oder lade diese über den Button &quot;Zugangsdaten abrufen&quot. ACHTUNG: Es handelt sich bei den Zugangsdaten nicht um die der Smartphone App!<br />HINWEIS: Um IP und Zugangsdaten laden zu können, unbedingt zwei Sekunden den HOME Button des Roomba's drücken, bis ein Ton zu hören ist!"
+		"en": "Fill in authentication credentials of your robot or retrieve following the subsequent steps.<br /><strong>ATTENTION</strong>: The authentication credentials are not the same as you are using in the smartphone app!",
+		"de": ""
 	},
     "username": {
 		"en": "Username",
@@ -34,8 +70,8 @@ systemDictionary = {
 		"de": "IP &amp; Zugangsdaten abrufen"
 	},
     "refresh": {
-		"en": "Refresh time (in seconds) the preferences will be updated / retrieved from robot",
-		"de": "Intervall (in Sekunden) in dem die Einstellungen des Robots aktualisiert geladen werden"
+		"en": "Refresh time (in sec.) preferences will be retrieved from robot",
+		"de": "Intervall (in Sek.) der Aktualisierung der Einstellungen"
 	},
 	"other": {
 		"en": "Other",

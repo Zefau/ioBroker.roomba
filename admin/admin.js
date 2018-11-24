@@ -1,4 +1,16 @@
 /**
+ * Status Message
+ *
+ *
+ */
+function log(message, severity, id)
+{
+	var log = $(id || '#log').html();
+	$(id || '#log').append('<li class="log ' + (severity || 'info') + ' translate">' + message + '</li>');
+	console.log((severity !== undefined ? severity.toUpperCase() : 'INFO') + ': ' + message);
+}
+
+/**
  * Decodes a string with given key.
  *
  * @param {string} key

@@ -18,7 +18,7 @@
 		}
 	}
 	
-	//
+	// page loaded
 	$(window).on('load', function()
 	{
 		M.Tabs.init($('.tabs'));
@@ -30,21 +30,47 @@
 		
 		$('#button_getCredentials').on('click', function()
 		{
-			$('.errorMessage').text('');
-			console.log("Retrieving credentials..");
+			fieldIp.val('').focus().trigger('change');
+			fieldPassword.val('').focus().trigger('change');
+			fieldUser.val('').focus().trigger('change');
+			
+			$('#log').html('');
+			log(translateWord('message_action-connecting'));
+			
+			// cancel
+			var getRobotData = setTimeout(function() {log(translateWord('message_error-noconnection'), 'error');}, 7000);
 			
 			// get credentials
-			sendTo(null, 'getCredentials', null, function(res)
+			sendTo(null, 'getRobotData', null, function(res)
 			{
+				log(translateWord('message_info-connected'));
+				log(translateWord('message_action-getcredentials'));
+				clearTimeout(getRobotData);
+				
 				if (res.result === true)
 				{
-					console.log("Retrieved credentials (" + JSON.stringify(res) + ").");
-					fieldIp.val(res.ip).focus().trigger('change');
-					fieldPassword.val(res.credentials.password).focus().trigger('change');
-					fieldUser.val(res.credentials.user).focus().trigger('change');
+					log(translateWord('message_success-gotcredentials'), 'success');
+					fieldIp.val(res.data.ip).focus().trigger('change');
+					fieldUser.val(res.data.user).focus().trigger('change');
+					
+					// get password
+					log(translateWord('message_action-getpassword'));
+					sendTo(null, 'getPassword', {ip: res.data.ip}, function(res)
+					{
+						if (res.result === true)
+						{
+							log(translateWord('message_success-gotpassword'), 'success');
+							fieldPassword.val(res.data.password).focus().trigger('change');
+						}
+						
+						else
+							log(translateWord('message_error-nopassword'), 'error');
+					});
 				}
+				
+				// error
 				else
-					$('.errorMessage').text('ERROR: Could not retrieve credentials! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!');
+					log(translateWord('message_error-nocredentials'), 'error');
 			});
 		});
 		
@@ -66,6 +92,14 @@
 			margin: 0 !important;
 			background-color: #fff; /*#acd8fa*/
 		}
+		
+		#log {
+			background-color: #fff;
+			padding: 0 20px;
+		}
+		.log.error {color: #a00}
+		.log.success {color: #0a0}
+		.log.info {color: #00a}
 		
 		img {margin: 5px}
 		a.active {font-weight: bold}
@@ -104,25 +138,38 @@
 						</div>
 					</div>
 					<div class="row box">
-						<p class="subtitle translate">auth_info</p>
-						
-						<div class="input-field col s2 m2">
-							<input class="value" id="username" type="text"/>
-							<label for="username" class="translate">username</label>
+						<div class="col s8 m8">
+							<div class="row">
+								<p class="subtitle translate">auth_info</p>
+								<ol>
+									<li>Make sure this Adapter is started.</li>
+									<li>Make sure your robot is on the Home Base and powered on (green lights on).</li>
+									<li>Then press and hold the HOME button on your robot until it plays a series of tones (about 2 seconds).</li>
+									<li>Release the button and your robot will flash WIFI light.</li>
+									<li>Then come back here press the button to retrieve IP and credentials.</li>
+								</ol>
+							</div>
+							<div class="row">
+								<div class="input-field col s3 m3">
+									<input class="value" id="username" type="text"/>
+									<label for="username" class="translate">username</label>
+								</div>
+								<div class="input-field col s3 m3">
+									<input class="value" type="password" id="password"/>
+									<label for="password" class="translate">password</label>
+								</div>
+								<div class="input-field col s3 m3">
+									<input class="value" type="text" id="ip"/>
+									<label for="ip" class="translate">ip</label>
+								</div>
+								<div class="input-field col s3 m3 center">
+									<a class="btn red translate" id="button_getCredentials">button_getCredentials</a>
+								</div>
+							</div>
 						</div>
-						<div class="input-field col s2 m2">
-							<input class="value" type="password" id="password"/>
-							<label for="password" class="translate">password</label>
-						</div>
-						<div class="input-field col s2 m2">
-							<input class="value" type="text" id="ip"/>
-							<label for="ip" class="translate">ip</label>
-						</div>
-						<div class="input-field col s2 m2 center">
-							<a class="btn red translate" id="button_getCredentials">button_getCredentials</a>
-						</div>
-						<div class="input-field col s4 m4">
-							<p class="errorMessage"></p>
+						<div class="col s4 m4">
+							<strong style="font-weight: bold">Status:</strong>
+							<ol id="log"></ol>
 						</div>
 					</div>
 					
