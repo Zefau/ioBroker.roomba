@@ -27,6 +27,9 @@
     "dorita980": "^3.0.12"
   },
   "devDependencies": {
+    "gulp": "^3.9.1",
+    "mocha": "^4.1.0",
+    "chai": "^4.1.2"
   },
   "main": "main.js",
   "scripts": {
