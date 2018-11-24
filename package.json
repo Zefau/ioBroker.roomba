@@ -30,6 +30,7 @@
   },
   "main": "main.js",
   "scripts": {
+    "test": "node node_modules/mocha/bin/mocha --exit"
   },
   "bugs": {
     "url": "https://github.com/Zefau/ioBroker.roomba/issues"
