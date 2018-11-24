@@ -63,14 +63,15 @@
 							fieldPassword.val(res.data.password).focus().trigger('change');
 						}
 						
+						// error
 						else
-							log(translateWord('message_error-nopassword'), 'error');
+							log(translateWord('message_error-nopassword')+' ('+res.error+')', 'error');
 					});
 				}
 				
 				// error
 				else
-					log(translateWord('message_error-nocredentials'), 'error');
+					log(translateWord('message_error-nocredentials')+' ('+res.error+')', 'error');
 			});
 		});
 		
