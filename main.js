@@ -44,6 +44,9 @@ var nodes = [
 	{'node': 'cleaning.last.timestamp', 'description': 'Timestamp last command was sent', 'preference': 'lastCommand.time', 'role': 'value'},
 	{'node': 'cleaning.last.datetime', 'description': 'DateTime last command was sent', 'preference': 'lastCommand.time', 'kind': 'datetime', 'role': 'text'},
 	{'node': 'cleaning.last.initiator', 'description': 'Initiator of last command', 'preference': 'lastCommand.initiator', 'role': 'text'},
+	{'node': 'cleaning.last.cycle', 'description': '', 'preference': 'cleanMissionStatus.cycle', 'role': 'text'},
+	{'node': 'cleaning.last.phase', 'description': '', 'preference': 'cleanMissionStatus.phase', 'role': 'text'},
+	{'node': 'cleaning.last.error', 'description': 'Indicates an error during last mission', 'preference': 'cleanMissionStatus.error', 'role': 'state', 'type': 'boolean'},
 	
 	// device
 	{'node': 'device.mac', 'description': 'Mac address of the robot', 'preference': 'mac', 'role': 'info.mac'},
@@ -414,7 +417,7 @@ function updPreferences()
 						}
 					}
 					
-					library.set(node, tmp[preference]);
+					library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
 				}
 			}
 			catch(err) {adapter.log.error(JSON.stringify(err.message))}
