@@ -137,7 +137,7 @@ adapter.on('ready', function()
 	// check if settings are set
 	if (!adapter.config.username || !adapter.config.password || !adapter.config.ip)
 	{
-		adapter.log.error('Username, password and / or ip address missing!');
+		adapter.log.warn('Username, password and / or ip address missing!');
 		return;
 	}
 	
@@ -236,45 +236,23 @@ adapter.on('message', function(msg)
 			});
 			break;
 			
-		case 'getCredentials':
-			getCredentials(function(res)
+		case 'getRobotData':
+			getRobotData(function(res)
 			{
-				adapter.log.debug('Retrieved credentials: ' + JSON.stringify(res));
+				adapter.log.debug('Retrieved robot data: ' + JSON.stringify(res));
+				library.msg(msg.from, msg.command, res, msg.callback);
+			}, msg.message !== null ? msg.message.ip : undefined);
+			break;
+			
+		case 'getPassword':
+			getPassword(msg.message.ip, function(res)
+			{
+				adapter.log.debug('Retrieved password: ' + JSON.stringify(res));
 				library.msg(msg.from, msg.command, res, msg.callback);
 			});
-			
 			break;
 	}
 });
-
-
-/**
- * Get Credentials.
- *
- * @param	{string}	ip
- * @param	{function}	callback
- * @return	{object}	result
- *
- */
-function getCredentials(callback)
-{
-	getRobotData(function(res1)
-	{
-		if (res1.result === true)
-		{
-			getPassword(res1.data.ip, function(res2)
-			{
-				if (res2.result === true)
-					callback({result: true, credentials: {user: res1.data.user, password: res2.password}, ip: res1.data.ip, data: res1.data});
-				else
-					callback({result: false, error: 'Could not retrieve robot password!'});
-			});
-		}
-		else
-			callback({result: false, error: 'Could not retrieve robot data!'});
-	});
-	
-}
 
 
 /**
@@ -287,53 +265,50 @@ function getCredentials(callback)
  */
 function getPassword(ip, callback)
 {
-	// connect to Roomba
-	var client;
+	// connect
+	var client = tls.connect(8883, ip, {rejectUnauthorized: false});
+	client.once('secureConnect', function()
+	{
+		adapter.log.debug("Connected to Roomba!");
+		client.write(new Buffer('f005efcc3b2900', 'hex'));
+	});
+	
+	// error
+	client.on('error', function(err)
+	{
+		callback({result: false, error: 'Connection failed!'});
+	});
+	
+	// extract password
 	try
 	{
-		// connect
-		client = tls.connect(8883, ip, {rejectUnauthorized: false}, function()
+		var sliceFrom = 13;
+		client.on('data', function(data)
 		{
-			adapter.log.debug("Connected to Roomba!");
-			client.write(new Buffer('f005efcc3b2900', 'hex'));
+			if (data.length === 2)
+			{
+				sliceFrom = 9;
+				return;
+			}
+			
+			if (data.length <= 7)
+				callback({result: false, error: 'Failed getting password! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!'});
+			
+			else
+			{
+				adapter.log.debug('Successfully retrieved password.');
+				callback({result: true, data: {password: new Buffer(data).slice(sliceFrom).toString()}});
+			}
+			
+			client.end();
 		});
 		
-		// extract password
-		try
-		{
-			var sliceFrom = 13;
-			client.on('data', function(data)
-			{
-				if (data.length === 2)
-				{
-					sliceFrom = 9;
-					return;
-				}
-				
-				if (data.length <= 7)
-					callback({result: false, error: 'Failed getting password! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!'});
-				
-				else
-				{
-					adapter.log.debug('Successfully retrieved password.');
-					callback({result: true, password: new Buffer(data).slice(sliceFrom).toString()});
-				}
-				
-				client.end();
-			});
-			
-			client.setEncoding('utf-8');
-		}
-		catch(err)
-		{
-			adapter.log.debug('ERROR: ' + err.message);
-			callback({result: false, error: 'Could not retrieve password from Roomba! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!'});
-		}
+		client.setEncoding('utf-8');
 	}
 	catch(err)
 	{
 		adapter.log.debug('ERROR: ' + err.message);
-		callback({result: false, error: 'Could not connected to Roomba!'});
+		callback({result: false, error: 'Could not retrieve password from Roomba! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!'});
 	}
 }
 
@@ -350,12 +325,24 @@ function getRobotData(callback, ip)
 {
 	const server = dgram.createSocket('udp4');
 	
+	server.bind(5678, function()
+	{
+		const message = new Buffer('irobotmcs');
+		if (ip === undefined)
+		{
+			server.setBroadcast(true);
+			server.send(message, 0, message.length, 5678, '255.255.255.255');
+		}
+		else
+			server.send(message, 0, message.length, 5678, ip);
+	});
+	
 	server.on('error', function(err)
 	{
 		server.close();
 		callback({result: false, error: err});
 	});
-
+	
 	server.on('message', function(msg)
 	{
 		try
@@ -368,23 +355,7 @@ function getRobotData(callback, ip)
 				callback({result: true, data: parsedMsg});
 			}
 		}
-		catch(err)
-		{
-			server.close();
-			callback({result: false, error: err});
-		}
-	});
-
-	server.bind(5678, function()
-	{
-		const message = new Buffer('irobotmcs');
-		if (ip === undefined)
-		{
-			server.setBroadcast(true);
-			server.send(message, 0, message.length, 5678, '255.255.255.255');
-		}
-		else
-			server.send(message, 0, message.length, 5678, ip);
+		catch(err) {}
 	});
 }
 
