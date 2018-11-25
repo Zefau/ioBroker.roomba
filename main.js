@@ -235,7 +235,7 @@ adapter.on('message', function(msg)
 			Roomba.getRobotIP(function(err, ip)
 			{
 				adapter.log.debug('Retrieved IP address: ' + ip);
-				library.msg(msg.from, msg.command, err ? {result: false, error: err.message} : {result: true, ip: ip}, msg.callback);
+				library.msg(msg.from, msg.command, err ? {result: false, error: err.message} : {result: true, data: {ip: ip}}, msg.callback);
 			});
 			break;
 			

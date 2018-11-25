@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "0.2.0",
+        "version": "0.2.1",
         "title": "iRobot Roomba adapter",
         "desc": {
             "en": "ioBroker iRobot Roomba Adapter",
@@ -9,6 +9,10 @@
             "ru": "ioBroker iRobot Roomba драйвер"
         },
         "news": {
+            "0.2.1": {
+                "en": "Fixed / improved automatically retrieving of authentication credentials",
+                "de": "Fehlerbehebungen / Verbesserungen des automatischen Ladens der Zugangsdaten"
+            },
             "0.2.0": {
                 "en": "Improved admin interface to automatically retrieve authentication credentials",
                 "de": "Admin Interface verbessert, damit nun automatisch die Zugangsdaten geladen werden"
