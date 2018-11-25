@@ -72,6 +72,10 @@ The following payload will be received when calling ```getPreferences()``` (see 
 | ... | - | ... | ... |
 
 
+## Smart Home / Alexa integration using ioBroker.javascript
+Will follow..
+
+
 ## Changelog
 
 ### 0.2.1 (2018-11-25)
