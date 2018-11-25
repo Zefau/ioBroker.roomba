@@ -34,7 +34,7 @@ systemDictionary = {
 		"de": "Erfolgreich Zugangsdaten geladen!"
 	},
 	"message_action-getpassword": {
-		"en": "Get passowrd..",
+		"en": "Get password..",
 		"de": "Lade Passwort.."
 	},
 	"message_error-nopassword": {
@@ -44,6 +44,18 @@ systemDictionary = {
 	"message_success-gotpassword": {
 		"en": "Successfully retrieved password!",
 		"de": "Erfolgreich Passwort geladen!"
+	},
+	"message_action-getip": {
+		"en": "Get IP address..",
+		"de": "Lade IP Adresse.."
+	},
+	"message_error-noip": {
+		"en": "Could not retrieve IP address!",
+		"de": "IP Adresse konnte nicht geladen werden!"
+	},
+	"message_success-gotip": {
+		"en": "Successfully retrieved IP address!",
+		"de": "Erfolgreich IP Adresse geladen!"
 	},
 	"auth": {
 		"en": "Authentication Credentials",
