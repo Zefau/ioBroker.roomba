@@ -144,12 +144,18 @@ The following payload will be received when calling ```getPreferences()``` (see 
 | localtimeoffset | - | integer | Unknown | - |
 | ... | - | ... | ... | - |
 
+Please help me regarding the description of the preferences. If you know the meaning of preferences stated as unknown in the table, let me [know their meaning via an issue](https://github.com/Zefau/ioBroker.roomba/issues)!
+
 
 ## Smart Home / Alexa integration using ioBroker.javascript
 Will follow..
 
 
 ## Changelog
+
+### Current development
+- (zefau) Password will now be stored encrypted
+- (zefau) Image / Map of the current cleaning mission will be created
 
 ### 0.2.1 (2018-11-25)
 - (zefau) Fixed / improved automatically retrieving of authentication credentials
