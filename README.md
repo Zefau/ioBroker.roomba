@@ -34,10 +34,52 @@ After sucessful setup the following channels and states will be created:
 
 | Channel | Folder | State | Description |
 | ------- | ------ | ----- | ----------- |
-| cleaing | - | - | Platzhalter |
-| device | - | - | Platzhalter |
-| states | - | - | Platzhalter |
-| statistics | - | - | Platzhalter |
+| cleaning | - | - | Commands and information regarding cleaning process |
+| cleaning | last | - | Last commands sent to robot |
+| cleaning | last | command | Last command sent to robot |
+| cleaning | last | timestamp | Timestamp last command was sent |
+| cleaning | last | datetime | DateTime last command was sent |
+| cleaning | last | initiator | Initiator of last command |
+| cleaning | last | cycle | Platzhalter |
+| cleaning | last | phase | Platzhalter |
+| cleaning | last | error | Indicates an error during last mission |
+| cleaning | schedule | - | Platzhalter |
+| cleaning | schedule | cycle | Schedule cycle (Sunday to Saturday) |
+| cleaning | schedule | hours | Hour to start cycle (Sunday to Saturday) |
+| cleaning | schedule | minutes | Minute to start cycle (Sunday to Saturday) |
+| cleaning | - | dock | Send the robot to the docking station |
+| cleaning | - | pause | Pause the current cleaning process |
+| cleaning | - | resume | Resume the current cleaning process |
+| cleaning | - | start | Start a cleaning process |
+| cleaning | - | stop | Stop the current cleaning process |
+| device | - | - | Device information |
+| device | network | - | Network information |
+| device | network | dhcp | State whether DHCP is activated |
+| device | network | router | Mac address of router |
+| device | network | ip | IP address |
+| device | network | subnet | Subnet adress |
+| device | network | gateway | Gateway address |
+| device | network | dns1 | Primary DNS address |
+| device | network | dns2 | Secondary DNS address |
+| device | preferences | - | Set preferences |
+| device | versions | - | Version information |
+| device | - | \_rawData | Raw preferences data as json |
+| device | - | mac | Mac address of the robot |
+| device | - | name | Name of the robot |
+| states | - | - | Status information |
+| states | - | \_connected | Connection state |
+| states | - | battery | Battery level of the robot |
+| states | - | binFull | State whether bin status is full |
+| states | - | binInserted | State whether bin is inserted |
+| states | - | docked | State whether robot is docked |
+| states | - | signal | Signal strength |
+| states | - | status | Current status of the robot |
+| statistics | - | - | Statistic Information |
+| statistics | missions | - | Mission Statistics |
+| statistics | missions | failed | Number of failed cleaning jobs |
+| statistics | missions | succeed | Number of successful cleaning jobs |
+| statistics | missions | total | Number of cleaning jobs |
+| statistics | time | - | Time Statistics |
 | - | - | refreshedDateTime | DateTime of last update |
 | - | - | refreshedTimestamp | Timestamp of last update |
 
