@@ -24,7 +24,9 @@
     "url": "https://github.com/Zefau/ioBroker.roomba"
   },
   "dependencies": {
-    "dorita980": "^3.0.12"
+    "dorita980": "^3.0.12",
+    "libsodium-wrappers": "^0.7.3",
+    "concat-typed-array": "^1.0.2"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
