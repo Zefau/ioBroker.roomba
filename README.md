@@ -30,7 +30,16 @@ For manual setup see https://github.com/koalazak/dorita980#how-to-get-your-usern
 
 
 ## Supported Roomba's
-Will follow..
+| Serie | Models _(incomplete)_ | Supported |
+| ------- | ------ | ----- |
+| Roomba® 6xx | 605, 606, 612, 616, 671, 675, 676, 680, 696 | _unknown_ |
+| Roomba® 7xx | 774, 785, | _unknown_ |
+| Roomba® 8xx | 880, 886, 891, 895, 896 | _unknown_ |
+| Roomba® 9xx | 966, 981 | _unknown_ |
+| Roomba® 9xx | 980 | **supported** |
+| Roomba® e5 | e5 | _unknown_ |
+
+Please help me regarding the supported devices and let me [know via an issue](https://github.com/Zefau/ioBroker.roomba/issues), whether your Roomba model is supported!
 
 
 ## Channels & States _(incomplete)_
