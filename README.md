@@ -29,6 +29,10 @@ If the automated process fails retrieving your credentials, please use the manua
 For manual setup see https://github.com/koalazak/dorita980#how-to-get-your-usernameblid-and-password.
 
 
+## Supported Roomba's
+Will follow..
+
+
 ## Channels & States _(incomplete)_
 After sucessful setup the following channels and states will be created:
 
@@ -62,7 +66,18 @@ After sucessful setup the following channels and states will be created:
 | device | network | dns1 | Primary DNS address |
 | device | network | dns2 | Secondary DNS address |
 | device | preferences | - | Set preferences |
+| device | preferences | **to be defined** | **to be defined** |
 | device | versions | - | Version information |
+| device | versions | hardwareRev | Hardware Revision |
+| device | versions | batteryType | Battery Type |
+| device | versions | soundVer | **UNKNOWN** |
+| device | versions | uiSwVer | **UNKNOWN** |
+| device | versions | navSwVer | **UNKNOWN** |
+| device | versions | wifiSwVer | **UNKNOWN** |
+| device | versions | mobilityVer | **UNKNOWN** |
+| device | versions | bootloaderVer | Bootloader Version |
+| device | versions | umiVer | **UNKNOWN** |
+| device | versions | softwareVer | Software Version |
 | device | - | \_rawData | Raw preferences data as json |
 | device | - | mac | Mac address of the robot |
 | device | - | name | Name of the robot |
@@ -80,6 +95,13 @@ After sucessful setup the following channels and states will be created:
 | statistics | missions | succeed | Number of successful cleaning jobs |
 | statistics | missions | total | Number of cleaning jobs |
 | statistics | time | - | Time Statistics |
+| statistics | time | avgMin | **UNKNOWN** |
+| statistics | time | hOnDock | **UNKNOWN** |
+| statistics | time | nAvail | **UNKNOWN** |
+| statistics | time | estCap | **UNKNOWN** |
+| statistics | time | nLithChrg | **UNKNOWN** |
+| statistics | time | nNimhChrg | **UNKNOWN** |
+| statistics | time | nDocks | **UNKNOWN** |
 | - | - | refreshedDateTime | DateTime of last update |
 | - | - | refreshedTimestamp | Timestamp of last update |
 
@@ -87,31 +109,31 @@ After sucessful setup the following channels and states will be created:
 ## Description of Preferences _(incomplete)_
 The following payload will be received when calling ```getPreferences()``` (see https://github.com/koalazak/dorita980#getpreferences):
 
-| Object | Index | Type | Description |
-| ------ | ----- | ---- | ----------- |
-| netinfo | - | object | Network Information of the Roomba connection |
-| netinfo | .dhcp | boolean | State whether DHCP is activated |
-| netinfo | .addr | ip | IP address |
-| netinfo | .mask | ip | Subnet adress |
-| netinfo | .gw | ip | Gateway address |
-| netinfo | .dns1 | ip | Primary DNS address |
-| netinfo | .dns2 | ip | Secondary DNS address |
-| netinfo | .bssid | mac | Mac address of router |
-| netinfo | .sec | integer | Unknown |
-| wifistat | - | object | Unknown |
-| wifistat | .wifi | integer | Unknown |
-| wifistat | .uap | boolean | Unknown |
-| wifistat | .cloud | integer | Unknown |
-| wlcfg | .dhcp | object | Unknown |
-| wlcfg | .sec | integer | Unknown |
-| wlcfg | .ssid | string | Unknown |
-| mac | - | mac | Mac address of Roomba |
-| country | - | string | Unknown |
-| cloudEnv | - | string | Unknown |
-| svcEndpoints | .svcDeplId | string | Unknown |
-| mapUploadAllowed | - | boolean | Unknown |
-| localtimeoffset | - | integer | Unknown |
-| ... | - | ... | ... |
+| Object | Index | Type | Description | ioBroker State |
+| ------ | ----- | ---- | ----------- | -------------- |
+| netinfo | - | object | Network Information of the Roomba connection | - |
+| netinfo | .dhcp | boolean | State whether DHCP is activated | device.network.dhcp |
+| netinfo | .addr | ip | IP address | device.network.ip |
+| netinfo | .mask | ip | Subnet adress | device.network.subnet |
+| netinfo | .gw | ip | Gateway address | device.network.gateway |
+| netinfo | .dns1 | ip | Primary DNS address | device.network.dns1 |
+| netinfo | .dns2 | ip | Secondary DNS address | device.network.dns2 |
+| netinfo | .bssid | mac | Mac address of router | device.network.router |
+| netinfo | .sec | integer | Unknown | _(not mapped)_ |
+| wifistat | - | object | Unknown | - |
+| wifistat | .wifi | integer | Unknown | _(not mapped)_ |
+| wifistat | .uap | boolean | Unknown | _(not mapped)_ |
+| wifistat | .cloud | integer | Unknown | _(not mapped)_ |
+| wlcfg | - | object | Unknown | - |
+| wlcfg | .sec | integer | Unknown | _(not mapped)_ |
+| wlcfg | .ssid | string | Unknown | _(not mapped)_ |
+| mac | - | mac | Mac address of Roomba | - |
+| country | - | string | Unknown | - |
+| cloudEnv | - | string | Unknown | - |
+| svcEndpoints | .svcDeplId | string | Unknown | - |
+| mapUploadAllowed | - | boolean | Unknown | - |
+| localtimeoffset | - | integer | Unknown | - |
+| ... | - | ... | ... | - |
 
 
 ## Smart Home / Alexa integration using ioBroker.javascript
