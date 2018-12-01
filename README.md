@@ -1,6 +1,6 @@
 ![Logo](admin/roomba.png)
 # ioBroker.roomba
- ioBroker adapter for Roomba iRobot 980.
+ioBroker adapter for iRobot Roomba.
 
 Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 
@@ -9,6 +9,17 @@ Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 [![Downloads](https://img.shields.io/npm/dm/iobroker.roomba.svg)](https://www.npmjs.com/package/iobroker.roomba)
 
 [![NPM](https://nodei.co/npm/iobroker.roomba.png?downloads=true)](https://nodei.co/npm/iobroker.roomba/)
+
+**Table of contents**
+1. [Setup instructions (automated)](https://github.com/Zefau/ioBroker.roomba#setup-instructions-automated)
+2. [Setup instructions (manual)](https://github.com/Zefau/ioBroker.roomba#setup-instructions-manual)
+3. [Supported Roomba's](https://github.com/Zefau/ioBroker.roomba#supported-roombas)
+4. [Channels & States (incomplete)](https://github.com/Zefau/ioBroker.roomba#channels--states-incomplete)
+5. [Description of Preferences (incomplete)](https://github.com/Zefau/ioBroker.roomba#description-of-preferences-incomplete)
+6. [Smart Home / Alexa integration using ioBroker.javascript](https://github.com/Zefau/ioBroker.roomba#smart-home--alexa-integration-using-iobrokerjavascript)
+7. [Changelog](https://github.com/Zefau/ioBroker.roomba#changelog)
+8. [Credits](https://github.com/Zefau/ioBroker.roomba#credits)
+9. [Licence](https://github.com/Zefau/ioBroker.roomba#license)
 
 
 ## Setup instructions (automated)
@@ -165,6 +176,10 @@ Will follow..
 
 ### 0.1.0 (2018-11-04)
 - (zefau) initial version
+
+
+## Credits
+Thanks to [@koalazak](https://github.com/koalazak) for the [unofficial iRobot Roomba 980 node.js library (SDK)](https://github.com/koalazak/dorita980#readme).
 
 
 ## License
