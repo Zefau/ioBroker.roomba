@@ -170,6 +170,7 @@ Will follow..
 
 ### 0.2.2 (2018-12-02)
 - (zefau) Password will now be stored encrypted
+
 Note: If you are coming from an earlier version, you have to (1) empty your settings, (2) save, (3) restart the adapter and (4) enter / fetch credentials again (duo to the fact that password will be stored encrypted now)
 
 ### 0.2.1 (2018-11-25)
