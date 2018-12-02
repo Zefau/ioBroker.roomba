@@ -16,16 +16,10 @@ const Library = require(__dirname + '/library.js');
 /*
  * variables initiation
  */
-var library = new Library(adapter);;
+var library = new Library(adapter);
 var robot;
-var settings = {
-	decode: {
-		key: 'hZTFui87HVG45shg$', // used for encrypted password
-		fields: ['password']
-	}
-};
 
-var listeners = ['start', 'stop', 'pause', 'resume', 'dock']; // state that trigger actions
+var listeners = ['start', 'stop', 'pause', 'resume', 'dock']; // states that trigger actions
 var nodes = [
 	// cleaning
 	{'node': 'cleaning.start', 'description': 'Start a cleaning process', 'action': 'start', 'role': 'button.start', 'type': 'boolean'},
@@ -55,23 +49,23 @@ var nodes = [
 	// device - network
 	{'node': 'device.network.dhcp', 'description': 'State whether DHCP is activated', 'preference': 'netinfo.dhcp'},
 	{'node': 'device.network.router', 'description': 'Mac address of router', 'preference': 'netinfo.bssid', 'role': 'text'},
-	{'node': 'device.network.ip', 'description': 'IP address', 'preference': 'netinfo.addr', 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.subnet', 'description': 'Subnet adress', 'preference': 'netinfo.mask', 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.gateway', 'description': 'Gateway address', 'preference': 'netinfo.gw', 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.dns1', 'description': 'Primary DNS address', 'preference': 'netinfo.dns1', 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.dns2', 'description': 'Secondary DNS address', 'preference': 'netinfo.dns2', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.ip', 'description': 'IP address', 'preference': 'netinfo.addr', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.subnet', 'description': 'Subnet adress', 'preference': 'netinfo.mask', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.gateway', 'description': 'Gateway address', 'preference': 'netinfo.gw', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.dns1', 'description': 'Primary DNS address', 'preference': 'netinfo.dns1', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.dns2', 'description': 'Secondary DNS address', 'preference': 'netinfo.dns2', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
 	
 	// device - versions
-	{'node': 'device.versions.hardwareRev', 'description': '', 'preference': 'hardwareRev', 'role': 'text'},
-	{'node': 'device.versions.batteryType', 'description': '', 'preference': 'batteryType', 'role': 'text'},
+	{'node': 'device.versions.hardwareRev', 'description': 'Hardware Revision', 'preference': 'hardwareRev', 'role': 'text'},
+	{'node': 'device.versions.batteryType', 'description': 'Battery Type', 'preference': 'batteryType', 'role': 'text'},
 	{'node': 'device.versions.soundVer', 'description': '', 'preference': 'soundVer', 'role': 'text'},
 	{'node': 'device.versions.uiSwVer', 'description': '', 'preference': 'uiSwVer', 'role': 'text'},
 	{'node': 'device.versions.navSwVer', 'description': '', 'preference': 'navSwVer', 'role': 'text'},
 	{'node': 'device.versions.wifiSwVer', 'description': '', 'preference': 'wifiSwVer', 'role': 'text'},
 	{'node': 'device.versions.mobilityVer', 'description': '', 'preference': 'mobilityVer', 'role': 'text'},
-	{'node': 'device.versions.bootloaderVer', 'description': '', 'preference': 'bootloaderVer', 'role': 'text'},
+	{'node': 'device.versions.bootloaderVer', 'description': 'Bootloader Version', 'preference': 'bootloaderVer', 'role': 'text'},
 	{'node': 'device.versions.umiVer', 'description': '', 'preference': 'umiVer', 'role': 'text'},
-	{'node': 'device.versions.softwareVer', 'description': '', 'preference': 'softwareVer', 'role': 'text'},
+	{'node': 'device.versions.softwareVer', 'description': 'Software Version', 'preference': 'softwareVer', 'role': 'text'},
 	
 	// preferences
 	{'node': 'device.preferences.noAutoPasses', 'description': 'One Pass: Roomba will cover all areas with a single cleaning pass.', 'preference': 'noAutoPasses', 'role': 'state', 'type': 'boolean'},
@@ -137,6 +131,22 @@ adapter.on('unload', function(callback)
  */
 adapter.on('ready', function()
 {
+	// set encryption key
+	if (adapter.config.encryptionKey === undefined)
+	{
+		var key = library.getEncryptionKey();
+		adapter.getForeignObject('system.adapter.roomba.0', function(err, obj)
+		{
+			obj.native.encryptionKey = key;
+			adapter.setForeignObject(obj._id, obj);
+		});
+		
+		adapter.log.debug('Generated new encryption key for password encryption.');
+		return;
+	}
+	else
+		var key = adapter.config.encryptionKey;
+	
 	// check if settings are set
 	if (!adapter.config.username || !adapter.config.password || !adapter.config.ip)
 	{
@@ -145,7 +155,7 @@ adapter.on('ready', function()
 	}
 	
 	// connect to Roomba
-	robot = new Roomba.Local(adapter.config.username, library.decode(settings.decode.key, adapter.config.password), adapter.config.ip); // username, password, ip
+	robot = new Roomba.Local(adapter.config.username, library.decrypt(adapter.config.encryptionKey, adapter.config.password), adapter.config.ip); // username, password, ip
 	
 	
 	// check if connection is successful
@@ -231,6 +241,11 @@ adapter.on('message', function(msg)
 	
 	switch(msg.command)
 	{
+		case 'decrypt':
+			adapter.log.debug('Decrypted message.');
+			library.msg(msg.from, msg.command, {result: true, data: {cleartext: library.decrypt(adapter.config.encryptionKey, msg.message.password)}}, msg.callback);
+			break;
+			
 		case 'getIp':
 			Roomba.getRobotIP(function(err, ip)
 			{
@@ -248,9 +263,11 @@ adapter.on('message', function(msg)
 			break;
 			
 		case 'getPassword':
+			msg.message.encryption = msg.message.encryption === undefined ? true : msg.message.encryption;
 			getPassword(msg.message.ip, function(res)
 			{
-				adapter.log.debug('Retrieved password: ' + JSON.stringify(res));
+				adapter.log.debug(res.result === true ? 'Successfully retrieved password.' : 'Failed retrieving password.');
+				if (msg.message.encryption && res.result === true) res.data.password = library.encrypt(adapter.config.encryptionKey, res.data.password);
 				library.msg(msg.from, msg.command, res, msg.callback);
 			});
 			break;
@@ -299,7 +316,7 @@ function getPassword(ip, callback)
 			
 			else
 			{
-				adapter.log.debug('Successfully retrieved password.');
+				adapter.log.debug('Extracted password.');
 				callback({result: true, data: {password: new Buffer(data).slice(sliceFrom).toString()}});
 			}
 			
@@ -417,7 +434,8 @@ function updPreferences()
 						}
 					}
 					
-					library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
+					if (tmp[preference] != node.exception) // only write value if not defined as exceptional
+						library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
 				}
 			}
 			catch(err) {adapter.log.error(JSON.stringify(err.message))}

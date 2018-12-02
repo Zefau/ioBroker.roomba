@@ -1,4 +1,6 @@
 'use strict';
+const _sodium = require('libsodium-wrappers');
+const _concat = require("concat-typed-array");
 
 /**
  * Library
@@ -6,7 +8,7 @@
  * @description Library of general functions as well as helping functions handling ioBroker
  * @author Zefau <https://github.com/Zefau/>
  * @license MIT License
- * @version 0.5.0
+ * @version 0.6.1
  *
  */
 class Library
@@ -23,37 +25,59 @@ class Library
     }
 	
 	/**
-	 * Decodes a string with given key.
+	 * Generates an encryption key.
 	 *
-	 * @param	{string}	key			Key to be used to decode string
-	 * @param	{string}	string		String to be decoded
-	 * @return	{string}				Decoded string
+	 * @param	void
+	 * @return	{string}				Encryption key
 	 *
 	 */
-	decode(key, string)
+	getEncryptionKey()
 	{
-		var result = '';
-		for (var i = 0; i < string.length; ++i)
-			result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ string.charCodeAt(i));
-		
-		return result;
+		return _sodium.to_hex(_sodium.crypto_secretbox_keygen());
 	}
-
+	
 	/**
-	 * Encode a string with given key.
+	 * Encrypts a message with given key.
 	 *
-	 * @param	{string}	key			Key to be used to encode string
-	 * @param	{string}	string		String to be encoded
-	 * @return	{string}				Encoded string
+	 * @param	{string}	key			Key to be used to encrypt message
+	 * @param	{string}	message		Message to be encrypted
+	 * @return	{string}				Encrypted message
 	 *
 	 */
-	encode(key, string)
+	encrypt(key, message)
 	{
-		var result = '';
-		for (var i = 0; i < string.length; i++)
-			result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ string.charCodeAt(i));
-		
-		return result;
+		var nonce = _sodium.randombytes_buf(_sodium.crypto_secretbox_NONCEBYTES);
+		try
+		{
+			return _sodium.to_hex(_concat(Uint8Array, nonce, _sodium.crypto_secretbox_easy(message, nonce, _sodium.from_hex(key))));
+		}
+		catch(e)
+		{
+			this._adapter.log.warn(e.message);
+			return false;
+		}
+	}
+	
+	/**
+	 * Decrypts a message with given key.
+	 *
+	 * @param	{string}	key			Key to be used to decrypt message
+	 * @param	{string}	message		Message to be decrypted
+	 * @return	{string}				Decrypted message
+	 *
+	 */
+	decrypt(key, message)
+	{
+		try
+		{
+			message = _sodium.from_hex(message);
+			return _sodium.to_string(_sodium.crypto_secretbox_open_easy(message.slice(_sodium.crypto_secretbox_NONCEBYTES), message.slice(0, _sodium.crypto_secretbox_NONCEBYTES), _sodium.from_hex(key)));
+		}
+		catch(e)
+		{
+			this._adapter.log.warn(JSON.stringify(e.message));
+			return false;
+		}
 	}
 
 	/**
@@ -137,8 +161,8 @@ class Library
 		this._adapter.getObject(node.node, function(err, obj)
 		{
 			// catch error
-			if (err)
-				that._adapter.log.error(err);
+			if (err || node.node === undefined)
+				that._adapter.log.error(err.message);
 			
 			// create node if non-existent
 			if (err || !obj) {
