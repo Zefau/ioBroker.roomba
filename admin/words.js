@@ -38,8 +38,12 @@ systemDictionary = {
 		"de": "Lade Passwort.."
 	},
 	"message_error-nopassword": {
-		"en": "Could not retrieve password!",
-		"de": "Passwort konnte nicht geladen werden!"
+		"en": "Could not retrieve password! Make sure to cut all other connections to Roomba!",
+		"de": "Passwort konnte nicht geladen werden! Unbedingt sicherstellen, dass alle andere Verbindungen zum Roomba unterbrochen sind!"
+	},
+	"message_error-nopasswordgiven": {
+		"en": "No password given to show / hide!",
+		"de": "Kein Passwort zum Zeigen / Verbergen!"
 	},
 	"message_success-gotpassword": {
 		"en": "Successfully retrieved password!",
@@ -56,6 +60,10 @@ systemDictionary = {
 	"message_success-gotip": {
 		"en": "Successfully retrieved IP address!",
 		"de": "Erfolgreich IP Adresse geladen!"
+	},
+	"togglePassword": {
+		"en": "show / hide password",
+		"de": "Passwort zeigen / vergeben"
 	},
 	"auth": {
 		"en": "Authentication Credentials",

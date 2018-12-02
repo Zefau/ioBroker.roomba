@@ -11,42 +11,6 @@ function log(message, severity, id)
 }
 
 /**
- * Decodes a string with given key.
- *
- * @param {string} key
- * @param {string} string
- * @return {string}
- *
- */
-function decode(key, string)
-{
-    var result = '';
-    for (var i=0; i < string.length; ++i) {
-		result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ string.charCodeAt(i));
-    }
-	
-    return result;
-}
-
-/**
- * Encode a string with given key.
- *
- * @param {string} key
- * @param {string} string
- * @return {string}
- *
- */
-function encode(key, string)
-{
-	var result = '';
-	for(var i = 0; i < string.length; i++) {
-		result += String.fromCharCode(key[i % key.length].charCodeAt(0) ^ string.charCodeAt(i));
-	}
-	
-	return result;
-}
-
-/**
  * Load settings.
  *
  *
@@ -86,7 +50,7 @@ function save(callback)
 		if ($this.attr('type') === 'checkbox')
 			obj[key] = $this.prop('checked');
 		else
-			obj[key] = settings.decode.fields.indexOf(key) > -1 ? decode(settings.decode.key, $this.val()) : $this.val();
+			obj[key] = $this.val();
 	});
 	
 	callback(obj);

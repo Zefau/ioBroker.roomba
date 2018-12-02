@@ -11,24 +11,19 @@
 	<script type="text/javascript" src="../../js/adapter-settings.js"></script>
 	<script type="text/javascript">
 	<!--
-	var settings = {
-		decode: {
-			key: 'hZTFui87HVG45shg$', // used for encrypted password
-			fields: ['password']
-		}
-	}
-	
 	// page loaded
 	$(window).on('load', function()
 	{
 		M.Tabs.init($('.tabs'));
 		
 		// get password
-		function getPassword(ip)
+		function getPassword(ip, encrypt)
 		{
 			log(translateWord('message_action-getpassword'));
-			sendTo(null, 'getPassword', {ip: ip}, function(res)
+			sendTo(null, 'getPassword', {ip: ip, encryption: encrypt || true}, function(res)
 			{
+				console.log(JSON.stringify(res));
+				
 				if (res.result === true)
 				{
 					log(translateWord('message_success-gotpassword'), 'success');
@@ -44,6 +39,7 @@
 		// retrieve ip and authentication credentials
 		var fieldUser = $('#username');
 		var fieldPassword = $('#password');
+		var fieldClearText = $('#cleartext');
 		var fieldIp = $('#ip');
 		
 		$('#button_getCredentials').on('click', function()
@@ -101,6 +97,47 @@
 			});
 		});
 		
+		// toggle password
+		$('.togglePassword').on('click', function() {togglePassword()});
+		function togglePassword()
+		{
+			var pw = $('#password').val();
+			if (pw)
+			{
+				// show cleartext
+				if (!$('.hidePassword').hasClass('hidden'))
+				{
+					$('.hidePassword').addClass('hidden');
+					$('.showPassword').removeClass('hidden');
+					
+					if (!$('#cleartext').val())
+					{
+						sendTo(null, 'decrypt', {password: pw}, function(res)
+						{
+							if (res.result === true)
+							{
+								log(translateWord('message_success-gotpassword'), 'success');
+								fieldClearText.val(res.data.cleartext).focus().trigger('change');
+							}
+							
+							// error
+							else
+								log(translateWord('message_error-nopassword')+' ('+res.error+')', 'error');
+						});
+					}
+				}
+				
+				// hide cleartext
+				else
+				{
+					$('.hidePassword').removeClass('hidden');
+					$('.showPassword').addClass('hidden');
+				}
+			}
+			else
+				log(translateWord('message_error-nopasswordgiven'), 'error');
+		}
+		
 		// validation
 		$('.btn.btn-save, .btn.btn-save-close').on('click', function()
 		{
@@ -137,6 +174,9 @@
 			margin: 0;
 			color: #c00;
 		}
+		
+		
+		a.togglePassword:hover {text-decoration: underline}
 	</style>
 </head>
 <body>
@@ -192,9 +232,15 @@
 									<input class="value" id="username" type="text"/>
 									<label for="username" class="translate">username</label>
 								</div>
-								<div class="input-field col s6 m6">
+								<div class="input-field col s6 m6 hidePassword">
 									<input class="value" type="password" id="password"/>
 									<label for="password" class="translate">password</label>
+									<a href="#" class="translate togglePassword">togglePassword</a>
+								</div>
+								<div class="input-field col s6 m6 showPassword hidden">
+									<input type="text" id="cleartext"/>
+									<label for="cleartext" class="translate">password</label>
+									<a href="#" class="translate togglePassword">togglePassword</a>
 								</div>
 							</div>
 						</div>
