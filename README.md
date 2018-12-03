@@ -168,6 +168,9 @@ Will follow..
 ### Current development
 - (zefau) Image / Map of the current cleaning mission will be created
 
+### 0.2.3 (2018-12-03)
+- (zefau) Fixed an issue encrypting the password when entered by user (no automated retrieval)
+
 ### 0.2.2 (2018-12-02)
 - (zefau) Password will now be stored encrypted
 
