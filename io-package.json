@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "0.2.2",
+        "version": "0.2.3",
         "title": "iRobot Roomba adapter",
         "desc": {
             "en": "ioBroker iRobot Roomba Adapter",
@@ -9,6 +9,10 @@
             "ru": "ioBroker iRobot Roomba драйвер"
         },
         "news": {
+            "0.2.3": {
+                "en": "Fixed an issue encrypting the password when entered by user (no automated retrieval)",
+                "de": "Passwort wird nun verschlüsselt gespeichert"
+            },
             "0.2.2": {
                 "en": "Password will now be stored encrypted",
                 "de": "Passwort wird nun verschlüsselt gespeichert"
