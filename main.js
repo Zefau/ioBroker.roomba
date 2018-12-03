@@ -49,11 +49,11 @@ var nodes = [
 	// device - network
 	{'node': 'device.network.dhcp', 'description': 'State whether DHCP is activated', 'preference': 'netinfo.dhcp'},
 	{'node': 'device.network.router', 'description': 'Mac address of router', 'preference': 'netinfo.bssid', 'role': 'text'},
-	{'node': 'device.network.ip', 'description': 'IP address', 'preference': 'netinfo.addr', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.subnet', 'description': 'Subnet adress', 'preference': 'netinfo.mask', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.gateway', 'description': 'Gateway address', 'preference': 'netinfo.gw', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.dns1', 'description': 'Primary DNS address', 'preference': 'netinfo.dns1', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.dns2', 'description': 'Secondary DNS address', 'preference': 'netinfo.dns2', 'exception': 0, 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.ip', 'description': 'IP address', 'preference': 'netinfo.addr', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.subnet', 'description': 'Subnet adress', 'preference': 'netinfo.mask', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.gateway', 'description': 'Gateway address', 'preference': 'netinfo.gw', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.dns1', 'description': 'Primary DNS address', 'preference': 'netinfo.dns1', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
+	{'node': 'device.network.dns2', 'description': 'Secondary DNS address', 'preference': 'netinfo.dns2', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
 	
 	// device - versions
 	{'node': 'device.versions.hardwareRev', 'description': 'Hardware Revision', 'preference': 'hardwareRev', 'role': 'text'},
@@ -154,9 +154,23 @@ adapter.on('ready', function()
 		return;
 	}
 	
-	// connect to Roomba
-	robot = new Roomba.Local(adapter.config.username, library.decrypt(adapter.config.encryptionKey, adapter.config.password), adapter.config.ip); // username, password, ip
+	// decrypt password
+	var decrypted = library.decrypt(adapter.config.encryptionKey, adapter.config.password);
+	if (decrypted === false)
+	{
+		adapter.log.warn('Decrypting password failed!');
+		return;
+	}
 	
+	// connect to Roomba
+	try
+	{
+		robot = new Roomba.Local(adapter.config.username, decrypted, adapter.config.ip); // username, password, ip
+	}
+	catch(err)
+	{
+		adapter.log.warn(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75)
+	}
 	
 	// check if connection is successful
 	var nodeConnected = {'node': 'states._connected', 'description': 'Connection state'};
@@ -241,6 +255,11 @@ adapter.on('message', function(msg)
 	
 	switch(msg.command)
 	{
+		case 'encrypt':
+			adapter.log.debug('Encrypted message.');
+			library.msg(msg.from, msg.command, {result: true, data: {password: library.encrypt(adapter.config.encryptionKey, msg.message.cleartext)}}, msg.callback);
+			break;
+			
 		case 'decrypt':
 			adapter.log.debug('Decrypted message.');
 			library.msg(msg.from, msg.command, {result: true, data: {cleartext: library.decrypt(adapter.config.encryptionKey, msg.message.password)}}, msg.callback);
@@ -415,9 +434,13 @@ function updPreferences()
 					// go through preferences
 					while (preference.indexOf('.') > -1)
 					{
-						index = preference.substr(0, preference.indexOf('.'));
-						preference = preference.substr(preference.indexOf('.')+1);
-						tmp = tmp[index];
+						try
+						{
+							index = preference.substr(0, preference.indexOf('.'));
+							preference = preference.substr(preference.indexOf('.')+1);
+							tmp = tmp[index];
+						}
+						catch(err) {adapter.log.debug(err.message);}
 					}
 					
 					if (node.kind !== undefined)
