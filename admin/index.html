@@ -22,12 +22,11 @@
 			log(translateWord('message_action-getpassword'));
 			sendTo(null, 'getPassword', {ip: ip, encryption: encrypt || true}, function(res)
 			{
-				console.log(JSON.stringify(res));
-				
 				if (res.result === true)
 				{
 					log(translateWord('message_success-gotpassword'), 'success');
 					fieldPassword.val(res.data.password).focus().trigger('change');
+					encrypted = true;
 				}
 				
 				// error
@@ -37,6 +36,7 @@
 		}
 		
 		// retrieve ip and authentication credentials
+		var encrypted = false;
 		var fieldUser = $('#username');
 		var fieldPassword = $('#password');
 		var fieldClearText = $('#cleartext');
@@ -110,21 +110,19 @@
 					$('.hidePassword').addClass('hidden');
 					$('.showPassword').removeClass('hidden');
 					
-					if (!$('#cleartext').val())
+					// decrypt password
+					sendTo(null, 'decrypt', {password: pw}, function(res)
 					{
-						sendTo(null, 'decrypt', {password: pw}, function(res)
+						if (res.result === true)
 						{
-							if (res.result === true)
-							{
-								log(translateWord('message_success-gotpassword'), 'success');
-								fieldClearText.val(res.data.cleartext).focus().trigger('change');
-							}
-							
-							// error
-							else
-								log(translateWord('message_error-nopassword')+' ('+res.error+')', 'error');
-						});
-					}
+							log(translateWord('message_success-gotpassword'), 'success');
+							fieldClearText.val(res.data.cleartext).focus().trigger('change');
+						}
+						
+						// error
+						else
+							log(translateWord('message_error-nopassword')+' ('+res.error+')', 'error');
+					});
 				}
 				
 				// hide cleartext
@@ -141,6 +139,17 @@
 		// validation
 		$('.btn.btn-save, .btn.btn-save-close').on('click', function()
 		{
+			var cleartext = !$('.hidePassword').hasClass('hidden') ? $('#password').val() : $('#cleartext').val();
+			sendTo(null, 'encrypt', {cleartext: cleartext}, function(res)
+			{
+				if (res.result === true)
+				{
+					fieldClearText.val(cleartext);
+					fieldPassword.val(res.data.password).focus().trigger('change');
+					$('.btn.btn-save').trigger('click');
+				}
+			});
+			
 			$('#refresh').val(parseInt($('#refresh').val()));
 		});
 	});
@@ -238,7 +247,7 @@
 									<a href="#" class="translate togglePassword">togglePassword</a>
 								</div>
 								<div class="input-field col s6 m6 showPassword hidden">
-									<input type="text" id="cleartext"/>
+									<input class="value" type="text" id="cleartext"/>
 									<label for="cleartext" class="translate">password</label>
 									<a href="#" class="translate togglePassword">togglePassword</a>
 								</div>
