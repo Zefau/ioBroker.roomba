@@ -1,6 +1,6 @@
 {
   "name": "iobroker.roomba",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "ioBroker iRobot Roomba Adapter",
   "author": {
     "name": "zefau",
