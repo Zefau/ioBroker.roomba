@@ -14,7 +14,7 @@ Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 1. [Setup instructions (automated)](https://github.com/Zefau/ioBroker.roomba#setup-instructions-automated)
 2. [Setup instructions (manual)](https://github.com/Zefau/ioBroker.roomba#setup-instructions-manual)
 3. [Supported Roomba's](https://github.com/Zefau/ioBroker.roomba#supported-roombas)
-4. [Channels & States (incomplete)](https://github.com/Zefau/ioBroker.roomba#channels--states-incomplete)
+4. [Channels & States (incomplete)](https://github.com/Zefau/ioBroker.roomba#channels--states)
 5. [Description of Preferences (incomplete)](https://github.com/Zefau/ioBroker.roomba#description-of-preferences-incomplete)
 6. [Smart Home / Alexa integration using ioBroker.javascript](https://github.com/Zefau/ioBroker.roomba#smart-home--alexa-integration-using-iobrokerjavascript)
 7. [Changelog](https://github.com/Zefau/ioBroker.roomba#changelog)
@@ -54,7 +54,7 @@ For manual setup see https://github.com/koalazak/dorita980#how-to-get-your-usern
 Please help me regarding the supported devices and let me [know via an issue](https://github.com/Zefau/ioBroker.roomba/issues), whether your Roomba model is supported!
 
 
-## Channels & States _(incomplete)_
+## Channels & States
 After sucessful setup the following channels and states will be created:
 
 | Channel | Folder | State | Description |
@@ -87,7 +87,15 @@ After sucessful setup the following channels and states will be created:
 | device | network | dns1 | Primary DNS address |
 | device | network | dns2 | Secondary DNS address |
 | device | preferences | - | Set preferences |
-| device | preferences | **to be defined** | **to be defined** |
+| device | preferences | binPause | **UNKNOWN** |
+| device | preferences | carpetBoostAuto | Automatic: Roomba will automatically boost its vacuum power to deep clean carpets. |
+| device | preferences | carpetBoostHigh |Performance Mode: Roomba will always boost its vacuum to maximise cleaning performance on all floor surfaces. |
+| device | preferences | ecoCharge | **UNKNOWN** |
+| device | preferences | noAutoPasses | One Pass: Roomba will cover all areas with a single cleaning pass. |
+| device | preferences | noPP | **UNKNOWN** |
+| device | preferences | openOnly | **UNKNOWN** |
+| device | preferences | schedHold | **UNKNOWN** |
+| device | preferences | twoPass | Roomba will cover all areas a second time. This may be helpful in homes with pets or for occasional deep cleaning. |
 | device | versions | - | Version information |
 | device | versions | hardwareRev | Hardware Revision |
 | device | versions | batteryType | Battery Type |
