@@ -14,7 +14,7 @@ Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 1. [Setup instructions (automated)](https://github.com/Zefau/ioBroker.roomba#setup-instructions-automated)
 2. [Setup instructions (manual)](https://github.com/Zefau/ioBroker.roomba#setup-instructions-manual)
 3. [Supported Roomba's](https://github.com/Zefau/ioBroker.roomba#supported-roombas)
-4. [Channels & States (incomplete)](https://github.com/Zefau/ioBroker.roomba#channels--states)
+4. [Channels & States](https://github.com/Zefau/ioBroker.roomba#channels--states)
 5. [Description of Preferences (incomplete)](https://github.com/Zefau/ioBroker.roomba#description-of-preferences-incomplete)
 6. [Smart Home / Alexa integration using ioBroker.javascript](https://github.com/Zefau/ioBroker.roomba#smart-home--alexa-integration-using-iobrokerjavascript)
 7. [Changelog](https://github.com/Zefau/ioBroker.roomba#changelog)
