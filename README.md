@@ -49,6 +49,7 @@ For manual setup see https://github.com/koalazak/dorita980#how-to-get-your-usern
 | Roomba® 8xx | 895 | v3.2.10 | not yet supported |
 | Roomba® 9xx | 965, 981 | - | (most likely) |
 | Roomba® 9xx | 960, 966, 980 | v2.4.6-3 | **supported** |
+| Roomba® i | i7 (7150), i7+ (7550) | - | _unknown_ |
 | Roomba® e5 | e5 | - | _unknown_ |
 
 Please help me regarding the supported devices and let me [know via an issue](https://github.com/Zefau/ioBroker.roomba/issues), whether your Roomba model is supported!
