@@ -10,7 +10,7 @@ const Roomba = require('dorita980');
 /*
  * internal libraries
  */
-const Library = require(__dirname + '/library.js');
+const Library = require(__dirname + '/lib/library.js');
 
 
 /*
