@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>ioBroker.roomba adapter</title>
+	
+	<link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
+	<link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	
+	<script src="../../lib/js/jquery-3.2.1.min.js"></script>
+	<script src="../../socket.io/socket.io.js"></script>
+	<script src="conn.js"></script>
+
+	<script src="../../lib/js/materialize.js"></script>
+	<script>
+	<!--
+	var socketConnected;
+	$(window).on('load', function()
+	{
+		// config
+		servConn.namespace = 'roomba.0';
+		
+		// collect states
+		var states = [];
+		$('[data-state]').each(function(i, state)
+		{
+			if ($(this).attr('data-state') !== '')
+				states.push(servConn.namespace + '.' + $(this).attr('data-state'));
+		});
+		
+		// connect socket
+		servConn.init({
+			connLink: window.location.href.substr(0, window.location.href.indexOf('/', 8))
+		}, {
+			onConnChange: function(socketConnected)
+			{
+				console.log('Socket ' + (socketConnected ? 'connected' : 'disconnected') + '!');
+				
+				// retrieve states
+				setInterval(function()
+				{
+					if (socketConnected)
+					{
+						servConn.getStates(states, function(err, _states)
+						{
+							for (var key in _states)
+								setValue(key, _states[key].val);
+						});
+					}
+				}, 1000);
+			}
+		});
+		
+		//
+		function setValue(id, value)
+		{
+			if (states.indexOf(id) > -1)
+			{
+				var element = $('[data-state="' + id.replace(servConn.namespace+'.', '') + '"]');
+				var type = element.prop("tagName");
+				
+				switch(type)
+				{
+					case "IMG":
+					element.attr('src', value);
+					break;
+					
+					default:
+					element.text(value);
+					break;
+				}
+			}
+		}
+	});
+	// -->
+	</script>
+	<style>
+	<!--
+		body {font-family: Verdana, Tahoma}
+		hr {border: 1px solid #ccc}
+		.small {font-size: 11px}
+		h2 {margin-bottom: 5px !important}
+		.material-icons {font-size: inherit}
+		li {margin: 5px 0;}
+	// -->
+	</style>
+</head>
+<body>
+
+
+<div class="m adapter-container">
+
+	<div class="row">
+		
+		<div class="col s2">
+			<h2 data-state="device.name">Name</h2>
+			<div class="small">
+				<i class="material-icons">memory</i> <span data-state="device.type">000</span>
+				<i class="material-icons">usb</i> <span data-state="device.versions.softwareVer">vX.X.X-X</span>
+			</div>
+			
+			<hr />
+			<ul>
+				<li><i class="material-icons">battery_full</i> battery: <span data-state="states.battery">100</span>%</li>
+				<li><i class="material-icons">delete_outline</i> bin full: <span data-state="states.binFull">false</span></li>
+				<li><i class="material-icons">access_time</i> started: <span data-state="missions.current.startedDateTime">00.00.0000 00:00:00</span></li>
+				<li><i class="material-icons">timer</i> running: <span data-state="missions.current.runtime">xx mins</span> seconds</li>
+			</ul>
+			
+		</div>
+		<div class="col s10">
+			<img data-state="missions.current.mapImage" />
+		</div>
+		
+	</div>
+	
+</div>
+
+</body>
+</html>
