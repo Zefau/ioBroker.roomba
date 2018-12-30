@@ -5,6 +5,14 @@ systemDictionary = {
 		"en": "Configuration",
 		"de": "Einstellungen"
 	},
+	"tab_roomba": {
+		"en": "Supported Roomba's",
+		"de": "Unterstützte Geräte"
+	},
+	"tab_alexa": {
+		"en": "Alexa integration",
+		"de": "Alexa Integration"
+	},
 	"tab_info": {
 		"en": "Information",
 		"de": "Informationen"

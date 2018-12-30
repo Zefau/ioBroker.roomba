@@ -1,9 +1,18 @@
 /**
+ * Admin functions.
+ *
+ * @author Zefau <zefau@mailbox.org>
+ * @version 0.3.0
+ *
+ */
+
+
+/**
  * Status Message
  *
  *
  */
-function log(message, severity, id)
+function _log(message, severity, id)
 {
 	var log = $(id || '#log').html();
 	$(id || '#log').append('<li class="log ' + (severity || 'info') + ' translate">' + message + '</li>');
@@ -15,17 +24,24 @@ function log(message, severity, id)
  *
  *
  */
-function load(settings, onChange)
+function _load(settings, onChange)
 {
 	if (!settings)
 		return;
 	
-	$('.value').each(function ()
+	$('.value').each(function()
 	{            
 		var $key = $(this);
 		var id = $key.attr('id');
+		
+		// load certificates
+		if ($key.attr('data-select') === "certificate")
+			fillSelectCertificates('#'+id,  $key.attr('data-type') || '', settings[id]);
+		
+		// load settings
 		if ($key.attr('type') === 'checkbox')
-			$key.prop('checked', settings[id]).on('change', function() {onChange();});
+			$key.prop('checked', settings[id]).trigger('change').on('change', function() {onChange();});
+		
 		else
 			$key.val(settings[id]).on('change', function() {onChange();}).on('keyup', function() {onChange();});
 	});
@@ -39,16 +55,31 @@ function load(settings, onChange)
  *
  *
  */
-function save(callback)
+function _save(callback, obj)
 {
-	var obj = {};
-	$('.value').each(function ()
+	obj = obj !== undefined ? obj : {};
+	$('.value').each(function()
 	{
 		var $this = $(this);
 		var key = $this.attr('id');
 		
+		// save checkboxes
 		if ($this.attr('type') === 'checkbox')
 			obj[key] = $this.prop('checked');
+		
+		// save certificates
+		else if ($this.attr('data-select') === "certificate")
+		{
+			socket.emit('getObject', 'system.certificates', function (err, res) {
+				if (res.native.certificates !== undefined)
+				{
+					obj[key] = $this.val();
+					obj[key + 'Val'] = res.native.certificates[$this.val()];
+				}
+			});
+		}
+		
+		// save settings
 		else
 			obj[key] = $this.val();
 	});
