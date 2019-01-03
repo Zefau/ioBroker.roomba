@@ -11,15 +11,15 @@ Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 [![NPM](https://nodei.co/npm/iobroker.roomba.png?downloads=true)](https://nodei.co/npm/iobroker.roomba/)
 
 **Table of contents**
-1. [Setup instructions (automated)](https://github.com/Zefau/ioBroker.roomba#setup-instructions-automated)
-2. [Setup instructions (manual)](https://github.com/Zefau/ioBroker.roomba#setup-instructions-manual)
-3. [Supported Roomba's](https://github.com/Zefau/ioBroker.roomba#supported-roombas)
-4. [Channels & States](https://github.com/Zefau/ioBroker.roomba#channels--states)
-5. [Description of Preferences (incomplete)](https://github.com/Zefau/ioBroker.roomba#description-of-preferences-incomplete)
-6. [Smart Home / Alexa integration using ioBroker.javascript](https://github.com/Zefau/ioBroker.roomba#smart-home--alexa-integration-using-iobrokerjavascript)
-7. [Changelog](https://github.com/Zefau/ioBroker.roomba#changelog)
-8. [Credits](https://github.com/Zefau/ioBroker.roomba#credits)
-9. [Licence](https://github.com/Zefau/ioBroker.roomba#license)
+1. [Installation](#installation)
+2. [Setup instructions](#setup-instructions)
+3. [Supported Roomba's](#supported-roombas)
+4. [Channels & States](#channels--states)
+5. [Description of Preferences (incomplete)](#description-of-preferences-incomplete)
+6. [Smart Home / Alexa integration using ioBroker.javascript](#smart-home--alexa-integration-using-iobrokerjavascript)
+7. [Changelog](#changelog)
+8. [Credits](#credits)
+9. [Licence](#license)
 
 
 ## Installation
@@ -30,7 +30,8 @@ Tough, you probably have to install package dependencies of canvas with the foll
 ```sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev```
 
 
-## Setup instructions (automated)
+## Setup instructions
+### Automated setup
 To automatically setup ioBroker.roomba following the instructions in the admin panel of ioBroker.roomba.
 
 **ATTENTION**: The authentication credentials are not the same as you are using in the smartphone app!
@@ -43,8 +44,7 @@ To automatically setup ioBroker.roomba following the instructions in the admin p
 
 If the automated process fails retrieving your credentials, please use the manual setup.
 
-
-## Setup instructions (manual)
+### Manual setup
 For manual setup see https://github.com/koalazak/dorita980#how-to-get-your-usernameblid-and-password.
 
 
