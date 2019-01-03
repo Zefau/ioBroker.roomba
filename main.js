@@ -2,51 +2,89 @@
 const utils = require(__dirname + '/lib/utils'); // Get common adapter utils
 const adapter = utils.Adapter('roomba');
 
+const fs = require('fs');
 const dgram = require('dgram');
 const tls = require('tls');
 const Roomba = require('dorita980');
+const { createCanvas, Canvas } = require('canvas');
+const { Image } = require('canvas');
 
 
 /*
  * internal libraries
  */
 const Library = require(__dirname + '/lib/library.js');
+const Encryption = require(__dirname + '/lib/encryption.js');
 
 
 /*
  * variables initiation
  */
 var library = new Library(adapter);
-var robot;
+var encryptor = new Encryption(adapter);
+
+var robot, connected, mission, icons, pathColor;
+var started;
+var canvas, map, image, img;
+
+var mapSize = {width: 1500, height: 1500};
+var mapCenter = {h: Math.round(mapSize.width/2), v: Math.round(mapSize.height/2)};
 
 var listeners = ['start', 'stop', 'pause', 'resume', 'dock']; // states that trigger actions
 var nodes = [
-	// cleaning
-	{'node': 'cleaning.start', 'description': 'Start a cleaning process', 'action': 'start', 'role': 'button.start', 'type': 'boolean'},
-	{'node': 'cleaning.stop', 'description': 'Stop the current cleaning process', 'action': 'stop', 'role': 'button.stop', 'type': 'boolean'},
-	{'node': 'cleaning.pause', 'description': 'Pause the current cleaning process', 'action': 'pause', 'role': 'button.pause', 'type': 'boolean'},
-	{'node': 'cleaning.resume', 'description': 'Resume the current cleaning process', 'action': 'resume', 'role': 'button.resume', 'type': 'boolean'},
-	{'node': 'cleaning.dock', 'description': 'Send the robot to the docking station', 'action': 'dock', 'role': 'button', 'type': 'boolean'},
+	// commands
+	{'node': 'commands', 'description': 'Actions and information of the cleaning process', 'role': 'channel'},
+	{'node': 'commands.start', 'description': 'Start a cleaning process', 'action': 'start', 'role': 'button.start', 'type': 'boolean'},
+	{'node': 'commands.stop', 'description': 'Stop the current cleaning process', 'action': 'stop', 'role': 'button.stop', 'type': 'boolean'},
+	{'node': 'commands.pause', 'description': 'Pause the current cleaning process', 'action': 'pause', 'role': 'button.pause', 'type': 'boolean'},
+	{'node': 'commands.resume', 'description': 'Resume the current cleaning process', 'action': 'resume', 'role': 'button.resume', 'type': 'boolean'},
+	{'node': 'commands.dock', 'description': 'Send the robot to the docking station', 'action': 'dock', 'role': 'button', 'type': 'boolean'},
 	
-	// cleaning - schedule
-	{'node': 'cleaning.schedule.cycle', 'description': 'Schedule cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.cycle', 'role': 'text'},
-	{'node': 'cleaning.schedule.hours', 'description': 'Hour to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.h', 'role': 'text'},
-	{'node': 'cleaning.schedule.minutes', 'description': 'Minute to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.m', 'role': 'text'},
+	// commands - last command
+	{'node': 'commands.last.command', 'description': 'Last command sent to robot', 'preference': 'lastCommand.command', 'role': 'text'},
+	{'node': 'commands.last.timestamp', 'description': 'Timestamp last command was sent', 'preference': 'lastCommand.time', 'role': 'value'},
+	{'node': 'commands.last.dateTime', 'description': 'DateTime last command was sent', 'preference': 'lastCommand.time', 'kind': 'datetime', 'role': 'text'},
+	{'node': 'commands.last.initiator', 'description': 'Initiator of last command', 'preference': 'lastCommand.initiator', 'role': 'text'},
 	
-	// cleaning - last command
-	{'node': 'cleaning.last.command', 'description': 'Last command sent to robot', 'preference': 'lastCommand.command', 'role': 'text'},
-	{'node': 'cleaning.last.timestamp', 'description': 'Timestamp last command was sent', 'preference': 'lastCommand.time', 'role': 'value'},
-	{'node': 'cleaning.last.datetime', 'description': 'DateTime last command was sent', 'preference': 'lastCommand.time', 'kind': 'datetime', 'role': 'text'},
-	{'node': 'cleaning.last.initiator', 'description': 'Initiator of last command', 'preference': 'lastCommand.initiator', 'role': 'text'},
-	{'node': 'cleaning.last.cycle', 'description': '', 'preference': 'cleanMissionStatus.cycle', 'role': 'text'},
-	{'node': 'cleaning.last.phase', 'description': '', 'preference': 'cleanMissionStatus.phase', 'role': 'text'},
-	{'node': 'cleaning.last.error', 'description': 'Indicates an error during last mission', 'preference': 'cleanMissionStatus.error', 'role': 'state', 'type': 'boolean'},
+	// missions
+	{'node': 'missions', 'description': 'Mission information', 'role': 'channel'},
+	{'node': 'missions.history', 'description': 'History of all missions', 'role': 'json'},
+	
+	// missions - current
+	{'node': 'missions.current', 'description': 'Mission information about current running mission', 'role': 'channel'},
+	{'node': 'missions.current.mapImage', 'description': 'Image of the map of current mission', 'role': 'text'},
+	{'node': 'missions.current.mapHTML', 'description': 'HTML for the map of current mission', 'role': 'text'},
+	{'node': 'missions.current.path', 'description': 'Path of current mission', 'role': 'text'},
+	{'node': 'missions.current.id', 'description': 'ID of current mission', 'role': 'text'},
+	
+	{'node': 'missions.current.started', 'description': 'Timestamp when the current mission has started', 'role': 'value'},
+	{'node': 'missions.current.startedDateTime', 'description': 'DateTime when the current mission has started', 'role': 'text'},
+	{'node': 'missions.current.runtime', 'description': 'Runtime in seconds of the current mission', 'role': 'value'},
+	
+	{'node': 'missions.current.initiator', 'description': 'Initiator of current mission', 'role': 'text'},
+	{'node': 'missions.current.cycle', 'description': 'Cycle mode of current mission', 'role': 'text'},
+	{'node': 'missions.current.phase', 'description': 'Phase of current mission', 'role': 'text'},
+	{'node': 'missions.current.error', 'description': 'Indicates an error during last mission', 'preference': 'cleanMissionStatus.error', 'role': 'state', 'type': 'boolean'},
+	{'node': 'missions.current.sqm', 'description': 'Clean square-meters of current mission', 'role': 'text'},
+	
+	
+	// missions.history (+ finished & finishedDateTime)
+	
+	
+	// missions - schedule
+	{'node': 'missions.schedule', 'description': 'Schedule of the cleaning process', 'role': 'channel'},
+	{'node': 'missions.schedule.cycle', 'description': 'Schedule cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.cycle', 'role': 'text'},
+	{'node': 'missions.schedule.hours', 'description': 'Hour to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.h', 'role': 'text'},
+	{'node': 'missions.schedule.minutes', 'description': 'Minute to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.m', 'role': 'text'},
 	
 	// device
+	{'node': 'device', 'description': 'Device information', 'role': 'channel'},
 	{'node': 'device.mac', 'description': 'Mac address of the robot', 'preference': 'mac', 'role': 'info.mac'},
 	{'node': 'device.name', 'description': 'Name of the robot', 'preference': 'name', 'role': 'info.name'},
+	{'node': 'device.type', 'description': 'Type of the robot', 'preference': 'sku', 'role': 'text'},
 	
 	// device - network
+	{'node': 'device.network', 'description': 'Network settings', 'role': 'channel'},
 	{'node': 'device.network.dhcp', 'description': 'State whether DHCP is activated', 'preference': 'netinfo.dhcp'},
 	{'node': 'device.network.router', 'description': 'Mac address of router', 'preference': 'netinfo.bssid', 'role': 'text'},
 	{'node': 'device.network.ip', 'description': 'IP address', 'preference': 'netinfo.addr', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
@@ -56,6 +94,7 @@ var nodes = [
 	{'node': 'device.network.dns2', 'description': 'Secondary DNS address', 'preference': 'netinfo.dns2', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
 	
 	// device - versions
+	{'node': 'device.versions', 'description': 'Hardware and softare versions', 'role': 'channel'},
 	{'node': 'device.versions.hardwareRev', 'description': 'Hardware Revision', 'preference': 'hardwareRev', 'role': 'text'},
 	{'node': 'device.versions.batteryType', 'description': 'Battery Type', 'preference': 'batteryType', 'role': 'text'},
 	{'node': 'device.versions.soundVer', 'description': '', 'preference': 'soundVer', 'role': 'text'},
@@ -68,6 +107,7 @@ var nodes = [
 	{'node': 'device.versions.softwareVer', 'description': 'Software Version', 'preference': 'softwareVer', 'role': 'text'},
 	
 	// preferences
+	{'node': 'device.preferences', 'description': 'Preferences', 'role': 'channel'},
 	{'node': 'device.preferences.noAutoPasses', 'description': 'One Pass: Roomba will cover all areas with a single cleaning pass.', 'preference': 'noAutoPasses', 'role': 'state', 'type': 'boolean'},
 	{'node': 'device.preferences.noPP', 'description': '', 'preference': 'noPP', 'role': 'state', 'type': 'boolean'},
 	{'node': 'device.preferences.binPause', 'description': '', 'preference': 'binPause', 'role': 'state', 'type': 'boolean'},
@@ -81,6 +121,7 @@ var nodes = [
 	
 	
 	// states
+	{'node': 'states', 'description': 'Status information', 'role': 'channel'},
 	{'node': 'states.battery', 'description': 'Battery level of the robot', 'preference': 'batPct', 'role': 'value'},
 	{'node': 'states.docked', 'description': 'State whether robot is docked', 'preference': 'dock.known', 'role': 'state', 'type': 'boolean'},
 	{'node': 'states.binInserted', 'description': 'State whether bin is inserted', 'preference': 'bin.present', 'role': 'state', 'type': 'boolean'},
@@ -88,7 +129,11 @@ var nodes = [
 	{'node': 'states.status', 'description': 'Current status of the robot', 'preference': 'cleanMissionStatus.phase', 'role': 'text'},
 	{'node': 'states.signal', 'description': 'Signal strength', 'preference': 'signal.snr', 'role': 'value'},
 	
+	// statistics
+	{'node': 'statistics', 'description': 'Statistics', 'role': 'channel'},
+	
 	// statistics - missions
+	{'node': 'statistics.time', 'description': 'Time based Statistics', 'role': 'channel'},
 	{'node': 'statistics.time.avgMin', 'description': '', 'preference': 'bbchg3.avgMin', 'role': 'value'},
 	{'node': 'statistics.time.hOnDock', 'description': '', 'preference': 'bbchg3.hOnDock', 'role': 'value'},
 	{'node': 'statistics.time.nAvail', 'description': '', 'preference': 'bbchg3.nAvail', 'role': 'value'},
@@ -98,6 +143,7 @@ var nodes = [
 	{'node': 'statistics.time.nDocks', 'description': '', 'preference': 'bbchg3.nDocks', 'role': 'value'},
 	
 	// statistics - missions
+	{'node': 'statistics.missions', 'description': 'Mission based Statistics', 'role': 'channel'},
 	{'node': 'statistics.missions.total', 'description': 'Number of cleaning jobs', 'preference': 'bbmssn.nMssn', 'role': 'value'},
 	{'node': 'statistics.missions.succeed', 'description': 'Number of successful cleaning jobs', 'preference': 'bbmssn.nMssnOk', 'role': 'value'},
 	//{'node': 'statistics.missionsC', 'description': '', 'preference': 'bbmssn.nMssnC', 'role': 'value'},
@@ -115,7 +161,7 @@ adapter.on('unload', function(callback)
 {
     try
 	{
-        adapter.log.info('cleaned everything up...');
+        adapter.log.info('Adapter stopped und unloaded.');
         callback();
     }
 	catch(e)
@@ -132,9 +178,9 @@ adapter.on('unload', function(callback)
 adapter.on('ready', function()
 {
 	// set encryption key
-	if (adapter.config.encryptionKey === undefined)
+	if (adapter.config.encryptionKey === undefined || adapter.config.encryptionKey === '')
 	{
-		var key = library.getEncryptionKey();
+		var key = encryptor.getEncryptionKey();
 		adapter.getForeignObject('system.adapter.roomba.0', function(err, obj)
 		{
 			obj.native.encryptionKey = key;
@@ -155,7 +201,7 @@ adapter.on('ready', function()
 	}
 	
 	// decrypt password
-	var decrypted = library.decrypt(adapter.config.encryptionKey, adapter.config.password);
+	var decrypted = encryptor.decrypt(key, adapter.config.password);
 	if (decrypted === false)
 	{
 		adapter.log.warn('Decrypting password failed!');
@@ -181,7 +227,10 @@ adapter.on('ready', function()
 	robot.on('error', function(err)
 	{
 		adapter.log.warn(err.message);
-		library.set(nodeConnected, false);
+		
+		connected = false;
+		library.set(nodeConnected, connected);
+		robot.end();
 	});
 	 
 	/*
@@ -189,8 +238,10 @@ adapter.on('ready', function()
 	 */
 	robot.on('connect', function()
 	{
-		adapter.log.debug('Roomba Connection established.');
-		library.set(nodeConnected, true);
+		adapter.log.info('Roomba online. Connection established.');
+		
+		connected = true;
+		library.set(nodeConnected, connected);
 	});
 	
 	/*
@@ -198,8 +249,11 @@ adapter.on('ready', function()
 	 */
 	robot.on('close', function(res)
 	{
-		adapter.log.debug('Roomba Connection closed.');
-		library.set(nodeConnected, false);
+		//adapter.log.debug('Roomba Connection closed.');
+		
+		connected = false;
+		library.set(nodeConnected, connected);
+		robot.end();
 	});
 	
 	/*
@@ -207,18 +261,24 @@ adapter.on('ready', function()
 	 */
 	robot.on('offline', function(res)
 	{
-		adapter.log.debug('Roomba offline.');
-		library.set(nodeConnected, false);
+		adapter.log.info('Connection lost. Roomba offline.');
+		
+		connected = false;
+		library.set(nodeConnected, connected);
+		robot.end();
 	});
 	
 	/*
 	 * ROBOT MISSION
 	 */
+	mission = null;
+	pathColor = adapter.config.pathColor || '#f00';
+	icons = {roomba: getImage(__dirname + '/img/roomba.png'), home: getImage(__dirname + '/img/home.png')};
+	
 	robot.on('mission', function(res)
 	{
-		//adapter.log.debug(JSON.stringify(res));
-		//library.set(Object.assign(node, {common: {role: 'button', 'type': 'boolean'}}), false);
-		
+		if (res.cleanMissionStatus.phase !== 'stop' && res.cleanMissionStatus.phase !== 'charge' && res.cleanMissionStatus.phase !== 'stuck')
+			mapMission(res);
 		
 	});
 	
@@ -241,7 +301,10 @@ adapter.on('stateChange', function(node, state)
 	if (listeners.indexOf(action) > -1 && state.ack !== true)
 	{
 		adapter.log.info('Triggered action -' + action + '- on Roomba.');
-		robot[action]();
+		if (connected)
+			robot[action]();
+		else
+			adapter.log.warn('Roomba not online! Action not triggered.');
 	}
 });
 
@@ -255,14 +318,25 @@ adapter.on('message', function(msg)
 	
 	switch(msg.command)
 	{
+		case 'getStates':
+			var states = Array.isArray(msg.message.states) ? msg.message.states : [];
+			states.forEach(function(state)
+			{
+				adapter.getState(state, function(err, res)
+				{
+					library.msg(msg.from, msg.command, err || !res ? {result: false, error: err.message} : {result: true, state: res}, msg.callback);
+				});
+			});
+			break;
+			
 		case 'encrypt':
 			adapter.log.debug('Encrypted message.');
-			library.msg(msg.from, msg.command, {result: true, data: {password: library.encrypt(adapter.config.encryptionKey, msg.message.cleartext)}}, msg.callback);
+			library.msg(msg.from, msg.command, {result: true, data: {password: encryptor.encrypt(adapter.config.encryptionKey, msg.message.cleartext)}}, msg.callback);
 			break;
 			
 		case 'decrypt':
 			adapter.log.debug('Decrypted message.');
-			library.msg(msg.from, msg.command, {result: true, data: {cleartext: library.decrypt(adapter.config.encryptionKey, msg.message.password)}}, msg.callback);
+			library.msg(msg.from, msg.command, {result: true, data: {cleartext: encryptor.decrypt(adapter.config.encryptionKey, msg.message.password)}}, msg.callback);
 			break;
 			
 		case 'getIp':
@@ -286,7 +360,7 @@ adapter.on('message', function(msg)
 			getPassword(msg.message.ip, function(res)
 			{
 				adapter.log.debug(res.result === true ? 'Successfully retrieved password.' : 'Failed retrieving password.');
-				if (msg.message.encryption && res.result === true) res.data.password = library.encrypt(adapter.config.encryptionKey, res.data.password);
+				if (msg.message.encryption && res.result === true) res.data.password = encryptor.encrypt(adapter.config.encryptionKey, res.data.password);
 				library.msg(msg.from, msg.command, res, msg.callback);
 			});
 			break;
@@ -408,8 +482,11 @@ function getRobotData(callback, ip)
  */
 function updPreferences()
 {
+	var states = ['cleanMissionStatus', 'cleanSchedule', 'name', 'vacHigh', 'bbchg3', 'signal'];
+	
+	
 	var tmp, preference, index;
-	robot.getPreferences().then((preferences) =>
+	robot.getRobotState(states).then((preferences) =>
 	{
 		adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
 		library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(preferences));
@@ -426,7 +503,7 @@ function updPreferences()
 				}
 				
 				// preference
-				if (node.preference !== undefined)
+				else if (node.preference !== undefined)
 				{
 					tmp = Object.assign({}, preferences);
 					preference = node.preference;
@@ -443,6 +520,11 @@ function updPreferences()
 						catch(err) {adapter.log.debug(err.message);}
 					}
 					
+					// check value
+					if (tmp[preference] === 'aN.aN.NaN aN:aN:aN')
+						return;
+					
+					// convert value
 					if (node.kind !== undefined)
 					{
 						switch(node.kind.toLowerCase())
@@ -457,9 +539,21 @@ function updPreferences()
 						}
 					}
 					
-					if (tmp[preference] != node.exception) // only write value if not defined as exceptional
+					// write value
+					if (node.exception === undefined || tmp[preference] !== node.exception) // only write value if not defined as exceptional
 						library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
 				}
+				
+				// only state creation
+				else
+				{
+					adapter.getState(node.node, function(err, res)
+					{
+						if ((err !== null || !res) && (node.node !== undefined && node.description !== undefined))
+							library.set(node, '');
+					});
+				}
+				
 			}
 			catch(err) {adapter.log.error(JSON.stringify(err.message))}
 		});
@@ -468,3 +562,125 @@ function updPreferences()
 	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
 	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
 };
+
+
+/**
+ * Map mission.
+ *
+ */
+function mapMission(res)
+{
+	// create new map once mission starts
+	if (mission === null || mission.id !== res.cleanMissionStatus.nMssn)
+	{
+		adapter.log.info('Roomba has started a new mission.');
+		mission = {id: res.cleanMissionStatus.nMssn, status: {}, pos: {}, path: []};
+		library._setValue('missions.current.id', mission.id);
+		
+		// started
+		started = Math.floor(Date.now()/1000);
+		library._setValue('missions.current.started', started);
+		library._setValue('missions.current.startedDateTime', library.getDateTime(Date.now()));
+		
+		// create canvas for map
+		canvas = createCanvas(mapSize.width, mapSize.height);
+		map = canvas.getContext('2d');
+		map.beginPath();
+		
+		// place home icon
+		map.drawImage(icons.home.canvas, mapCenter.h + res.pose.point.x - icons.home.width/2, mapCenter.v + res.pose.point.y - icons.home.height/2, icons.home.width, icons.home.height);
+	}
+	else
+		mission.pos.last = {theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y};
+	
+	// add information to payload
+	mission.status = Object.assign({}, res.cleanMissionStatus, {sqm: parseFloat((res.cleanMissionStatus.sqft / 10.764).toFixed(2))});
+	mission.pos.current = {theta: 180-res.pose.theta, x: mapCenter.h + res.pose.point.x, y: mapCenter.v + res.pose.point.y};
+	mission.path.push(mission.pos.current);
+	
+	// draw position on map
+	try
+	{
+		// robot just started
+		if (mission.pos.last === undefined)
+			map.fillRect(mission.pos.current.x, mission.pos.current.y, 1, 1);
+		
+		// robot moving
+		else
+		{
+			map.lineWidth = 2;
+			map.strokeStyle = pathColor;
+			map.moveTo(mission.pos.last.x, mission.pos.last.y);
+			map.lineTo(mission.pos.current.x, mission.pos.current.y);
+			map.stroke();
+		}
+		
+		// copy map
+		image = createCanvas(canvas.width, canvas.height);
+		img = image.getContext('2d');
+		img.drawImage(canvas, 0, 0);
+		
+		// add robot to copied map
+		img.drawImage(rotateImage(icons.roomba.canvas, mission.pos.current.theta), mission.pos.current.x - icons.roomba.width/2, mission.pos.current.y - icons.roomba.height/2, icons.roomba.width, icons.roomba.height);
+		
+		// save map and path
+		library._setValue('missions.current.mapImage', image.toDataURL());
+		library._setValue('missions.current.mapHTML', '<img src="' + image.toDataURL() + '" /style="width:100%;">');
+		library._setValue('missions.current.path', JSON.stringify(mission.path));
+		
+		// additional mission status information
+		library._setValue('missions.current.runtime', Math.floor(Date.now()/1000) - started);
+		library._setValue('missions.current.sqm', mission.status.sqm);
+		library._setValue('missions.current.cycle', mission.status.cycle);
+		library._setValue('missions.current.phase', mission.status.phase);
+		library._setValue('missions.current.error', mission.status.error);
+		library._setValue('missions.current.initiator', mission.status.initiator);
+	}
+	catch(e) {
+		adapter.log.warn(e.message);
+	}
+}
+
+
+/**
+ * Retrieve image data from file.
+ *
+ */
+function getImage(path)
+{
+	// read as image
+	var img = new Image();
+	img.src = fs.readFileSync(path);
+	
+	// read as canvas
+	var canvas = createCanvas(img.width, img.height);
+	var ctx = canvas.getContext('2d');
+	ctx.drawImage(img, 0, 0);
+	
+	return {
+		img: img,
+		canvas: canvas,
+		width: img.width,
+		height: img.height
+	};
+}
+
+
+/**
+ * Rotate a canvas around its mapCenter.
+ * @see https://www.mediaevent.de/javascript/canvas-rotate.html
+ *
+ */
+function rotateImage(img, radiant)
+{
+	var canvas = createCanvas(img.width, img.height);
+	var ctx = canvas.getContext('2d');
+	
+	ctx.clearRect(0, 0, img.width, img.height); // clear the canvas
+	ctx.translate(img.width/2, img.width/2); // move registration point to the center of the canvas
+	ctx.rotate(radiant * Math.PI / 180);
+	ctx.translate(-img.width/2, -img.width/2); // Move registration point back to the top left corner of canvas
+	ctx.drawImage(img, 0, 0);
+	
+	return canvas;
+}
