@@ -31,6 +31,11 @@ Though, you probably have to install package dependencies of canvas with the fol
 sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 ```
 
+If you are receiving an error message that canvas is not installed, try to install it manually in the ioBroker.roomba folder by running:
+```
+sudo npm install canvas --unsafe-perm=true
+```
+
 
 ## Setup instructions
 ### Automated setup
