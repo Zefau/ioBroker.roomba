@@ -25,7 +25,7 @@ Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 ## Installation
 ioBroker.roomba needs [canvas](https://www.npmjs.com/package/canvas) in order to draw maps of the Roomba missions. ioBroker will try to install this dependency with ioBroker.roomba installation.
 
-Tough, you probably have to install package dependencies of canvas with the following command:
+Though, you probably have to install package dependencies of canvas with the following command:
 
 ```sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev```
 
