@@ -2,155 +2,41 @@
 const utils = require(__dirname + '/lib/utils'); // Get common adapter utils
 const adapter = utils.Adapter('roomba');
 
-const fs = require('fs');
-const dgram = require('dgram');
-const tls = require('tls');
-const Roomba = require('dorita980');
-const { createCanvas, Canvas } = require('canvas');
-const { Image } = require('canvas');
+var _fs = require('fs');
+var _dgram = require('dgram');
+var _tls = require('tls');
+var _http = require('http');
+var _request = require('request');
+var _dorita980 = require('dorita980');
+var _canvas;
 
 
 /*
  * internal libraries
  */
 const Library = require(__dirname + '/lib/library.js');
-const Encryption = require(__dirname + '/lib/encryption.js');
+//const Encryption = require(__dirname + '/lib/encryption.js');
 
 
 /*
  * variables initiation
  */
+var Image, Canvas, createCanvas;
 var library = new Library(adapter);
-var encryptor = new Encryption(adapter);
+//var encryptor = new Encryption(adapter);
 
-var robot, connected, mission, icons, pathColor;
-var started;
-var canvas, map, image, img;
+var _installed = false;
+var robot, connected, mission, previous, icons, pathColor;
+var started, endLoop;
+var canvas, canvasTmp, map, mapTmp, image, img;
 
-var mapSize = {width: 1500, height: 1500};
+var mapSize = {width: 200, height: 200};
+var nPos = {x: 0, y: 0};
 var mapCenter = {h: Math.round(mapSize.width/2), v: Math.round(mapSize.height/2)};
+var offset = 10;
 
 var listeners = ['start', 'stop', 'pause', 'resume', 'dock']; // states that trigger actions
-var nodes = [
-	// commands
-	{'node': 'commands', 'description': 'Actions and information of the cleaning process', 'role': 'channel'},
-	{'node': 'commands.start', 'description': 'Start a cleaning process', 'action': 'start', 'role': 'button.start', 'type': 'boolean'},
-	{'node': 'commands.stop', 'description': 'Stop the current cleaning process', 'action': 'stop', 'role': 'button.stop', 'type': 'boolean'},
-	{'node': 'commands.pause', 'description': 'Pause the current cleaning process', 'action': 'pause', 'role': 'button.pause', 'type': 'boolean'},
-	{'node': 'commands.resume', 'description': 'Resume the current cleaning process', 'action': 'resume', 'role': 'button.resume', 'type': 'boolean'},
-	{'node': 'commands.dock', 'description': 'Send the robot to the docking station', 'action': 'dock', 'role': 'button', 'type': 'boolean'},
-	
-	// commands - last command
-	{'node': 'commands.last.command', 'description': 'Last command sent to robot', 'preference': 'lastCommand.command', 'role': 'text'},
-	{'node': 'commands.last.timestamp', 'description': 'Timestamp last command was sent', 'preference': 'lastCommand.time', 'role': 'value'},
-	{'node': 'commands.last.dateTime', 'description': 'DateTime last command was sent', 'preference': 'lastCommand.time', 'kind': 'datetime', 'role': 'text'},
-	{'node': 'commands.last.initiator', 'description': 'Initiator of last command', 'preference': 'lastCommand.initiator', 'role': 'text'},
-	
-	// missions
-	{'node': 'missions', 'description': 'Mission information', 'role': 'channel'},
-	{'node': 'missions.history', 'description': 'History of all missions', 'role': 'json'},
-	
-	// missions - current
-	{'node': 'missions.current', 'description': 'Mission information about current running mission', 'role': 'channel'},
-	{'node': 'missions.current.mapImage', 'description': 'Image of the map of current mission', 'role': 'text'},
-	{'node': 'missions.current.mapHTML', 'description': 'HTML for the map of current mission', 'role': 'text'},
-	{'node': 'missions.current.path', 'description': 'Path of current mission', 'role': 'text'},
-	{'node': 'missions.current.id', 'description': 'ID of current mission', 'role': 'text'},
-	
-	{'node': 'missions.current.started', 'description': 'Timestamp when the current mission has started', 'role': 'value'},
-	{'node': 'missions.current.startedDateTime', 'description': 'DateTime when the current mission has started', 'role': 'text'},
-	{'node': 'missions.current.runtime', 'description': 'Runtime in seconds of the current mission', 'role': 'value'},
-	
-	{'node': 'missions.current.initiator', 'description': 'Initiator of current mission', 'role': 'text'},
-	{'node': 'missions.current.cycle', 'description': 'Cycle mode of current mission', 'role': 'text'},
-	{'node': 'missions.current.phase', 'description': 'Phase of current mission', 'role': 'text'},
-	{'node': 'missions.current.error', 'description': 'Indicates an error during last mission', 'preference': 'cleanMissionStatus.error', 'role': 'state', 'type': 'boolean'},
-	{'node': 'missions.current.sqm', 'description': 'Clean square-meters of current mission', 'role': 'text'},
-	
-	
-	// missions.history (+ finished & finishedDateTime)
-	
-	
-	// missions - schedule
-	{'node': 'missions.schedule', 'description': 'Schedule of the cleaning process', 'role': 'channel'},
-	{'node': 'missions.schedule.cycle', 'description': 'Schedule cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.cycle', 'role': 'text'},
-	{'node': 'missions.schedule.hours', 'description': 'Hour to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.h', 'role': 'text'},
-	{'node': 'missions.schedule.minutes', 'description': 'Minute to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.m', 'role': 'text'},
-	
-	// device
-	{'node': 'device', 'description': 'Device information', 'role': 'channel'},
-	{'node': 'device.mac', 'description': 'Mac address of the robot', 'preference': 'mac', 'role': 'info.mac'},
-	{'node': 'device.name', 'description': 'Name of the robot', 'preference': 'name', 'role': 'info.name'},
-	{'node': 'device.type', 'description': 'Type of the robot', 'preference': 'sku', 'role': 'text'},
-	
-	// device - network
-	{'node': 'device.network', 'description': 'Network settings', 'role': 'channel'},
-	{'node': 'device.network.dhcp', 'description': 'State whether DHCP is activated', 'preference': 'netinfo.dhcp'},
-	{'node': 'device.network.router', 'description': 'Mac address of router', 'preference': 'netinfo.bssid', 'role': 'text'},
-	{'node': 'device.network.ip', 'description': 'IP address', 'preference': 'netinfo.addr', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.subnet', 'description': 'Subnet adress', 'preference': 'netinfo.mask', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.gateway', 'description': 'Gateway address', 'preference': 'netinfo.gw', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.dns1', 'description': 'Primary DNS address', 'preference': 'netinfo.dns1', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
-	{'node': 'device.network.dns2', 'description': 'Secondary DNS address', 'preference': 'netinfo.dns2', 'exception': '0.0.0.0', 'kind': 'ip', 'role': 'info.ip'},
-	
-	// device - versions
-	{'node': 'device.versions', 'description': 'Hardware and softare versions', 'role': 'channel'},
-	{'node': 'device.versions.hardwareRev', 'description': 'Hardware Revision', 'preference': 'hardwareRev', 'role': 'text'},
-	{'node': 'device.versions.batteryType', 'description': 'Battery Type', 'preference': 'batteryType', 'role': 'text'},
-	{'node': 'device.versions.soundVer', 'description': '', 'preference': 'soundVer', 'role': 'text'},
-	{'node': 'device.versions.uiSwVer', 'description': '', 'preference': 'uiSwVer', 'role': 'text'},
-	{'node': 'device.versions.navSwVer', 'description': '', 'preference': 'navSwVer', 'role': 'text'},
-	{'node': 'device.versions.wifiSwVer', 'description': '', 'preference': 'wifiSwVer', 'role': 'text'},
-	{'node': 'device.versions.mobilityVer', 'description': '', 'preference': 'mobilityVer', 'role': 'text'},
-	{'node': 'device.versions.bootloaderVer', 'description': 'Bootloader Version', 'preference': 'bootloaderVer', 'role': 'text'},
-	{'node': 'device.versions.umiVer', 'description': '', 'preference': 'umiVer', 'role': 'text'},
-	{'node': 'device.versions.softwareVer', 'description': 'Software Version', 'preference': 'softwareVer', 'role': 'text'},
-	
-	// preferences
-	{'node': 'device.preferences', 'description': 'Preferences', 'role': 'channel'},
-	{'node': 'device.preferences.noAutoPasses', 'description': 'One Pass: Roomba will cover all areas with a single cleaning pass.', 'preference': 'noAutoPasses', 'role': 'state', 'type': 'boolean'},
-	{'node': 'device.preferences.noPP', 'description': '', 'preference': 'noPP', 'role': 'state', 'type': 'boolean'},
-	{'node': 'device.preferences.binPause', 'description': '', 'preference': 'binPause', 'role': 'state', 'type': 'boolean'},
-	{'node': 'device.preferences.openOnly', 'description': '', 'preference': 'openOnly', 'role': 'state', 'type': 'boolean'},
-	{'node': 'device.preferences.twoPass', 'description': 'Roomba will cover all areas a second time. This may be helpful in homes with pets or for occasional deep cleaning.', 'preference': 'twoPass', 'role': 'state', 'type': 'boolean'},
-	{'node': 'device.preferences.schedHold', 'description': '', 'preference': 'schedHold', 'role': 'state', 'type': 'boolean'},
-	
-	{'node': 'device.preferences.carpetBoostAuto', 'description': 'Automatic: Roomba will automatically boost its vacuum power to deep clean carpets.', 'preference': 'carpetBoost', 'role': 'state', 'type': 'boolean'},
-	{'node': 'device.preferences.carpetBoostHigh', 'description': 'Performance Mode: Roomba will always boost its vacuum to maximise cleaning performance on all floor surfaces.', 'preference': 'vacHigh', 'role': 'state', 'type': 'boolean'},
-	{'node': 'device.preferences.ecoCharge', 'description': '', 'preference': 'ecoCharge', 'role': 'state', 'type': 'boolean'},
-	
-	
-	// states
-	{'node': 'states', 'description': 'Status information', 'role': 'channel'},
-	{'node': 'states.battery', 'description': 'Battery level of the robot', 'preference': 'batPct', 'role': 'value'},
-	{'node': 'states.docked', 'description': 'State whether robot is docked', 'preference': 'dock.known', 'role': 'state', 'type': 'boolean'},
-	{'node': 'states.binInserted', 'description': 'State whether bin is inserted', 'preference': 'bin.present', 'role': 'state', 'type': 'boolean'},
-	{'node': 'states.binFull', 'description': 'State whether bin status is full', 'preference': 'bin.full', 'role': 'state', 'type': 'boolean'},
-	{'node': 'states.status', 'description': 'Current status of the robot', 'preference': 'cleanMissionStatus.phase', 'role': 'text'},
-	{'node': 'states.signal', 'description': 'Signal strength', 'preference': 'signal.snr', 'role': 'value'},
-	
-	// statistics
-	{'node': 'statistics', 'description': 'Statistics', 'role': 'channel'},
-	
-	// statistics - missions
-	{'node': 'statistics.time', 'description': 'Time based Statistics', 'role': 'channel'},
-	{'node': 'statistics.time.avgMin', 'description': '', 'preference': 'bbchg3.avgMin', 'role': 'value'},
-	{'node': 'statistics.time.hOnDock', 'description': '', 'preference': 'bbchg3.hOnDock', 'role': 'value'},
-	{'node': 'statistics.time.nAvail', 'description': '', 'preference': 'bbchg3.nAvail', 'role': 'value'},
-	{'node': 'statistics.time.estCap', 'description': '', 'preference': 'bbchg3.estCap', 'role': 'value'},
-	{'node': 'statistics.time.nLithChrg', 'description': '', 'preference': 'bbchg3.nLithChrg', 'role': 'value'},
-	{'node': 'statistics.time.nNimhChrg', 'description': '', 'preference': 'bbchg3.nNimhChrg', 'role': 'value'},
-	{'node': 'statistics.time.nDocks', 'description': '', 'preference': 'bbchg3.nDocks', 'role': 'value'},
-	
-	// statistics - missions
-	{'node': 'statistics.missions', 'description': 'Mission based Statistics', 'role': 'channel'},
-	{'node': 'statistics.missions.total', 'description': 'Number of cleaning jobs', 'preference': 'bbmssn.nMssn', 'role': 'value'},
-	{'node': 'statistics.missions.succeed', 'description': 'Number of successful cleaning jobs', 'preference': 'bbmssn.nMssnOk', 'role': 'value'},
-	//{'node': 'statistics.missionsC', 'description': '', 'preference': 'bbmssn.nMssnC', 'role': 'value'},
-	{'node': 'statistics.missions.failed', 'description': 'Number of failed cleaning jobs', 'preference': 'bbmssn.nMssnF', 'role': 'value'},
-	//{'node': 'statistics.missions', 'description': '', 'preference': 'bbmssn.aMssnM', 'role': 'value'},
-	//{'node': 'statistics.missions', 'description': '', 'preference': 'bbmssn.aCycleM', 'role': 'value'},
-];
+const NODES = require(__dirname + '/nodes.js');
 
 
 /*
@@ -162,6 +48,8 @@ adapter.on('unload', function(callback)
     try
 	{
         adapter.log.info('Adapter stopped und unloaded.');
+		clearTimeout(reconnect);
+		
         callback();
     }
 	catch(e)
@@ -177,7 +65,23 @@ adapter.on('unload', function(callback)
  */
 adapter.on('ready', function()
 {
+	try
+	{
+		_canvas = require('canvas');
+		_installed = true;
+		
+		Canvas = _canvas.Canvas;
+		Image = _canvas.Image;
+		createCanvas = _canvas.createCanvas;
+	}
+	catch(e)
+	{
+		adapter.log.warn('Canvas not installed! Thus, no map drawings are possible.');
+		adapter.log.debug(e.message);
+	}
+	
 	// set encryption key
+	/*
 	if (adapter.config.encryptionKey === undefined || adapter.config.encryptionKey === '')
 	{
 		var key = encryptor.getEncryptionKey();
@@ -192,6 +96,7 @@ adapter.on('ready', function()
 	}
 	else
 		var key = adapter.config.encryptionKey;
+	*/
 	
 	// check if settings are set
 	if (!adapter.config.username || !adapter.config.password || !adapter.config.ip)
@@ -201,23 +106,18 @@ adapter.on('ready', function()
 	}
 	
 	// decrypt password
+	/*
 	var decrypted = encryptor.decrypt(key, adapter.config.password);
 	if (decrypted === false)
 	{
 		adapter.log.warn('Decrypting password failed!');
 		return;
 	}
+	*/
 	
 	// connect to Roomba
-	try
-	{
-		robot = new Roomba.Local(adapter.config.username, decrypted, adapter.config.ip); // username, password, ip
-	}
-	catch(err)
-	{
-		adapter.log.warn(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75)
-	}
-	
+	robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip); // connect(adapter.config.username, decrypted, adapter.config.ip);
+		
 	// check if connection is successful
 	var nodeConnected = {'node': 'states._connected', 'description': 'Connection state'};
 	
@@ -259,9 +159,19 @@ adapter.on('ready', function()
 	/*
 	 * ROBOT OFFLINE
 	 */
+	var reconnect;
+	adapter.config.reconnect = adapter.config.reconnect === undefined ? 60 : adapter.config.reconnect;
 	robot.on('offline', function(res)
 	{
-		adapter.log.info('Connection lost. Roomba offline.');
+		adapter.log.warn('Connection lost! Roomba offline.');
+		if (adapter.config.reconnect !== 0)
+		{
+			adapter.log.info('Trying to reconnect in ' + adapter.config.reconnect + ' seconds..');
+			reconnect = setTimeout(function()
+			{
+				robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip);
+			}, adapter.config.reconnect * 1000);
+		}
 		
 		connected = false;
 		library.set(nodeConnected, connected);
@@ -272,15 +182,36 @@ adapter.on('ready', function()
 	 * ROBOT MISSION
 	 */
 	mission = null;
+	endLoop = 0;
 	pathColor = adapter.config.pathColor || '#f00';
-	icons = {roomba: getImage(__dirname + '/img/roomba.png'), home: getImage(__dirname + '/img/home.png')};
 	
-	robot.on('mission', function(res)
+	if (_installed)
 	{
-		if (res.cleanMissionStatus.phase !== 'stop' && res.cleanMissionStatus.phase !== 'charge' && res.cleanMissionStatus.phase !== 'stuck')
-			mapMission(res);
+		icons = {roomba: getImage(__dirname + '/img/roomba.png'), home: getImage(__dirname + '/img/home.png')};
+		offset = icons.roomba.width;
 		
-	});
+		adapter.getState('missions.current._data', function(err, state)
+		{
+			// restore last session
+			if (state !== null && state.val !== '')
+			{
+				mission = JSON.parse(state.val);
+				adapter.log.info('Restored last mission (#' + mission.id + ').');
+				adapter.log.debug(state.val);
+			}
+			
+			// robot mission
+			robot.on('mission', function(res)
+			{
+				if (res.cleanMissionStatus.phase === 'hmPostMsn' || endLoop > 600) res.cleanMissionStatus.phase = 'finished';
+				
+				if (res.cleanMissionStatus.phase !== 'stop' && res.cleanMissionStatus.phase !== 'charge' && res.cleanMissionStatus.phase !== 'stuck')
+					mapMission(res);
+				else
+					endLoop++;
+			});
+		});
+	}
 	
 	/*
 	 * ROBOT PREFERENCES
@@ -298,6 +229,7 @@ adapter.on('stateChange', function(node, state)
 	//adapter.log.debug('State of ' + node + ' has changed ' + JSON.stringify(state) + '.');
 	var action = node.substr(node.lastIndexOf('.')+1);
 	
+	// action on Roomba
 	if (listeners.indexOf(action) > -1 && state.ack !== true)
 	{
 		adapter.log.info('Triggered action -' + action + '- on Roomba.');
@@ -305,6 +237,16 @@ adapter.on('stateChange', function(node, state)
 			robot[action]();
 		else
 			adapter.log.warn('Roomba not online! Action not triggered.');
+	}
+	
+	// end mission
+	if (action == '_endMission' && state.ack !== true)
+	{
+		adapter.log.info('Triggered to end the current mission.');
+		if (mission != null)
+			endMission(mission);
+		else
+			adapter.log.warn('Could not save mission.');
 	}
 });
 
@@ -328,7 +270,8 @@ adapter.on('message', function(msg)
 				});
 			});
 			break;
-			
+		
+		/*
 		case 'encrypt':
 			adapter.log.debug('Encrypted message.');
 			library.msg(msg.from, msg.command, {result: true, data: {password: encryptor.encrypt(adapter.config.encryptionKey, msg.message.cleartext)}}, msg.callback);
@@ -338,9 +281,10 @@ adapter.on('message', function(msg)
 			adapter.log.debug('Decrypted message.');
 			library.msg(msg.from, msg.command, {result: true, data: {cleartext: encryptor.decrypt(adapter.config.encryptionKey, msg.message.password)}}, msg.callback);
 			break;
-			
+		*/
+		
 		case 'getIp':
-			Roomba.getRobotIP(function(err, ip)
+			_dorita980.getRobotIP(function(err, ip)
 			{
 				adapter.log.debug('Retrieved IP address: ' + ip);
 				library.msg(msg.from, msg.command, err ? {result: false, error: err.message} : {result: true, data: {ip: ip}}, msg.callback);
@@ -360,7 +304,7 @@ adapter.on('message', function(msg)
 			getPassword(msg.message.ip, function(res)
 			{
 				adapter.log.debug(res.result === true ? 'Successfully retrieved password.' : 'Failed retrieving password.');
-				if (msg.message.encryption && res.result === true) res.data.password = encryptor.encrypt(adapter.config.encryptionKey, res.data.password);
+				//if (msg.message.encryption && res.result === true) res.data.password = encryptor.encrypt(adapter.config.encryptionKey, res.data.password);
 				library.msg(msg.from, msg.command, res, msg.callback);
 			});
 			break;
@@ -379,7 +323,7 @@ adapter.on('message', function(msg)
 function getPassword(ip, callback)
 {
 	// connect
-	var client = tls.connect(8883, ip, {rejectUnauthorized: false});
+	var client = _tls.connect(8883, ip, {rejectUnauthorized: false});
 	client.once('secureConnect', function()
 	{
 		adapter.log.debug("Connected to Roomba!");
@@ -436,7 +380,7 @@ function getPassword(ip, callback)
  */
 function getRobotData(callback, ip)
 {
-	const server = dgram.createSocket('udp4');
+	const server = _dgram.createSocket('udp4');
 	
 	server.bind(5678, function()
 	{
@@ -474,6 +418,23 @@ function getRobotData(callback, ip)
 
 
 /**
+ * Connect to Roomba.
+ *
+ */
+function connect(user, password, ip)
+{
+	adapter.log.info('Connecting to Roomba..');
+	try
+	{
+		return new _dorita980.Local(user, password, ip);
+	}
+	catch(err)
+	{
+		adapter.log.warn(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75)
+	}
+}
+
+/**
  * Update preferences.
  *
  * @param	none
@@ -491,14 +452,15 @@ function updPreferences()
 		adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
 		library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(preferences));
 		
-		nodes.forEach(function(node)
+		NODES.forEach(function(node)
 		{
 			try
 			{
 				// action
 				if (node.action !== undefined)
 				{
-					library.set(Object.assign(node, {common: {role: 'button', 'type': 'boolean'}}), false);
+					adapter.log.debug('Subscribed to states ' + node.node + '.');
+					library.set(node, false);
 					adapter.subscribeStates(node.node); // attach state listener
 				}
 				
@@ -553,7 +515,6 @@ function updPreferences()
 							library.set(node, '');
 					});
 				}
-				
 			}
 			catch(err) {adapter.log.error(JSON.stringify(err.message))}
 		});
@@ -573,14 +534,20 @@ function mapMission(res)
 	// create new map once mission starts
 	if (mission === null || mission.id !== res.cleanMissionStatus.nMssn)
 	{
-		adapter.log.info('Roomba has started a new mission.');
-		mission = {id: res.cleanMissionStatus.nMssn, status: {}, pos: {}, path: []};
+		mission = {id: res.cleanMissionStatus.nMssn, time: {}, status: {}, pos: {}, map: {}, path: []};
+		adapter.log.info('Roomba has started a new mission (#' + mission.id + ').');
+		
 		library._setValue('missions.current.id', mission.id);
 		
 		// started
-		started = Math.floor(Date.now()/1000);
-		library._setValue('missions.current.started', started);
-		library._setValue('missions.current.startedDateTime', library.getDateTime(Date.now()));
+		mission.time.started = Math.floor(Date.now()/1000);
+		mission.time.startedDateTime = library.getDateTime(mission.time.started*1000);
+		library._setValue('missions.current.started', mission.time.started);
+		library._setValue('missions.current.startedDateTime', mission.time.startedDateTime);
+		
+		// reset ended
+		library._setValue('missions.current.ended', '');
+		library._setValue('missions.current.endedDateTime', '');
 		
 		// create canvas for map
 		canvas = createCanvas(mapSize.width, mapSize.height);
@@ -590,20 +557,61 @@ function mapMission(res)
 		// place home icon
 		map.drawImage(icons.home.canvas, mapCenter.h + res.pose.point.x - icons.home.width/2, mapCenter.v + res.pose.point.y - icons.home.height/2, icons.home.width, icons.home.height);
 	}
+	
+	// restore last session
+	else if (mission !== null && mission.id === res.cleanMissionStatus.nMssn && (canvas === undefined || !canvas))
+	{
+		adapter.log.info('Roomba has resumed a previous mission (#' + mission.id + ').');
+		mission.pos = {
+			last: {theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y}
+		};
+		
+		// create canvas for map
+		previous = getImage(mission.map.img);
+		canvas = previous.canvas;
+		map = previous.ctx;
+		map.beginPath();
+	}
+	
+	//
 	else
 		mission.pos.last = {theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y};
 	
 	// add information to payload
 	mission.status = Object.assign({}, res.cleanMissionStatus, {sqm: parseFloat((res.cleanMissionStatus.sqft / 10.764).toFixed(2))});
-	mission.pos.current = {theta: 180-res.pose.theta, x: mapCenter.h + res.pose.point.x, y: mapCenter.v + res.pose.point.y};
-	mission.path.push(mission.pos.current);
+	mission.pos.current = {theta: 180-res.pose.theta, x: mapCenter.h + res.pose.point.x + nPos.x, y: mapCenter.v + res.pose.point.y + nPos.y};
 	
 	// draw position on map
 	try
 	{
+		// resize image if robot moves outside
+		if (mission.pos.current.x < offset || mission.pos.current.y < offset || mission.pos.current.x > mapSize.width-offset || mission.pos.current.y > mapSize.height-offset)
+		{
+			var nSize = {width: mapSize.width, height: mapSize.height};
+			var d = {x: 0, y: 0};
+			
+			if (mission.pos.current.x > mapSize.width-offset) {nSize.width += 100}
+			if (mission.pos.current.y > mapSize.height-offset) {nSize.height += 100}
+			if (mission.pos.current.x < offset) {nSize.width += 100; d.x = 100; nPos.x += 100; mission.pos.last.x += d.x; mission.pos.current.x += d.x}
+			if (mission.pos.current.y < offset) {nSize.height += 100; d.y = 100; nPos.y += 100; mission.pos.last.y += d.y; mission.pos.current.y += d.y}
+			
+			// resize map
+			canvasTmp = createCanvas(nSize.width, nSize.height);
+			mapTmp = canvasTmp.getContext('2d');
+			mapTmp.drawImage(canvas, d.x, d.y);
+			
+			// remap canvas and set new size
+			canvas = canvasTmp;
+			map = mapTmp;
+			mapSize = {width: nSize.width, height: nSize.height};
+		}
+		
 		// robot just started
 		if (mission.pos.last === undefined)
+		{
+			map.fillStyle = pathColor;
 			map.fillRect(mission.pos.current.x, mission.pos.current.y, 1, 1);
+		}
 		
 		// robot moving
 		else
@@ -621,24 +629,36 @@ function mapMission(res)
 		img.drawImage(canvas, 0, 0);
 		
 		// add robot to copied map
+		mission.map = {img: image.toDataURL(), size: mapSize};
 		img.drawImage(rotateImage(icons.roomba.canvas, mission.pos.current.theta), mission.pos.current.x - icons.roomba.width/2, mission.pos.current.y - icons.roomba.height/2, icons.roomba.width, icons.roomba.height);
-		
-		// save map and path
-		library._setValue('missions.current.mapImage', image.toDataURL());
-		library._setValue('missions.current.mapHTML', '<img src="' + image.toDataURL() + '" /style="width:100%;">');
-		library._setValue('missions.current.path', JSON.stringify(mission.path));
-		
-		// additional mission status information
-		library._setValue('missions.current.runtime', Math.floor(Date.now()/1000) - started);
-		library._setValue('missions.current.sqm', mission.status.sqm);
-		library._setValue('missions.current.cycle', mission.status.cycle);
-		library._setValue('missions.current.phase', mission.status.phase);
-		library._setValue('missions.current.error', mission.status.error);
-		library._setValue('missions.current.initiator', mission.status.initiator);
 	}
-	catch(e) {
-		adapter.log.warn(e.message);
-	}
+	catch(e) {adapter.log.warn(e.message)}
+	
+	
+	// add to path
+	mission.path.push(mission.pos.current);
+	
+	// save map and path
+	library._setValue('missions.current.mapImage', mission.map.img);
+	library._setValue('missions.current.mapHTML', '<img src="' + mission.map.img + '" /style="width:100%;">');
+	library._setValue('missions.current.mapSize', JSON.stringify(mission.map.size));
+	library._setValue('missions.current.path', JSON.stringify(mission.path));
+	
+	// additional mission status information
+	mission.time.runtime = Math.floor(Date.now()/1000) - mission.time.started;
+	library._setValue('missions.current.runtime', mission.time.runtime);
+	library._setValue('missions.current.sqm', mission.status.sqm);
+	library._setValue('missions.current.cycle', mission.status.cycle);
+	library._setValue('missions.current.error', !!mission.status.error);
+	library._setValue('missions.current.initiator', mission.status.initiator);
+	library._setValue('missions.current.phase', mission.status.phase);
+	
+	// save data
+	library._setValue('missions.current._data', JSON.stringify(Object.assign(mission, {map: {img: canvas.toDataURL(), size: mapSize}})));
+	
+	// save mission
+	if (mission.status.phase === 'finished')
+		endMission(mission);
 }
 
 
@@ -650,7 +670,7 @@ function getImage(path)
 {
 	// read as image
 	var img = new Image();
-	img.src = fs.readFileSync(path);
+	img.src = path.indexOf('data:image') > -1 && path.indexOf('base64') > -1 ? path : _fs.readFileSync(path);
 	
 	// read as canvas
 	var canvas = createCanvas(img.width, img.height);
@@ -660,6 +680,7 @@ function getImage(path)
 	return {
 		img: img,
 		canvas: canvas,
+		ctx: ctx,
 		width: img.width,
 		height: img.height
 	};
@@ -684,3 +705,50 @@ function rotateImage(img, radiant)
 	
 	return canvas;
 }
+
+
+/**
+ * Ends and saves a mission.
+ *
+ */
+function endMission(mission)
+{
+	var history = []; 
+	
+	// get history
+	adapter.getState('missions.history', function(err, state)
+	{
+		history = state != null && state.val != '' ? JSON.parse(state.val) : history;
+		
+		// add end time
+		mission.time.ended = Math.floor(Date.now()/1000);
+		mission.time.endedDateTime = library.getDateTime(mission.time.ended*1000);
+		library._setValue('missions.current.ended', mission.time.ended);
+		library._setValue('missions.current.endedDateTime', mission.time.endedDateTime);
+		
+		// save data
+		library._setValue('missions.current._data', JSON.stringify(mission));
+		
+		// check for duplicates
+		var duplicate = false;
+		history.forEach(function(entry, i)
+		{
+			if (entry.id == mission.id)
+			{
+				adapter.log.info('Mission has already been saved, but will be overwritten.');
+				history[i] = mission;
+				duplicate = true;
+			}
+		});
+		
+		if (duplicate === false)
+			history.push(mission);
+			
+		// save history
+		library._setValue('missions.history', JSON.stringify(history));
+		adapter.log.info('Mission saved.');
+		
+		endLoop = 0;
+		return true;
+	});
+};

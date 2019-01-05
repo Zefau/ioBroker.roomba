@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "0.2.3",
+        "version": "0.3.0",
         "title": "iRobot Roomba adapter",
         "desc": {
             "en": "ioBroker iRobot Roomba Adapter",
@@ -9,6 +9,10 @@
             "ru": "ioBroker iRobot Roomba драйвер"
         },
         "news": {
+            "0.3.0": {
+                "en": "Image / Map of the current cleaning mission will be created",
+                "de": "Bild / Karte der aktuellen Mission wird erstellt"
+            },
             "0.2.3": {
                 "en": "Fixed an issue encrypting the password when entered by user (no automated retrieval)",
                 "de": "Passwort wird nun verschlüsselt gespeichert"
