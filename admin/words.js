@@ -97,12 +97,20 @@ systemDictionary = {
 		"en": "Retrieve IP &amp; Credentials",
 		"de": "IP &amp; Zugangsdaten abrufen"
 	},
+	"other": {
+		"en": "Other",
+		"de": "Sonstiges"
+	},
+    "reconnect": {
+		"en": "Reconnect time (in sec.), if connection is lost (0 = no reconnect)",
+		"de": "Intervall des Reconnects (in Sek.) bei verlorener Verbindung (0 = deaktiviert)"
+	},
     "refresh": {
 		"en": "Refresh time (in sec.) preferences will be retrieved from robot",
 		"de": "Intervall (in Sek.) der Aktualisierung der Einstellungen"
 	},
-	"other": {
-		"en": "Other",
-		"de": "Sonstiges"
+	"pathColor": {
+		"en": "Color of the drawn path",
+		"de": "Farbe des Wege"
 	},
 };
