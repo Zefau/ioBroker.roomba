@@ -17,6 +17,9 @@
 	var socketConnected;
 	$(window).on('load', function()
 	{
+		var history = [];
+		var title = 'mission_<missions.current.id>_<missions.current.startedDateTime>.png';
+		
 		// config
 		servConn.namespace = 'roomba.0';
 		
@@ -29,6 +32,7 @@
 		});
 		
 		// connect socket
+		var value;
 		servConn.init({
 			connLink: window.location.href.substr(0, window.location.href.indexOf('/', 8))
 		}, {
@@ -44,32 +48,111 @@
 						servConn.getStates(states, function(err, _states)
 						{
 							for (var key in _states)
-								setValue(key, _states[key].val);
+							{
+								if (key === servConn.namespace + '.missions.history')
+								{
+									value = _states[key].val != '' ? JSON.parse(_states[key].val) : [];
+									history = value;
+								}
+								else
+									value = _states[key].val;
+								
+								if (title.indexOf('<') > -1 && !Array.isArray(value))
+									title = title.replace(RegExp('<' + key.replace(servConn.namespace + '.', '') + '>', 'g'), value.toString().replace(/ /g, '_').replace(/:/g, '-'));
+								
+								setValue(key, value);
+							}
 						});
 					}
 				}, 1000);
+				
+				//title = title.replace(RegExp('<[a-zA-Z0-9\.]*>', 'gi'), '');
 			}
 		});
 		
-		//
-		function setValue(id, value)
+		// paste value to document
+		function setValue(id, value, type = 'current')
 		{
 			if (states.indexOf(id) > -1)
 			{
-				var element = $('[data-state="' + id.replace(servConn.namespace+'.', '') + '"]');
-				var type = element.prop("tagName");
+				var elements = $('[data-show="' + type + '"] [data-state="' + id.replace(servConn.namespace + '.', '') + '"]');
+				var tag;
 				
-				switch(type)
+				elements.each(function(i, element)
 				{
-					case "IMG":
-					element.attr('src', value);
-					break;
+					element = $(element);
+					tag = element.prop('tagName');
 					
-					default:
-					element.text(value);
-					break;
-				}
+					switch(tag)
+					{
+						// add map
+						case "IMG":
+							element.attr('src', value);
+							break;
+						
+						// add map
+						case "A":
+							element.attr('href', value);
+							
+							if (element.attr('download'))
+								element.attr('download', title);
+							break;
+						
+						// add history
+						case "UL":
+							if (value.length > 0 && element.children('li[data-mission!="current"]').length !== value.length)
+							{
+								element.append('<li class="setMission" data-mission="current">current mission</li>');
+								value.forEach(function(mission)
+								{
+									element.append('<li class="setMission" data-mission="' + mission.id + '" id="mission=' + mission.id + '">' + mission.time.startedDateTime + ' (#' + mission.id + ')</li>');
+								});
+							}
+						break;
+						
+						// add any other information
+						default:
+							element.text(value);
+							break;
+					}
+				});
 			}
+		}
+		
+		// set mission
+		$('body').on('click', '.setMission', function()
+		{
+			var mission = $(this).data('mission');
+			if (mission == 'current')
+				$('[data-show="mission"]').attr('data-show', 'current');
+			
+			else
+			{
+				$('[data-show="current"]').attr('data-show', 'mission');
+				setMission(mission);
+			}
+		});
+		
+		function setMission(missionId)
+		{
+			history.forEach(function(mission)
+			{
+				if (mission.id != missionId)
+					return;
+				
+				var elements = {
+					'missions.current.mapImage': mission.map.img,
+					
+					'missions.current.id': mission.id,
+					'missions.current.phase': mission.status.phase,
+					'missions.current.sqm': mission.status.sqm,
+					'missions.current.startedDateTime': mission.time.startedDateTime,
+					'missions.current.runtime': mission.time.runtime,
+				};
+				
+				for (var key in elements)
+					setValue(servConn.namespace + '.' + key, elements[key], 'mission');
+			});
 		}
 	});
 	// -->
@@ -77,11 +160,32 @@
 	<style>
 	<!--
 		body {font-family: Verdana, Tahoma}
-		hr {border: 1px solid #ccc}
+		hr {
+			margin-bottom: 10px;
+			border: 1px solid #ccc;
+			border-bottom: 0;
+		}
+		
 		.small {font-size: 11px}
 		h2 {margin-bottom: 5px !important}
 		.material-icons {font-size: inherit}
+		
+		ul {margin-top: 10px}
 		li {margin: 5px 0;}
+		ul.list li {
+			list-style-type: square;
+			margin-left: 10px;
+		}
+		strong {
+			font-weight: bold !important;
+		}
+		
+		.setMission {color: rgb(30, 136, 229)}
+		a:hover,
+		.setMission:hover {
+			text-decoration: underline;
+			cursor: pointer;
+		}
 	// -->
 	</style>
 </head>
@@ -90,7 +194,7 @@
 
 <div class="m adapter-container">
 
-	<div class="row">
+	<div class="row" data-show="current">
 		
 		<div class="col s2">
 			<h2 data-state="device.name">Name</h2>
@@ -100,11 +204,25 @@
 			</div>
 			
 			<hr />
+			<strong>Status</strong>
 			<ul>
-				<li><i class="material-icons">battery_full</i> battery: <span data-state="states.battery">100</span>%</li>
-				<li><i class="material-icons">delete_outline</i> bin full: <span data-state="states.binFull">false</span></li>
+				<li><i class="material-icons">battery_full</i> Battery: <span data-state="states.battery">100</span>%</li>
+				<li><i class="material-icons">delete_outline</i> Bin full: <span data-state="states.binFull">false</span></li>
+			</ul>
+			
+			<hr />
+			<strong>Mission</strong> <small>(<a data-state="missions.current.mapImage" href="#" download="map">download map</a>)</small>
+			<ul>
+				<li><i class="material-icons">assignment</i> Mission: <span data-state="missions.current.id"></span></li>
+				<li><i class="material-icons">directions</i> Status: <span data-state="missions.current.phase"></span></li>
+				<li><i class="material-icons">texture</i> Area cleaned: <span data-state="missions.current.sqm">0</span> m<sup>2</sup></li>
 				<li><i class="material-icons">access_time</i> started: <span data-state="missions.current.startedDateTime">00.00.0000 00:00:00</span></li>
-				<li><i class="material-icons">timer</i> running: <span data-state="missions.current.runtime">xx mins</span> seconds</li>
+				<li><i class="material-icons">timelapse</i> running: <span data-state="missions.current.runtime">xx mins</span> seconds</li>
+			</ul>
+			<hr />
+			
+			<strong>History</strong>
+			<ul class="list" id="history" data-state="missions.history">
 			</ul>
 			
 		</div>
