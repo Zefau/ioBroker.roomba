@@ -629,8 +629,8 @@ function mapMission(res)
 		img.drawImage(canvas, 0, 0);
 		
 		// add robot to copied map
-		mission.map = {img: image.toDataURL(), size: mapSize};
 		img.drawImage(rotateImage(icons.roomba.canvas, mission.pos.current.theta), mission.pos.current.x - icons.roomba.width/2, mission.pos.current.y - icons.roomba.height/2, icons.roomba.width, icons.roomba.height);
+		mission.map = {img: image.toDataURL(), size: mapSize};
 	}
 	catch(e) {adapter.log.warn(e.message)}
 	
