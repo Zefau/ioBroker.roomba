@@ -246,6 +246,9 @@ You may edit the variable ```message``` to any notification you would like to re
 
 ## Changelog
 
+### 0.3.x (2019-01-06)
+- (zefau) Bug fixed (```Mission saved``` loop)
+
 ### 0.3.0 (2019-01-06)
 - (zefau) Image / Map of the current cleaning mission will be created
 - (zefau) Removed encryption of password
