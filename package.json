@@ -35,7 +35,7 @@
   "main": "main.js",
   "scripts": {
     "test": "node node_modules/mocha/bin/mocha --exit",
-    "preinstall": "sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev"
+    "preinstall": "apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev"
   },
   "bugs": {
     "url": "https://github.com/Zefau/ioBroker.roomba/issues"
