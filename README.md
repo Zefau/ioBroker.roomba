@@ -185,12 +185,68 @@ Please help me regarding the description of the preferences. If you know the mea
 
 
 ## Smart Home / Alexa integration using ioBroker.javascript
-Will follow..
+### Send Map via Telegram when mission is finished
+This requires the ioBroker adapter ioBroker.telegram to be installed (https://github.com/ioBroker/ioBroker.telegram).
+
+Create a script in the "common" folder of ioBroker.javascript and add the following listener to it:
+
+```
+var _fs = require('fs');
+
+/*
+ * MISSION END: Send map
+ * 
+ */
+var ns = 'roomba.0';
+var message = "%device.name% finished at %missions.current.endedDateTime% cleaning %missions.current.sqm% sqm in %missions.current.runtime% seconds (%missions.current.error% errors).";
+
+on({id: ns + '.missions.current.ended', change: 'any'}, function(obj)
+{
+    // replace variables with state values
+    var pos, variable, state, value;
+    while (message.indexOf('%') > -1)
+    {
+        pos = message.indexOf('%');
+        variable = message.substring(pos, message.indexOf('%', pos+1)+1);
+        state = getState(ns + '.' + variable.replace(/%/g, ''));
+        
+        if (state !== null && state.val !== null)
+            value = state.val
+        else
+        {
+            log('State ' + variable.replace(/%/g, '') + ' not found!', 'warn');
+            value =  '';
+        }
+
+        if (typeof value === "boolean") value = value === true ? 'with' : 'no';
+        message = message.replace(RegExp(variable, 'gi'), value);
+    }
+    
+    // console
+    log(message);
+    
+    // get image
+    var img = getState('roomba.0.missions.current.mapImage').val;
+
+    if (img !== null && img.indexOf('data:image/png;base64,') > -1)
+    {
+        _fs.writeFile('/tmp/image.png', img.replace(/^data:image\/png;base64,/, ''), 'base64', function(err)
+        {
+            if (err !== null)
+                log(err.message, 'warn');
+            else
+                sendTo('telegram', {text: '/tmp/image.png', message: message});
+        });
+    }
+});
+```
+
+You may edit the variable ```message``` to any notification you would like to receive with the map. You may use ```%name-of-state%``` to retrieve the value of a state within the ioBroker.roomba object tree.
 
 
 ## Changelog
 
-### Current development
+### 0.3.0 (2019-01-06)
 - (zefau) Image / Map of the current cleaning mission will be created
 - (zefau) Removed encryption of password
 
