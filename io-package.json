@@ -45,11 +45,12 @@
         ],
         "readme": "https://github.com/Zefau/ioBroker.roomba/blob/master/README.md",
         "loglevel": "info",
+        "type": "household",
 	"materialize": true,
 	"enabled": true,
+	"localLink": "%web_protocol%://%ip%:%web_port%/roomba/index.html",
         "messagebox": true,
 	"subscribe": "messagebox",
-        "type": "household",
         "authors": [
             {
                 "name": "Zefau",
