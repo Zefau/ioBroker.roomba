@@ -205,9 +205,12 @@ adapter.on('ready', function()
 			{
 				if (res.cleanMissionStatus.phase === 'hmPostMsn' || endLoop > 600) res.cleanMissionStatus.phase = 'finished';
 				
+				// map mission
 				if (res.cleanMissionStatus.phase !== 'stop' && res.cleanMissionStatus.phase !== 'charge' && res.cleanMissionStatus.phase !== 'stuck')
 					mapMission(res);
-				else
+				
+				// end mission after a while, if 'hmPostMsn' was not received
+				else if (mission != null && (mission.time.ended == null || mission.time.ended == ''))
 					endLoop++;
 			});
 		});
