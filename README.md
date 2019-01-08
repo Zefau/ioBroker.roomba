@@ -246,6 +246,9 @@ You may edit the variable ```message``` to any notification you would like to re
 
 ## Changelog
 
+### 0.4.0 (2019-01-08)
+- (zefau) Support for e5 and 600 series (due to support by [dorita980](https://github.com/koalazak/dorita980#readme))
+
 ### 0.3.x (2019-01-06)
 - (zefau) Bug fixed (```Mission saved``` loop)
 
