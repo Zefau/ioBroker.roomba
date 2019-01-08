@@ -30,3 +30,5 @@ addons:
   homebrew:
     packages:
       - cairo
+      - librsvg
+      - jpeg-turbo
