@@ -35,6 +35,7 @@
                 "ru": "первая версия"
             }
         },
+	"license": "MIT",
         "platform": "Javascript/Node.js",
         "mode": "daemon",
         "icon": "roomba.png",
