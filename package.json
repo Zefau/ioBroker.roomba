@@ -1,7 +1,7 @@
 {
   "name": "iobroker.roomba",
   "version": "0.4.1",
-  "description": "ioBroker iRobot Roomba Adapter",
+  "description": "Connect your iRobot Roomba to ioBroker",
   "author": {
     "name": "zefau",
     "email": "zefau@mailbox.org"
