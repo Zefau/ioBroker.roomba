@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>ioBroker.roomba adapter</title>
+	<title>iRobot Roomba</title>
 	
 	<link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
 	<link rel="stylesheet" type="text/css" href="../../lib/css/materialize.css">
@@ -15,6 +15,9 @@
 	<script>
 	<!--
 	var socketConnected;
+	var show = 'current';
+	var current = {};
+	
 	$(window).on('load', function()
 	{
 		var history = [];
@@ -41,9 +44,9 @@
 				console.log('Socket ' + (socketConnected ? 'connected' : 'disconnected') + '!');
 				
 				// retrieve states
-				setInterval(function()
+				var updateData = setTimeout(function getData()
 				{
-					if (socketConnected)
+					if (socketConnected && show == 'current')
 					{
 						servConn.getStates(states, function(err, _states)
 						{
@@ -61,9 +64,12 @@
 									title = title.replace(RegExp('<' + key.replace(servConn.namespace + '.', '') + '>', 'g'), value.toString().replace(/ /g, '_').replace(/:/g, '-'));
 								
 								setValue(key, value);
+								current[key.replace(servConn.namespace + '.', '')] = value;
 							}
 						});
 					}
+
+					updateData = setTimeout(getData, 1000);
 				}, 1000);
 				
 				//title = title.replace(RegExp('<[a-zA-Z0-9\.]*>', 'gi'), '');
@@ -71,11 +77,12 @@
 		});
 		
 		// paste value to document
-		function setValue(id, value, type = 'current')
+		function setValue(id, value)
 		{
+				console.log(JSON.stringify(id));
 			if (states.indexOf(id) > -1)
 			{
-				var elements = $('[data-show="' + type + '"] [data-state="' + id.replace(servConn.namespace + '.', '') + '"]');
+				var elements = $('[data-state="' + id.replace(servConn.namespace + '.', '') + '"]');
 				var tag;
 				
 				elements.each(function(i, element)
@@ -102,10 +109,10 @@
 						case "UL":
 							if (value.length > 0 && element.children('li[data-mission!="current"]').length !== value.length)
 							{
-								element.append('<li class="setMission" data-mission="current">current mission</li>');
-								value.forEach(function(mission)
+								element.append('<li class="setMission" data-mission="current"><a>current mission</a></li>');
+								value.reverse().forEach(function(mission)
 								{
-									element.append('<li class="setMission" data-mission="' + mission.id + '" id="mission=' + mission.id + '">' + mission.time.startedDateTime + ' (#' + mission.id + ')</li>');
+									element.append('<li class="setMission" data-mission="' + mission.id + '" id="mission=' + mission.id + '"><a>' + mission.time.startedDateTime + ' (#' + mission.id + ')</a></li>');
 								});
 							}
 						break;
@@ -124,11 +131,15 @@
 		{
 			var mission = $(this).data('mission');
 			if (mission == 'current')
-				$('[data-show="mission"]').attr('data-show', 'current');
+			{
+				show = 'current';
+				for (var key in current)
+					setValue(servConn.namespace + '.' + key, current[key]);
+			}
 			
 			else
 			{
-				$('[data-show="current"]').attr('data-show', 'mission');
+				show = 'mission';
 				setMission(mission);
 			}
 		});
@@ -151,7 +162,7 @@
 				};
 				
 				for (var key in elements)
-					setValue(servConn.namespace + '.' + key, elements[key], 'mission');
+					setValue(servConn.namespace + '.' + key, elements[key]);
 			});
 		}
 	});
@@ -180,7 +191,7 @@
 			font-weight: bold !important;
 		}
 		
-		.setMission {color: rgb(30, 136, 229)}
+		.setMission a {color: rgb(30, 136, 229)}
 		a:hover,
 		.setMission:hover {
 			text-decoration: underline;

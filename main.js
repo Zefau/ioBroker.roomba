@@ -307,18 +307,19 @@ function main()
 				if (res.pose === null || res.pose === undefined) return;
 				
 				// finish mission
-				if (res.cleanMissionStatus.phase === 'hmPostMsn' || endLoop > 600) res.cleanMissionStatus.phase = 'finished';
+				if (mission.time.ended === undefined && (res.cleanMissionStatus.phase === 'hmPostMsn' || endLoop > 600))
+				{
+					res.cleanMissionStatus.phase = 'finished';
+					endLoop = 0;
+				}
 				
 				// map mission
-				if (res.cleanMissionStatus.phase !== 'stop' && res.cleanMissionStatus.phase !== 'charge' && res.cleanMissionStatus.phase !== 'stuck')
+				if (['stop', 'charge', 'stuck', 'hmPostMsn'].indexOf(res.cleanMissionStatus.phase) === -1)
 					mapMission(res);
 				
 				// end mission after a while, if 'hmPostMsn' was not received
-				else if (mission != null && mission.time.ended === undefined)
-				{
-					adapter.log.debug(JSON.stringify(mission.time.ended));
+				else if (mission.time.ended === undefined && res.cleanMissionStatus.phase !== 'hmPostMsn')
 					endLoop++;
-				}
 			});
 		});
 	}
@@ -579,7 +580,7 @@ function mapMission(res)
 	}
 	
 	// restore last session
-	else if (mission !== null && mission.id === res.cleanMissionStatus.nMssn && (canvas === undefined || !canvas))
+	else if (mission !== null && mission.id === res.cleanMissionStatus.nMssn && mission.time.ended === undefined && (canvas === undefined || !canvas))
 	{
 		adapter.log.info('Roomba has resumed a previous mission (#' + mission.id + ').');
 		mission.pos = {
@@ -766,9 +767,7 @@ function endMission(mission)
 			
 		// save history
 		library._setValue('missions.history', JSON.stringify(history));
-		adapter.log.info('Mission saved.');
-		
-		endLoop = 0;
+		adapter.log.info('Mission #' + mission.id + ' saved.');
 		return true;
 	});
 };
