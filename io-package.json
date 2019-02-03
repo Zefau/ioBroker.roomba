@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "0.4.0",
+        "version": "0.4.1",
         "title": "iRobot Roomba adapter",
         "desc": {
             "en": "ioBroker iRobot Roomba Adapter",
@@ -48,6 +48,7 @@
         "loglevel": "info",
         "type": "household",
 	"materialize": true,
+        "compact": true,
 	"enabled": true,
 	"localLink": "%web_protocol%://%ip%:%web_port%/roomba/index.html",
         "messagebox": true,
