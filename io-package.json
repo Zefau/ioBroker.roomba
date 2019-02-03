@@ -2,13 +2,20 @@
     "common": {
         "name": "roomba",
         "version": "0.4.1",
-        "title": "iRobot Roomba adapter",
+        "title": "iRobot Roomba",
         "desc": {
-            "en": "ioBroker iRobot Roomba Adapter",
-            "de": "ioBroker iRobot Roomba Adapter",
-            "ru": "ioBroker iRobot Roomba драйвер"
+            "en": "Connect your iRobot Roomba to ioBroker",
+            "de": "Verbinde deinen iRobot Roomba mit ioBroker"
         },
         "news": {
+            "0.4.1": {
+                "en": "Bug fixes and support for Compact Mode",
+                "de": "Fehlerbeseitigungen und Unterstützung für Compact Mode"
+            },
+            "0.4.0": {
+                "en": "Support for e5 and 600 series (due to support by dorita980)",
+                "de": "Unterstützung für Serie e5 und 600 (dank dorita980)"
+            },
             "0.3.0": {
                 "en": "Image / Map of the current cleaning mission will be created",
                 "de": "Bild / Karte der aktuellen Mission wird erstellt"
@@ -35,7 +42,7 @@
                 "ru": "первая версия"
             }
         },
-	"license": "MIT",
+		"license": "MIT",
         "platform": "Javascript/Node.js",
         "mode": "daemon",
         "icon": "roomba.png",
@@ -47,12 +54,12 @@
         "readme": "https://github.com/Zefau/ioBroker.roomba/blob/master/README.md",
         "loglevel": "info",
         "type": "household",
-	"materialize": true,
-        "compact": true,
-	"enabled": true,
-	"localLink": "%web_protocol%://%ip%:%web_port%/roomba/index.html",
+		"materialize": true,
+		"compact": true,
+		"enabled": true,
+		"localLink": "%web_protocol%://%ip%:%web_port%/roomba/index.html",
         "messagebox": true,
-	"subscribe": "messagebox",
+		"subscribe": "messagebox",
         "authors": [
             {
                 "name": "Zefau",

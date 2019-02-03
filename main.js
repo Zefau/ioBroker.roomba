@@ -1,6 +1,6 @@
 'use strict';
+const adapterName = require('./io-package.json').common.name;
 const utils = require(__dirname + '/lib/utils'); // Get common adapter utils
-const adapter = utils.Adapter('roomba');
 
 var _fs = require('fs');
 var _dgram = require('dgram');
@@ -22,10 +22,12 @@ const Library = require(__dirname + '/lib/library.js');
  * variables initiation
  */
 var Image, Canvas, createCanvas;
-var library = new Library(adapter);
+var adapter;
+var library;
 //var encryptor = new Encryption(adapter);
 
 var _installed = false;
+var reconnectTimer;
 var robot, connected, mission, previous, icons, pathColor;
 var started, endLoop;
 var canvas, canvasTmp, map, mapTmp, image, img;
@@ -35,36 +37,156 @@ var nPos = {x: 0, y: 0};
 var mapCenter = {h: Math.round(mapSize.width/2), v: Math.round(mapSize.height/2)};
 var offset = 10;
 
-var listeners = ['start', 'stop', 'pause', 'resume', 'dock']; // states that trigger actions
+var listeners = {};
+var actions = ['start', 'stop', 'pause', 'resume', 'dock']; // states that trigger actions
 const NODES = require(__dirname + '/nodes.js');
+const nodeConnected = {'node': 'states._connected', 'description': 'Connection state'};
 
 
 /*
- * ADAPTER UNLOAD
+ * ADAPTER
  *
  */
-adapter.on('unload', function(callback)
+function startAdapter(options)
 {
-    try
+	options = options || {};
+	Object.assign(options,
 	{
-        adapter.log.info('Adapter stopped und unloaded.');
-		clearTimeout(reconnect);
+		name: adapterName
+	});
+	
+	adapter = new utils.Adapter(options);
+	library = new Library(adapter);
+	
+	/*
+	 * ADAPTER READY
+	 *
+	 */
+	adapter.on('ready', main);
+	
+	/*
+	 * ADAPTER UNLOAD
+	 *
+	 */
+	adapter.on('unload', function(callback)
+	{
+		try
+		{
+			adapter.log.info('Adapter stopped und unloaded.');
+			disconnect(false);
+			callback();
+		}
+		catch(e)
+		{
+			callback();
+		}
+	});
+	
+	/*
+	 * STATE CHANGE
+	 *
+	 */
+	adapter.on('stateChange', function(node, state)
+	{
+		//adapter.log.debug('State of ' + node + ' has changed ' + JSON.stringify(state) + '.');
+		var action = node.substr(node.lastIndexOf('.')+1);
 		
-        callback();
-    }
-	catch(e)
+		// action on Roomba
+		if (actions.indexOf(action) > -1 && state.ack !== true)
+		{
+			adapter.log.info('Triggered action -' + action + '- on Roomba.');
+			if (connected)
+				robot[action]();
+			else
+				adapter.log.warn('Roomba not online! Action not triggered.');
+		}
+		
+		// end mission
+		if (action == '_endMission' && state.ack !== true)
+		{
+			adapter.log.info('Triggered to end the current mission.');
+			if (mission != null)
+				endMission(mission);
+			else
+				adapter.log.warn('Could not save mission.');
+		}
+	});
+	
+	/*
+	 * HANDLE MESSAGES
+	 *
+	 */
+	adapter.on('message', function(msg)
 	{
-        callback();
-    }
-});
+		adapter.log.debug('Message: ' + JSON.stringify(msg));
+		
+		switch(msg.command)
+		{
+			case 'getStates':
+				var states = Array.isArray(msg.message.states) ? msg.message.states : [];
+				states.forEach(function(state)
+				{
+					adapter.getState(state, function(err, res)
+					{
+						library.msg(msg.from, msg.command, err || !res ? {result: false, error: err.message} : {result: true, state: res}, msg.callback);
+					});
+				});
+				break;
+			
+			/*
+			case 'encrypt':
+				adapter.log.debug('Encrypted message.');
+				library.msg(msg.from, msg.command, {result: true, data: {password: encryptor.encrypt(adapter.config.encryptionKey, msg.message.cleartext)}}, msg.callback);
+				break;
+				
+			case 'decrypt':
+				adapter.log.debug('Decrypted message.');
+				library.msg(msg.from, msg.command, {result: true, data: {cleartext: encryptor.decrypt(adapter.config.encryptionKey, msg.message.password)}}, msg.callback);
+				break;
+			*/
+			
+			case 'getIp':
+				_dorita980.getRobotIP(function(err, ip)
+				{
+					adapter.log.debug('Retrieved IP address: ' + ip);
+					library.msg(msg.from, msg.command, err ? {result: false, error: err.message} : {result: true, data: {ip: ip}}, msg.callback);
+				});
+				break;
+				
+			case 'getRobotData':
+				getRobotData(function(res)
+				{
+					adapter.log.debug('Retrieved robot data: ' + JSON.stringify(res));
+					library.msg(msg.from, msg.command, res, msg.callback);
+				}, msg.message !== null ? msg.message.ip : undefined);
+				break;
+				
+			case 'getPassword':
+				msg.message.encryption = msg.message.encryption === undefined ? true : msg.message.encryption;
+				getPassword(msg.message.ip, function(res)
+				{
+					adapter.log.debug(res.result === true ? 'Successfully retrieved password.' : 'Failed retrieving password.');
+					//if (msg.message.encryption && res.result === true) res.data.password = encryptor.encrypt(adapter.config.encryptionKey, res.data.password);
+					library.msg(msg.from, msg.command, res, msg.callback);
+				});
+				break;
+		}
+	});
+	
+	return adapter;	
+};
 
 
-/*
- * ADAPTER READY
+/**
+ *
  *
  */
-adapter.on('ready', function()
+function main()
 {
+	// set config
+	adapter.config.reconnect = adapter.config.reconnect === undefined ? 60 : adapter.config.reconnect;
+	
+	// check for canvas
 	try
 	{
 		_canvas = require('canvas');
@@ -117,22 +239,7 @@ adapter.on('ready', function()
 	
 	// connect to Roomba
 	robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip); // connect(adapter.config.username, decrypted, adapter.config.ip);
-		
-	// check if connection is successful
-	var nodeConnected = {'node': 'states._connected', 'description': 'Connection state'};
 	
-	/*
-	 * ROBOT ERROR
-	 */
-	robot.on('error', function(err)
-	{
-		adapter.log.warn(err.message);
-		
-		connected = false;
-		library.set(nodeConnected, connected);
-		robot.end();
-	});
-	 
 	/*
 	 * ROBOT CONNECT
 	 */
@@ -145,37 +252,30 @@ adapter.on('ready', function()
 	});
 	
 	/*
+	 * ROBOT ERROR
+	 */
+	robot.on('error', function(err)
+	{
+		adapter.log.error(err.message);
+		disconnect(true);
+	});
+	
+	/*
 	 * ROBOT CLOSE
 	 */
 	robot.on('close', function(res)
 	{
 		//adapter.log.debug('Roomba Connection closed.');
-		
-		connected = false;
-		library.set(nodeConnected, connected);
-		robot.end();
+		disconnect(false);
 	});
 	
 	/*
 	 * ROBOT OFFLINE
 	 */
-	var reconnect;
-	adapter.config.reconnect = adapter.config.reconnect === undefined ? 60 : adapter.config.reconnect;
 	robot.on('offline', function(res)
 	{
 		adapter.log.warn('Connection lost! Roomba offline.');
-		if (adapter.config.reconnect !== 0)
-		{
-			adapter.log.info('Trying to reconnect in ' + adapter.config.reconnect + ' seconds..');
-			reconnect = setTimeout(function()
-			{
-				robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip);
-			}, adapter.config.reconnect * 1000);
-		}
-		
-		connected = false;
-		library.set(nodeConnected, connected);
-		robot.end();
+		disconnect(true);
 	});
 	
 	/*
@@ -203,6 +303,10 @@ adapter.on('ready', function()
 			// robot mission
 			robot.on('mission', function(res)
 			{
+				// interrupt if no position is given
+				if (res.pose === null || res.pose === undefined) return;
+				
+				// finish mission
 				if (res.cleanMissionStatus.phase === 'hmPostMsn' || endLoop > 600) res.cleanMissionStatus.phase = 'finished';
 				
 				// map mission
@@ -210,8 +314,11 @@ adapter.on('ready', function()
 					mapMission(res);
 				
 				// end mission after a while, if 'hmPostMsn' was not received
-				else if (mission != null && (mission.time.ended == null || mission.time.ended == ''))
+				else if (mission != null && mission.time.ended === undefined)
+				{
+					adapter.log.debug(JSON.stringify(mission.time.ended));
 					endLoop++;
+				}
 			});
 		});
 	}
@@ -220,99 +327,8 @@ adapter.on('ready', function()
 	 * ROBOT PREFERENCES
 	 */
 	updPreferences();
-	setInterval(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 60000);
-});
-
-/*
- * STATE CHANGE
- *
- */
-adapter.on('stateChange', function(node, state)
-{
-	//adapter.log.debug('State of ' + node + ' has changed ' + JSON.stringify(state) + '.');
-	var action = node.substr(node.lastIndexOf('.')+1);
-	
-	// action on Roomba
-	if (listeners.indexOf(action) > -1 && state.ack !== true)
-	{
-		adapter.log.info('Triggered action -' + action + '- on Roomba.');
-		if (connected)
-			robot[action]();
-		else
-			adapter.log.warn('Roomba not online! Action not triggered.');
-	}
-	
-	// end mission
-	if (action == '_endMission' && state.ack !== true)
-	{
-		adapter.log.info('Triggered to end the current mission.');
-		if (mission != null)
-			endMission(mission);
-		else
-			adapter.log.warn('Could not save mission.');
-	}
-});
-
-/*
- * HANDLE MESSAGES
- *
- */
-adapter.on('message', function(msg)
-{
-	adapter.log.debug('Message: ' + JSON.stringify(msg));
-	
-	switch(msg.command)
-	{
-		case 'getStates':
-			var states = Array.isArray(msg.message.states) ? msg.message.states : [];
-			states.forEach(function(state)
-			{
-				adapter.getState(state, function(err, res)
-				{
-					library.msg(msg.from, msg.command, err || !res ? {result: false, error: err.message} : {result: true, state: res}, msg.callback);
-				});
-			});
-			break;
-		
-		/*
-		case 'encrypt':
-			adapter.log.debug('Encrypted message.');
-			library.msg(msg.from, msg.command, {result: true, data: {password: encryptor.encrypt(adapter.config.encryptionKey, msg.message.cleartext)}}, msg.callback);
-			break;
-			
-		case 'decrypt':
-			adapter.log.debug('Decrypted message.');
-			library.msg(msg.from, msg.command, {result: true, data: {cleartext: encryptor.decrypt(adapter.config.encryptionKey, msg.message.password)}}, msg.callback);
-			break;
-		*/
-		
-		case 'getIp':
-			_dorita980.getRobotIP(function(err, ip)
-			{
-				adapter.log.debug('Retrieved IP address: ' + ip);
-				library.msg(msg.from, msg.command, err ? {result: false, error: err.message} : {result: true, data: {ip: ip}}, msg.callback);
-			});
-			break;
-			
-		case 'getRobotData':
-			getRobotData(function(res)
-			{
-				adapter.log.debug('Retrieved robot data: ' + JSON.stringify(res));
-				library.msg(msg.from, msg.command, res, msg.callback);
-			}, msg.message !== null ? msg.message.ip : undefined);
-			break;
-			
-		case 'getPassword':
-			msg.message.encryption = msg.message.encryption === undefined ? true : msg.message.encryption;
-			getPassword(msg.message.ip, function(res)
-			{
-				adapter.log.debug(res.result === true ? 'Successfully retrieved password.' : 'Failed retrieving password.');
-				//if (msg.message.encryption && res.result === true) res.data.password = encryptor.encrypt(adapter.config.encryptionKey, res.data.password);
-				library.msg(msg.from, msg.command, res, msg.callback);
-			});
-			break;
-	}
-});
+	setInterval(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 600000);
+}
 
 
 /**
@@ -460,11 +476,12 @@ function updPreferences()
 			try
 			{
 				// action
-				if (node.action !== undefined)
+				if (node.action !== undefined && listeners[node.node] === undefined)
 				{
 					adapter.log.debug('Subscribed to states ' + node.node + '.');
 					library.set(node, false);
 					adapter.subscribeStates(node.node); // attach state listener
+					listeners[node.node] = node;
 				}
 				
 				// preference
@@ -755,3 +772,43 @@ function endMission(mission)
 		return true;
 	});
 };
+
+
+/**
+ * Disconnects a Roomba.
+ *
+ */
+function disconnect(reconnect)
+{
+	connected = false;
+	library.set(nodeConnected, connected);
+	//robot.end();
+	
+	// reconnect
+	/*
+	if (adapter.config.reconnect !== 0)
+	{
+		if (reconnect === true)
+		{
+			adapter.log.info('Trying to reconnect in ' + adapter.config.reconnect + ' seconds..');
+			reconnectTimer = setTimeout(function()
+			{
+				robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip);
+			}, adapter.config.reconnect * 1000);
+		}
+		else
+			clearTimeout(reconnectTimer);
+	}
+	*/
+}
+
+
+/*
+ * COMPACT MODE
+ * If started as allInOne/compact mode => return function to create instance
+ *
+ */
+if (module && module.parent)
+	module.exports = startAdapter;
+else
+	startAdapter(); // or start the instance directly
