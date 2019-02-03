@@ -15,7 +15,6 @@ before_script:
   - 'npm install https://github.com/ioBroker/ioBroker.js-controller/tarball/master --production'
 env:
 - CXX=g++-4.9
-- MATRIX_EVAL="brew install gcc && CC=gcc-7 && CXX=g++-7"
 addons:
   apt:
     sources:
@@ -34,6 +33,3 @@ addons:
       - cairo
       - librsvg
       - jpeg-turbo
-
-before_install:
-    - eval "${MATRIX_EVAL}"
