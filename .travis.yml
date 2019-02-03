@@ -14,8 +14,7 @@ before_script:
   - npm install winston@2.3.1
   - 'npm install https://github.com/ioBroker/ioBroker.js-controller/tarball/master --production'
 env:
-#  - CC=gcc-8 CXX=g++-8
-  - CC=clang-3.9 CXX=clang++
+- CXX=g++-4.9
 addons:
   apt:
     sources:
@@ -30,29 +29,7 @@ addons:
       - librsvg2-dev
   homebrew:
     packages:
-      - clang-3.9
+      - g++-4.9
       - cairo
       - librsvg
       - jpeg-turbo
-install:
-- |
-    if [[ "${CC}" =~ gcc- ]]; then
-      # Update command line tool to avoid an error:
-      # "_stdio.h: No such file or directory", when building samtools.
-      softwareupdate --list
-      softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-10.1"
-
-      CC_PKG="$(echo "${CC}" | sed -e 's/-/@/')"
-      echo "Installing ${CC_PKG}."
-      brew install "${CC_PKG}"
-    fi
-    if [[ "${CC}" =~ clang- ]]; then
-      echo "Installing ${CC}."
-      CC_VERSION=$(echo "${CC}" | sed -e 's/^clang-//')
-      brew install "llvm@${CC_VERSION}"
-      brew install libomp
-      CC_PREFIX=$(brew --prefix "llvm@${CC_VERSION}")
-      export PATH="${CC_PREFIX}/bin:$PATH"
-      export LDFLAGS="-L${CC_PREFIX}/lib -Wl,-rpath,${CC_PREFIX}/lib"
-      export CPPFLAGS="-I${CC_PREFIX}/include"
-    fi
