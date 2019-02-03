@@ -33,3 +33,15 @@ addons:
       - cairo
       - librsvg
       - jpeg-turbo
+install:
+- |
+    if [[ "${CC}" =~ clang- ]]; then
+      echo "Installing ${CC}."
+      CC_VERSION=$(echo "${CC}" | sed -e 's/^clang-//')
+      brew install "llvm@${CC_VERSION}"
+      brew install libomp
+      CC_PREFIX=$(brew --prefix "llvm@${CC_VERSION}")
+      export PATH="${CC_PREFIX}/bin:$PATH"
+      export LDFLAGS="-L${CC_PREFIX}/lib -Wl,-rpath,${CC_PREFIX}/lib"
+      export CPPFLAGS="-I${CC_PREFIX}/include"
+    fi
