@@ -14,7 +14,8 @@ before_script:
   - npm install winston@2.3.1
   - 'npm install https://github.com/ioBroker/ioBroker.js-controller/tarball/master --production'
 env:
-  - CC=gcc-8 CXX=g++-8
+#  - CC=gcc-8 CXX=g++-8
+  - CC=clang-3.9 CXX=clang++
 addons:
   apt:
     sources:
@@ -35,6 +36,16 @@ addons:
       - jpeg-turbo
 install:
 - |
+    if [[ "${CC}" =~ gcc- ]]; then
+      # Update command line tool to avoid an error:
+      # "_stdio.h: No such file or directory", when building samtools.
+      softwareupdate --list
+      softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-10.1"
+
+      CC_PKG="$(echo "${CC}" | sed -e 's/-/@/')"
+      echo "Installing ${CC_PKG}."
+      brew install "${CC_PKG}"
+    fi
     if [[ "${CC}" =~ clang- ]]; then
       echo "Installing ${CC}."
       CC_VERSION=$(echo "${CC}" | sed -e 's/^clang-//')
