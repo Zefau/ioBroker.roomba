@@ -1,6 +1,6 @@
 {
   "name": "iobroker.roomba",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "ioBroker iRobot Roomba Adapter",
   "author": {
     "name": "zefau",
@@ -24,8 +24,8 @@
     "url": "https://github.com/Zefau/ioBroker.roomba"
   },
   "dependencies": {
-    "dorita980": "^3.1.0",
-    "canvas": "^2.2.0"
+    "dorita980": "^3.1.1",
+    "canvas": "^2.3.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
