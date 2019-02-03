@@ -14,7 +14,7 @@ before_script:
   - npm install winston@2.3.1
   - 'npm install https://github.com/ioBroker/ioBroker.js-controller/tarball/master --production'
 env:
-  - CXX="clang++-3.7 -stdlib=libc++"
+  - CC=gcc-8 CXX=g++-8
 addons:
   apt:
     sources:
@@ -29,6 +29,7 @@ addons:
       - librsvg2-dev
   homebrew:
     packages:
+      - clang-3.9
       - cairo
       - librsvg
       - jpeg-turbo
