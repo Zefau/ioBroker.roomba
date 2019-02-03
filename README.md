@@ -202,6 +202,8 @@ var message = "%device.name% finished at %missions.current.endedDateTime% cleani
 
 on({id: ns + '.missions.current.ended', change: 'any'}, function(obj)
 {
+    if (!obj.val) return;
+    
     // replace variables with state values
     var pos, variable, state, value;
     while (message.indexOf('%') > -1)
@@ -240,6 +242,8 @@ on({id: ns + '.missions.current.ended', change: 'any'}, function(obj)
     }
 });
 ```
+
+_2019-02-03 fixed error that sends map at the beginning of a mission_ 
 
 You may edit the variable ```message``` to any notification you would like to receive with the map. You may use ```%name-of-state%``` to retrieve the value of a state within the ioBroker.roomba object tree.
 
