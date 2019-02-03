@@ -14,13 +14,13 @@ before_script:
   - npm install winston@2.3.1
   - 'npm install https://github.com/ioBroker/ioBroker.js-controller/tarball/master --production'
 env:
-  - CXX=g++-4.8
+  - CXX=g++
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
     packages:
-      - g++-4.8
+      - g++-4.9
       - build-essential
       - libcairo2-dev
       - libpango1.0-dev
