@@ -246,6 +246,10 @@ You may edit the variable ```message``` to any notification you would like to re
 
 ## Changelog
 
+### 0.4.1 (2019-02-03)
+- (zefau) Support for Compact Mode
+- (zefau) Bug fixing
+
 ### 0.4.0 (2019-01-08)
 - (zefau) Support for e5 and 600 series (due to support by [dorita980](https://github.com/koalazak/dorita980#readme))
 
