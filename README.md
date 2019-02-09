@@ -250,6 +250,9 @@ You may edit the variable ```message``` to any notification you would like to re
 
 ## Changelog
 
+### 0.4.2 (2019-02-09)
+- (zefau) Bug fixing
+
 ### 0.4.1 (2019-02-03)
 - (zefau) Support for Compact Mode
 - (zefau) Bug fixing
