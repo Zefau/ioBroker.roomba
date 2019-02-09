@@ -312,7 +312,7 @@ function main()
 					mapMission(res);
 				
 				// end mission after a while, if 'hmPostMsn' was not received
-				else if ((mission.time === undefined || mission.time.ended === undefined) && res.cleanMissionStatus.phase !== 'finished')
+				else if (mission !== null && mission.time !== undefined && mission.time.ended === undefined && res.cleanMissionStatus.phase !== 'finished')
 					endLoop++;
 			});
 		});
