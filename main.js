@@ -305,20 +305,14 @@ function main()
 			{
 				// interrupt if no position is given
 				if (res.pose === null || res.pose === undefined) return;
-				
-				// finish mission
-				if (mission.time.ended === undefined && (res.cleanMissionStatus.phase === 'hmPostMsn' || endLoop > 600))
-				{
-					res.cleanMissionStatus.phase = 'finished';
-					endLoop = 0;
-				}
+				res.cleanMissionStatus.phase = res.cleanMissionStatus.phase === 'hmPostMsn' ? 'finished' : res.cleanMissionStatus.phase;
 				
 				// map mission
-				if (['stop', 'charge', 'stuck', 'hmPostMsn'].indexOf(res.cleanMissionStatus.phase) === -1)
+				if ((['stop', 'charge', 'stuck', 'finished'].indexOf(res.cleanMissionStatus.phase) === -1) || (res.cleanMissionStatus.phase == 'finished' && (mission.time === undefined || mission.time.ended === undefined)))
 					mapMission(res);
 				
 				// end mission after a while, if 'hmPostMsn' was not received
-				else if (mission.time.ended === undefined && res.cleanMissionStatus.phase !== 'hmPostMsn')
+				else if ((mission.time === undefined || mission.time.ended === undefined) && res.cleanMissionStatus.phase !== 'finished')
 					endLoop++;
 			});
 		});
@@ -768,6 +762,8 @@ function endMission(mission)
 		// save history
 		library._setValue('missions.history', JSON.stringify(history));
 		adapter.log.info('Mission #' + mission.id + ' saved.');
+		endLoop = 0;
+		
 		return true;
 	});
 };
