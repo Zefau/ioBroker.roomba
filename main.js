@@ -321,7 +321,7 @@ function main()
 	/*
 	 * ROBOT PREFERENCES
 	 */
-	updPreferences(['cleanMissionStatus', 'cleanSchedule', 'name', 'vacHigh', 'bbchg3', 'signal']);
+	updPreferences(); // ['cleanMissionStatus', 'cleanSchedule', 'name', 'vacHigh', 'bbchg3', 'signal']
 }
 
 
@@ -454,100 +454,98 @@ function connect(user, password, ip)
  * @return	void
  *
  */
-function updPreferences(states)
+function updPreferences()
 {
 	var tmp, preference, index, _raw;
-	states.forEach(function(state)
+	robot.getPreferences().then((preferences) =>
 	{
-		robot.getRobotState(state).then((preferences) =>
-		{
-			adapter.log.debug('Retrieved preferences for ' + state + ': ' + JSON.stringify(preferences));
-			
-			// save raw preferences
-			adapter.getState('device._rawData', function(err, obj)
-			{
-				if (err || !obj || !obj.val) return;
-				
-				_raw = JSON.parse(obj.val);
-				_raw[state] = preferences;
-				library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(_raw));
-			});
-			
-			// update states
-			NODES.forEach(function(node)
-			{
-				try
-				{
-					// action
-					if (node.action !== undefined && listeners[node.node] === undefined)
-					{
-						adapter.log.debug('Subscribed to states ' + node.node + '.');
-						library.set(node, false);
-						adapter.subscribeStates(node.node); // attach state listener
-						listeners[node.node] = node;
-					}
-					
-					// preference
-					else if (node.preference !== undefined)
-					{
-						tmp = Object.assign({}, preferences);
-						preference = node.preference;
-						
-						// go through preferences
-						while (preference.indexOf('.') > -1)
-						{
-							try
-							{
-								index = preference.substr(0, preference.indexOf('.'));
-								preference = preference.substr(preference.indexOf('.')+1);
-								tmp = tmp[index];
-							}
-							catch(err) {adapter.log.debug(err.message);}
-						}
-						
-						// check value
-						if (tmp === undefined || tmp[preference] === undefined || tmp[preference] === 'aN.aN.NaN aN:aN:aN')
-							return;
-						
-						// convert value
-						if (node.kind !== undefined)
-						{
-							switch(node.kind.toLowerCase())
-							{
-								case "ip":
-									tmp[preference] = library.getIP(tmp[preference]);
-									break;
-								
-								case "datetime":
-									tmp[preference] = library.getDateTime(tmp[preference]*1000);
-									break;
-							}
-						}
-						
-						// write value
-						if (node.exception === undefined || tmp[preference] !== node.exception) // only write value if not defined as exceptional
-							library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
-					}
-					
-					// only state creation
-					else
-					{
-						adapter.getState(node.node, function(err, res)
-						{
-							if ((err !== null || !res) && (node.node !== undefined && node.description !== undefined))
-								library.set(node, '');
-						});
-					}
-				}
-				catch(err) {adapter.log.error(JSON.stringify(err.message))}
-			});
-		});
+		adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
 		
-		setTimeout(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 600000, [state]);
+		// save raw preferences
+		/*
+		adapter.getState('device._rawData', function(err, obj)
+		{
+			if (err || !obj || !obj.val) return;
+			
+			_raw = JSON.parse(obj.val);
+			_raw[state] = preferences;
+			library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(_raw));
+		});
+		*/
+		
+		// update states
+		NODES.forEach(function(node)
+		{
+			try
+			{
+				// action
+				if (node.action !== undefined && listeners[node.node] === undefined)
+				{
+					adapter.log.debug('Subscribed to states ' + node.node + '.');
+					library.set(node, false);
+					adapter.subscribeStates(node.node); // attach state listener
+					listeners[node.node] = node;
+				}
+				
+				// preference
+				else if (node.preference !== undefined)
+				{
+					tmp = Object.assign({}, preferences);
+					preference = node.preference;
+					
+					// go through preferences
+					while (preference.indexOf('.') > -1)
+					{
+						try
+						{
+							index = preference.substr(0, preference.indexOf('.'));
+							preference = preference.substr(preference.indexOf('.')+1);
+							tmp = tmp[index];
+						}
+						catch(err) {adapter.log.debug(err.message);}
+					}
+					
+					// check value
+					if (tmp === undefined || tmp[preference] === undefined || tmp[preference] === 'aN.aN.NaN aN:aN:aN')
+						return;
+					
+					// convert value
+					if (node.kind !== undefined)
+					{
+						switch(node.kind.toLowerCase())
+						{
+							case "ip":
+								tmp[preference] = library.getIP(tmp[preference]);
+								break;
+							
+							case "datetime":
+								tmp[preference] = library.getDateTime(tmp[preference]*1000);
+								break;
+						}
+					}
+					
+					// write value
+					if (node.exception === undefined || tmp[preference] !== node.exception) // only write value if not defined as exceptional
+						library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
+				}
+				
+				// only state creation
+				else
+				{
+					adapter.getState(node.node, function(err, res)
+					{
+						if ((err !== null || !res) && (node.node !== undefined && node.description !== undefined))
+							library.set(node, '');
+					});
+				}
+			}
+			catch(err) {adapter.log.error(JSON.stringify(err.message))}
+		});
 	});
 	
 	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
 	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
+	setTimeout(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 600000);
 };
 
 
