@@ -321,7 +321,7 @@ function main()
 	/*
 	 * ROBOT PREFERENCES
 	 */
-	updPreferences(); // ['cleanMissionStatus', 'cleanSchedule', 'name', 'vacHigh', 'bbchg3', 'signal']
+	updPreferences();
 }
 
 
@@ -456,22 +456,30 @@ function connect(user, password, ip)
  */
 function updPreferences()
 {
-	var tmp, preference, index, _raw;
-	robot.getPreferences().then((preferences) =>
+	var preferences = {};
+	
+	// retrieve preferences from robot
+	var retrieve = true;
+	robot.on('packetreceive', function(packet)
 	{
+		if (packet.payload && retrieve)
+		{
+			packet.payload = JSON.parse(packet.payload);
+			
+			if (packet.payload.state !== null && packet.payload.state.reported !== null)
+				preferences = Object.assign(preferences, packet.payload.state.reported);
+		}
+	});
+	
+	// set preferences to states
+	var tmp, preference, index;
+	var pref = setTimeout(function()
+	{
+		retrieve = false;
 		adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
 		
 		// save raw preferences
-		/*
-		adapter.getState('device._rawData', function(err, obj)
-		{
-			if (err || !obj || !obj.val) return;
-			
-			_raw = JSON.parse(obj.val);
-			_raw[state] = preferences;
-			library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(_raw));
-		});
-		*/
+		library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(preferences));
 		
 		// update states
 		NODES.forEach(function(node)
@@ -541,11 +549,12 @@ function updPreferences()
 			}
 			catch(err) {adapter.log.error(JSON.stringify(err.message))}
 		});
-	});
-	
-	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
-	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
-	setTimeout(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 600000);
+		
+		library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
+		library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
+		setTimeout(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 600000);
+		
+	}, 5000);
 };
 
 
