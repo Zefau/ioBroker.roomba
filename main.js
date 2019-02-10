@@ -321,8 +321,7 @@ function main()
 	/*
 	 * ROBOT PREFERENCES
 	 */
-	updPreferences();
-	setInterval(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 600000);
+	updPreferences(['cleanMissionStatus', 'cleanSchedule', 'name', 'vacHigh', 'bbchg3', 'signal']);
 }
 
 
@@ -455,84 +454,96 @@ function connect(user, password, ip)
  * @return	void
  *
  */
-function updPreferences()
+function updPreferences(states)
 {
-	var states = ['cleanMissionStatus', 'cleanSchedule', 'name', 'vacHigh', 'bbchg3', 'signal'];
-	
-	
-	var tmp, preference, index;
-	robot.getRobotState(states).then((preferences) =>
+	var tmp, preference, index, _raw;
+	states.forEach(function(state)
 	{
-		adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
-		library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(preferences));
-		
-		NODES.forEach(function(node)
+		robot.getRobotState(state).then((preferences) =>
 		{
-			try
+			adapter.log.debug('Retrieved preferences for ' + state + ': ' + JSON.stringify(preferences));
+			
+			// save raw preferences
+			adapter.getState('device._rawData', function(err, obj)
 			{
-				// action
-				if (node.action !== undefined && listeners[node.node] === undefined)
-				{
-					adapter.log.debug('Subscribed to states ' + node.node + '.');
-					library.set(node, false);
-					adapter.subscribeStates(node.node); // attach state listener
-					listeners[node.node] = node;
-				}
+				if (err || !obj || !obj.val) return;
 				
-				// preference
-				else if (node.preference !== undefined)
+				_raw = JSON.parse(obj.val);
+				_raw[state] = preferences;
+				library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(_raw));
+			});
+			
+			// update states
+			NODES.forEach(function(node)
+			{
+				try
 				{
-					tmp = Object.assign({}, preferences);
-					preference = node.preference;
-					
-					// go through preferences
-					while (preference.indexOf('.') > -1)
+					// action
+					if (node.action !== undefined && listeners[node.node] === undefined)
 					{
-						try
-						{
-							index = preference.substr(0, preference.indexOf('.'));
-							preference = preference.substr(preference.indexOf('.')+1);
-							tmp = tmp[index];
-						}
-						catch(err) {adapter.log.debug(err.message);}
+						adapter.log.debug('Subscribed to states ' + node.node + '.');
+						library.set(node, false);
+						adapter.subscribeStates(node.node); // attach state listener
+						listeners[node.node] = node;
 					}
 					
-					// check value
-					if (tmp[preference] === 'aN.aN.NaN aN:aN:aN')
-						return;
-					
-					// convert value
-					if (node.kind !== undefined)
+					// preference
+					else if (node.preference !== undefined)
 					{
-						switch(node.kind.toLowerCase())
+						tmp = Object.assign({}, preferences);
+						preference = node.preference;
+						
+						// go through preferences
+						while (preference.indexOf('.') > -1)
 						{
-							case "ip":
-								tmp[preference] = library.getIP(tmp[preference]);
-								break;
-							
-							case "datetime":
-								tmp[preference] = library.getDateTime(tmp[preference]*1000);
-								break;
+							try
+							{
+								index = preference.substr(0, preference.indexOf('.'));
+								preference = preference.substr(preference.indexOf('.')+1);
+								tmp = tmp[index];
+							}
+							catch(err) {adapter.log.debug(err.message);}
 						}
+						
+						// check value
+						if (tmp === undefined || tmp[preference] === undefined || tmp[preference] === 'aN.aN.NaN aN:aN:aN')
+							return;
+						
+						// convert value
+						if (node.kind !== undefined)
+						{
+							switch(node.kind.toLowerCase())
+							{
+								case "ip":
+									tmp[preference] = library.getIP(tmp[preference]);
+									break;
+								
+								case "datetime":
+									tmp[preference] = library.getDateTime(tmp[preference]*1000);
+									break;
+							}
+						}
+						
+						// write value
+						if (node.exception === undefined || tmp[preference] !== node.exception) // only write value if not defined as exceptional
+							library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
 					}
 					
-					// write value
-					if (node.exception === undefined || tmp[preference] !== node.exception) // only write value if not defined as exceptional
-						library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
-				}
-				
-				// only state creation
-				else
-				{
-					adapter.getState(node.node, function(err, res)
+					// only state creation
+					else
 					{
-						if ((err !== null || !res) && (node.node !== undefined && node.description !== undefined))
-							library.set(node, '');
-					});
+						adapter.getState(node.node, function(err, res)
+						{
+							if ((err !== null || !res) && (node.node !== undefined && node.description !== undefined))
+								library.set(node, '');
+						});
+					}
 				}
-			}
-			catch(err) {adapter.log.error(JSON.stringify(err.message))}
+				catch(err) {adapter.log.error(JSON.stringify(err.message))}
+			});
 		});
+		
+		setTimeout(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 600000, [state]);
 	});
 	
 	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
