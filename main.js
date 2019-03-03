@@ -1,6 +1,6 @@
 'use strict';
 const adapterName = require('./io-package.json').common.name;
-const utils = require(__dirname + '/lib/utils'); // Get common adapter utils
+const utils = require('@iobroker/adapter-core'); // Get common adapter utils
 
 var _fs = require('fs');
 var _dgram = require('dgram');
