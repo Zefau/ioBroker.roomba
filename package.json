@@ -25,17 +25,22 @@
   },
   "dependencies": {
     "dorita980": "^3.1.1",
-    "canvas": "^2.3.1"
+    "canvas": "^2.3.1",
+    "@iobroker/adapter-core": "^1.0.3"
   },
   "devDependencies": {
     "gulp": "^4.0.0",
     "mocha": "^4.1.0",
     "chai": "^4.1.2",
-    "axios": "^0.18.0"
+    "axios": "^0.18.0",
+    "@iobroker/testing": "^1.1.10"
   },
   "main": "main.js",
   "scripts": {
-    "test": "node node_modules/mocha/bin/mocha --exit"
+    "test": "npm run test:package && npm run test:unit",
+    "test:package": "mocha test/package --exit",
+    "test:unit": "mocha test/unit --exit",
+    "test:integration": "mocha test/integration --exit"
   },
   "bugs": {
     "url": "https://github.com/Zefau/ioBroker.roomba/issues"
