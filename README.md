@@ -250,6 +250,9 @@ You may edit the variable ```message``` to any notification you would like to re
 
 ## Changelog
 
+### 0.4.3 (2019-03-15)
+- ([@Apollon77](https://github.com/Apollon77)) Core Files/Testing Update and introduce adapter-core ([#8](https://github.com/Zefau/ioBroker.roomba/pull/8))
+
 ### 0.4.2 (2019-02-09)
 - (zefau) Bug fixing
 
