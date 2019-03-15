@@ -1,13 +1,16 @@
 {
     "common": {
         "name": "roomba",
-        "version": "0.4.3",
+        "version": "0.4.4",
         "title": "iRobot Roomba",
         "desc": {
             "en": "Connect your iRobot Roomba to ioBroker",
             "de": "Verbinde deinen iRobot Roomba mit ioBroker"
         },
         "news": {
+            "0.4.4": {
+                "en": "(@Apollon77) Core Files/Testing Update and introduce adapter-core (#8)",
+            },
             "0.4.3": {
                 "en": "Improved compatibility for series 600",
                 "de": "Bessere Kompatibilität für Serie 600"
