@@ -126,6 +126,16 @@
 			}
 		}
 		
+		// download map
+		$('body').on('click', '.downloadMap', function(event)
+		{
+			if ($(this).attr('href').length < 50)
+			{
+				event.preventDefault();
+				alert('No Map to download!');
+			}
+		});
+		
 		// set mission
 		$('body').on('click', '.setMission', function()
 		{
@@ -222,7 +232,7 @@
 			</ul>
 			
 			<hr />
-			<strong>Mission</strong> <small>(<a data-state="missions.current.mapImage" href="#" download="map">download map</a>)</small>
+			<strong>Mission</strong> <small>(<a data-state="missions.current.mapImage" href="#" class="downloadMap" download="map">download map</a>)</small>
 			<ul>
 				<li><i class="material-icons">assignment</i> Mission: <span data-state="missions.current.id"></span></li>
 				<li><i class="material-icons">directions</i> Status: <span data-state="missions.current.phase"></span></li>

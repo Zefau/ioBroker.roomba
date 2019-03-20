@@ -323,7 +323,7 @@ function main()
 			{
 				mission = JSON.parse(state.val);
 				adapter.log.info('Restored last mission (#' + mission.id + ').');
-				adapter.log.debug(state.val);
+				adapter.log.debug('Restored mission: ' + state.val);
 			}
 			
 			// robot mission
