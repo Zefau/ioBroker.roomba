@@ -122,6 +122,21 @@ function startAdapter(options)
 		
 		switch(msg.command)
 		{
+			case 'command':
+				// https://github.com/koalazak/dorita980/issues/39
+				let command = msg.message.command;
+				adapter.log.debug('Sent command: ' + command + '!)');
+				
+				robot.publish('cmd', JSON.stringify({command: command, time: Date.now() / 1000 | 0, initiator: 'ioBroker.roomba'}), function(err, res)
+				{
+					if (err)
+						adapter.log.warn(JSON.stringify(err));
+
+					else
+						adapter.log.debug(JSON.stringify(res));
+				});
+				break;
+		
 			case 'getStates':
 				var states = Array.isArray(msg.message.states) ? msg.message.states : [];
 				states.forEach(function(state)
@@ -252,6 +267,17 @@ function main()
 	});
 	
 	/*
+	 * ROBOT DEBUG
+	 */
+	if (adapter.config.debug)
+	{
+		robot.on('state', function(res)
+		{
+			adapter.log.silly('DEBUG STATE: ' + JSON.stringify(res));
+		});
+	}
+	
+	/*
 	 * ROBOT ERROR
 	 */
 	robot.on('error', function(err)
@@ -303,6 +329,9 @@ function main()
 			// robot mission
 			robot.on('mission', function(res)
 			{
+				if (adapter.config.debug)
+					adapter.log.silly('DEBUG MISSION DATA: ' + JSON.stringify(res));
+				
 				// interrupt if no position is given
 				if (res.pose === null || res.pose === undefined) return;
 				res.cleanMissionStatus.phase = res.cleanMissionStatus.phase === 'hmPostMsn' ? 'finished' : res.cleanMissionStatus.phase;
@@ -687,7 +716,7 @@ function mapMission(res)
 	library._setValue('missions.current.phase', mission.status.phase);
 	
 	// save data
-	library._setValue('missions.current._data', JSON.stringify(Object.assign(mission, {map: {img: canvas.toDataURL(), size: mapSize}})));
+	library._setValue('missions.current._data', JSON.stringify(Object.assign(mission, {map: {img: canvas != undefined ? canvas.toDataURL() : '', size: mapSize}})));
 	
 	// save mission
 	if (mission.status.phase === 'finished')
