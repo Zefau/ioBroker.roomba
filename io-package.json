@@ -1,59 +1,158 @@
 {
     "common": {
         "name": "roomba",
-        "version": "0.4.4",
+        "version": "0.4.5",
         "title": "iRobot Roomba",
         "desc": {
             "en": "Connect your iRobot Roomba to ioBroker",
-            "de": "Verbinde deinen iRobot Roomba mit ioBroker"
+            "de": "Verbinde deinen iRobot Roomba mit ioBroker",
+            "ru": "Подключите iRobot робот-пылесос Roomba для ioBroker",
+            "pt": "Ligar o iRobot Roomba para ioBroker",
+            "nl": "Sluit uw iRobot Roomba te ioBroker",
+            "fr": "Connectez votre iRobot Roomba à ioBroker",
+            "it": "Collegare il iRobot Roomba per ioBroker",
+            "es": "Conecte el iRobot Roomba para ioBroker",
+            "pl": "Podłącz iRobot Roomba dla ioBroker",
+            "zh-cn": "连接你的主要扫地以ioBroker"
         },
         "news": {
+            "0.4.5": {
+				"en": "Refactored retrieval of preferences and added debug mode"
+			}
             "0.4.4": {
-                "en": "(@Apollon77) Core Files/Testing Update and introduce adapter-core (#8)"
+                "en": "(@Apollon77) Core Files/Testing Update and introduce adapter-core (#8)",
+                "de": "(@Apollon77) Core Files/Update Testen und einführen adapter-core (#8)",
+                "ru": "(@Apollon77) основные файлы обновление/тестирование и внедрение адаптер-ядро (#8)",
+                "pt": "(@Apollon77) Núcleo Arquivos/Testes de Atualização e apresentá-adaptador-core (#8)",
+                "nl": "(@Apollon77) Core Bestanden/Testen van de Update en de invoering adapter-core (#8)",
+                "fr": "(@Apollon77) Fichiers de Base/Test de mise à Jour et présenter la carte de base (#8)",
+                "it": "(@Apollon77) i File Core/Test di Aggiornamento e di introdurre adattatore-core (#8)",
+                "es": "(@Apollon77) Core Files/Pruebas de Actualizar e introducir el adaptador de núcleo (#8)",
+                "pl": "(@Apollon77) podstawowe aktualizacja plików/testowanie i wdrażanie adapter-rdzeń (#8)",
+                "zh-cn": "(@Apollon77)核心文件的/试验更新，并引入适配器核(第8条)"
             },
             "0.4.3": {
                 "en": "Improved compatibility for series 600",
-                "de": "Bessere Kompatibilität für Serie 600"
+                "de": "Bessere Kompatibilität für Serie 600",
+                "ru": "Улучшена совместимость для серии 600",
+                "pt": "Melhorada a compatibilidade para a série 600",
+                "nl": "Verbeterde compatibiliteit voor de serie 600",
+                "fr": "Amélioration de la compatibilité pour la série 600",
+                "it": "Migliorata la compatibilità per la serie 600",
+                "es": "Mejora de la compatibilidad para la serie 600",
+                "pl": "Poprawiona zgodność z serii 600",
+                "zh-cn": "改进兼容性的系列600"
             },
             "0.4.2": {
                 "en": "Bug fixes",
-                "de": "Fehlerbeseitigungen"
+                "de": "Fehlerbeseitigungen",
+                "ru": "Исправления ошибок ",
+                "pt": "Correções de bugs",
+                "nl": "Bug fixes",
+                "fr": "Corrections de bugs",
+                "it": "Correzioni di Bug",
+                "es": "Correcciones de errores",
+                "pl": "Poprawki błędów ",
+                "zh-cn": "错误的修正"
             },
             "0.4.1": {
                 "en": "Bug fixes and support for Compact Mode",
-                "de": "Fehlerbeseitigungen und Unterstützung für Compact Mode"
+                "de": "Fehlerbeseitigungen und Unterstützung für Compact Mode",
+                "ru": "Исправлены ошибки и добавлена поддержка компактного режима",
+                "pt": "Correções de bugs e suporte para o Modo Compacto",
+                "nl": "Bugfixes en ondersteuning voor Compacte Modus",
+                "fr": "Corrections de bugs et le support pour le Mode Compact",
+                "it": "Correzioni di Bug e il supporto per la Modalità Compatta",
+                "es": "Correcciones de errores y soporte para el Modo Compacto",
+                "pl": "Naprawiono błędy i dodano wsparcie dla trybu kompaktowego",
+                "zh-cn": "修复和支持紧凑的模式"
             },
             "0.4.0": {
                 "en": "Support for e5 and 600 series (due to support by dorita980)",
-                "de": "Unterstützung für Serie e5 und 600 (dank dorita980)"
+                "de": "Unterstützung für Serie e5 und 600 (dank dorita980)",
+                "ru": "Поддержка E5 и серии 600 (благодаря поддержки dorita980)",
+                "pt": "Suporte para e5 e série 600 (devido ao apoio por dorita980)",
+                "nl": "Ondersteuning voor e5, - en 600-serie (door de ondersteuning door dorita980)",
+                "fr": "Soutien pour e5 et série 600 (en raison de l'appui par dorita980)",
+                "it": "Il supporto per la e5 e serie 600 (a causa di sostegno da dorita980)",
+                "es": "Apoyo para e5 y de la serie 600 (debido a la compatibilidad con dorita980)",
+                "pl": "Wsparcie E5 i serii 600 (dzięki pomocy dorita980)",
+                "zh-cn": "支持e5和600系列(由于支持通过dorita980)"
             },
             "0.3.0": {
                 "en": "Image / Map of the current cleaning mission will be created",
-                "de": "Bild / Karte der aktuellen Mission wird erstellt"
+                "de": "Bild / Karte der aktuellen Mission wird erstellt",
+                "ru": "Изображения / карта текущей миссии зачистки будут созданы",
+                "pt": "Imagem / Mapa do actual limpeza missão será criado",
+                "nl": "Afbeelding / Kaart van de huidige schoonmaak van de missie zal worden gemaakt",
+                "fr": "Image / Carte de l'actuel nettoyage de la mission sera créé",
+                "it": "Immagine / Cartina di corrente per la pulizia, la missione sarà creato",
+                "es": "Imagen / Mapa de la actual misión de limpieza será creado",
+                "pl": "Zdjęcia / mapa bieżącej misji rozbiórki zostaną utworzone",
+                "zh-cn": "图像地图的当前清洁的任务将是创建"
             },
             "0.2.3": {
                 "en": "Fixed an issue encrypting the password when entered by user (no automated retrieval)",
-                "de": "Passwort wird nun verschlüsselt gespeichert"
+                "de": "Passwort wird nun verschlüsselt gespeichert",
+                "ru": "Исправлена ошибка шифрования пароля при вводе пользователем (не автоматизированное извлечение)",
+                "pt": "Corrigido um problema no sistema de encriptação de palavra-passe quando inseridos pelo usuário (sem recuperação automatizada)",
+                "nl": "Probleem opgelost versleutelen van het wachtwoord in als dat wordt ingevoerd door de gebruiker (geen geautomatiseerd ophalen)",
+                "fr": "Correction d'un problème de chiffrement du mot de passe lors de la saisie par l'utilisateur (pas de recherche automatique)",
+                "it": "Risolto un problema di codifica della password inserita dall'utente (non il recupero automatico)",
+                "es": "Se ha corregido un problema de la encriptación de la contraseña cuando introducido por el usuario (no automatizado de recuperación)",
+                "pl": "Naprawiono błąd szyfrowania hasła po wpisaniu przez użytkownika (automatyczne usuwanie)",
+                "zh-cn": "固定的问题进行加密的密码输入时通过用户(没有自动检索)"
             },
             "0.2.2": {
                 "en": "Password will now be stored encrypted",
-                "de": "Passwort wird nun verschlüsselt gespeichert"
+                "de": "Passwort wird nun verschlüsselt gespeichert",
+                "ru": "Теперь пароль будет храниться в зашифрованном виде",
+                "pt": "A palavra-passe agora ser armazenados de forma criptografada",
+                "nl": "Wachtwoord zal nu worden versleuteld opgeslagen",
+                "fr": "Mot de passe seront désormais stockés chiffrés",
+                "it": "La Password verrà ora essere memorizzati criptati",
+                "es": "Contraseña ahora se almacena encriptada",
+                "pl": "Teraz hasło jest przechowywane w postaci zaszyfrowanej",
+                "zh-cn": "密码现在将存放加密的"
             },
             "0.2.1": {
                 "en": "Fixed / improved automatically retrieving of authentication credentials",
-                "de": "Fehlerbehebungen / Verbesserungen des automatischen Ladens der Zugangsdaten"
+                "de": "Fehlerbehebungen / Verbesserungen des automatischen Ladens der Zugangsdaten",
+                "ru": "Исправлено / улучшено автоматическое получение учетных данных проверки подлинности ",
+                "pt": "Fixo / melhorado automaticamente obtenção de credenciais de autenticação",
+                "nl": "Vaste / verbeterd automatisch ophalen van verificatiereferenties",
+                "fr": "Corrigé / amélioré automatiquement de récupérer les informations d'authentification",
+                "it": "Fisso / migliorato automaticamente il recupero delle credenziali di autenticazione",
+                "es": "Fijo / mejora automáticamente la recuperación de las credenciales de autenticación",
+                "pl": "Poprawiono / poprawiono automatyczne pobieranie poświadczeń uwierzytelniania ",
+                "zh-cn": "固定的/改进的自动检索的认证证书"
             },
             "0.2.0": {
                 "en": "Improved admin interface to automatically retrieve authentication credentials",
-                "de": "Admin Interface verbessert, damit nun automatisch die Zugangsdaten geladen werden"
+                "de": "Admin Interface verbessert, damit nun automatisch die Zugangsdaten geladen werden",
+                "ru": "Улучшенный интерфейс администратора, чтобы автоматически получать учетные данные для проверки подлинности ",
+                "pt": "Melhoria de interface de administração para obter automaticamente as credenciais de autenticação",
+                "nl": "Verbeterde admin interface voor het automatisch ophalen van verificatiereferenties",
+                "fr": "Amélioration de l'interface d'administration de récupérer automatiquement les informations d'authentification",
+                "it": "Migliorata l'interfaccia di amministrazione per recuperare automaticamente le credenziali di autenticazione",
+                "es": "Mejora de la interfaz de administración para recuperar automáticamente las credenciales de autenticación",
+                "pl": "Ulepszony interfejs administratora, aby automatycznie uzyskać poświadczenia uwierzytelniania ",
+                "zh-cn": "改进管理界面自动检索身份验证的凭据"
             },
             "0.1.0": {
                 "en": "initial checkin",
                 "de": "Erste version",
-                "ru": "первая версия"
+                "ru": "первая версия",
+                "pt": "inicial do check-in",
+                "nl": "eerste checkin",
+                "fr": "initiale de l'archivage",
+                "it": "iniziale checkin",
+                "es": "inicial checkin",
+                "pl": "początkowa Чекин",
+                "zh-cn": "最初的签"
             }
         },
-		"license": "MIT",
+        "license": "MIT",
         "platform": "Javascript/Node.js",
         "mode": "daemon",
         "icon": "roomba.png",
@@ -65,12 +164,12 @@
         "readme": "https://github.com/Zefau/ioBroker.roomba/blob/master/README.md",
         "loglevel": "info",
         "type": "household",
-		"materialize": true,
-		"compact": true,
-		"enabled": true,
-		"localLink": "%web_protocol%://%ip%:%web_port%/roomba/index.html",
+        "materialize": true,
+        "compact": true,
+        "enabled": true,
+        "localLink": "%web_protocol%://%ip%:%web_port%/roomba/index.html",
         "messagebox": true,
-		"subscribe": "messagebox",
+        "subscribe": "messagebox",
         "authors": [
             {
                 "name": "Zefau",
@@ -78,9 +177,7 @@
             }
         ]
     },
-    "native": {
-    },
+    "native": {},
     "objects": [],
-    "instanceObjects": [
-    ]
+    "instanceObjects": []
 }

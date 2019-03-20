@@ -27,7 +27,8 @@ var library;
 //var encryptor = new Encryption(adapter);
 
 var _installed = false;
-var reconnectTimer;
+var _updating = false;
+
 var robot, connected, mission, previous, icons, pathColor;
 var started, endLoop;
 var canvas, canvasTmp, map, mapTmp, image, img;
@@ -73,7 +74,9 @@ function startAdapter(options)
 		try
 		{
 			adapter.log.info('Adapter stopped und unloaded.');
-			disconnect(false);
+			
+			clearTimeout(timerUpd);
+			disconnect();
 			callback();
 		}
 		catch(e)
@@ -198,9 +201,6 @@ function startAdapter(options)
  */
 function main()
 {
-	// set config
-	adapter.config.reconnect = adapter.config.reconnect === undefined ? 60 : adapter.config.reconnect;
-	
 	// check for canvas
 	try
 	{
@@ -267,15 +267,13 @@ function main()
 	});
 	
 	/*
-	 * ROBOT DEBUG
+	 * ROBOT STATE UPDATE
 	 */
-	if (adapter.config.debug)
+	let timerPref;
+	robot.on('state', function(preferences)
 	{
-		robot.on('state', function(res)
-		{
-			adapter.log.silly('DEBUG STATE: ' + JSON.stringify(res));
-		});
-	}
+		updPreferences(preferences);
+	});
 	
 	/*
 	 * ROBOT ERROR
@@ -283,7 +281,7 @@ function main()
 	robot.on('error', function(err)
 	{
 		adapter.log.error(err.message);
-		disconnect(true);
+		disconnect();
 	});
 	
 	/*
@@ -292,7 +290,7 @@ function main()
 	robot.on('close', function(res)
 	{
 		//adapter.log.debug('Roomba Connection closed.');
-		disconnect(false);
+		disconnect();
 	});
 	
 	/*
@@ -301,7 +299,7 @@ function main()
 	robot.on('offline', function(res)
 	{
 		adapter.log.warn('Connection lost! Roomba offline.');
-		disconnect(true);
+		disconnect();
 	});
 	
 	/*
@@ -330,11 +328,11 @@ function main()
 			robot.on('mission', function(res)
 			{
 				if (adapter.config.debug)
-					adapter.log.silly('DEBUG MISSION DATA: ' + JSON.stringify(res));
+					adapter.log.debug('DEBUG MISSION DATA: ' + JSON.stringify(res));
 				
 				// interrupt if no position is given
 				if (res.pose === null || res.pose === undefined) return;
-				res.cleanMissionStatus.phase = res.cleanMissionStatus.phase === 'hmPostMsn' ? 'finished' : res.cleanMissionStatus.phase;
+				res.cleanMissionStatus.phase = getCleaningPhase(res.cleanMissionStatus.phase);
 				
 				// map mission
 				if ((['stop', 'charge', 'stuck', 'finished'].indexOf(res.cleanMissionStatus.phase) === -1) || (res.cleanMissionStatus.phase == 'finished' && (mission.time === undefined || mission.time.ended === undefined)))
@@ -346,11 +344,24 @@ function main()
 			});
 		});
 	}
-	
-	/*
-	 * ROBOT PREFERENCES
-	 */
-	updPreferences();
+}
+
+
+/**
+ * Translate current cleaning process.
+ *
+ * @param	{string}	process		Current process as received from robot
+ * @return	{string}				Translation
+ *
+ */
+function getCleaningPhase(process)
+{
+	switch(process)
+	{
+		case 'hmUsrDock': return 'docking';
+		case 'hmPostMsn': return 'finished';
+		default: return process;
+	}
 }
 
 
@@ -479,111 +490,96 @@ function connect(user, password, ip)
 /**
  * Update preferences.
  *
- * @param	none
- * @return	void
+ * @param	{object}	preferences		Received preferences from robot
+ * @return	{boolean}					Indication whether preferences have been updated
  *
  */
-function updPreferences()
+function updPreferences(preferences)
 {
-	var preferences = {};
+	if (_updating)
+		return false;
 	
-	// retrieve preferences from robot
-	var retrieve = true;
-	robot.on('packetreceive', function(packet)
+	adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
+	_updating = true;
+	
+	// save raw preferences
+	library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(preferences));
+	
+	// update states
+	let tmp, preference, index;
+	NODES.forEach(function(node)
 	{
-		if (packet.payload && retrieve)
+		try
 		{
-			packet.payload = JSON.parse(packet.payload);
+			// action
+			if (node.action !== undefined && listeners[node.node] === undefined)
+			{
+				adapter.log.debug('Subscribed to states ' + node.node + '.');
+				library.set(node, false);
+				adapter.subscribeStates(node.node); // attach state listener
+				listeners[node.node] = node;
+			}
 			
-			if (packet.payload.state !== null && packet.payload.state.reported !== null)
-				preferences = Object.assign(preferences, packet.payload.state.reported);
+			// preference
+			else if (node.preference !== undefined)
+			{
+				tmp = Object.assign({}, preferences);
+				preference = node.preference;
+				
+				// go through preferences
+				while (preference.indexOf('.') > -1)
+				{
+					try
+					{
+						index = preference.substr(0, preference.indexOf('.'));
+						preference = preference.substr(preference.indexOf('.')+1);
+						tmp = tmp[index];
+					}
+					catch(err) {adapter.log.debug(err.message);}
+				}
+				
+				// check value
+				if (tmp === undefined || tmp[preference] === undefined || tmp[preference] === 'aN.aN.NaN aN:aN:aN')
+					return;
+				
+				// convert value
+				if (node.kind !== undefined)
+				{
+					switch(node.kind.toLowerCase())
+					{
+						case "ip":
+							tmp[preference] = library.getIP(tmp[preference]);
+							break;
+						
+						case "datetime":
+							tmp[preference] = library.getDateTime(tmp[preference]*1000);
+							break;
+					}
+				}
+				
+				// write value
+				if (node.exception === undefined || tmp[preference] !== node.exception) // only write value if not defined as exceptional
+					library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
+			}
+			
+			// only state creation
+			else
+			{
+				adapter.getState(node.node, function(err, res)
+				{
+					if ((err !== null || !res) && (node.node !== undefined && node.description !== undefined))
+						library.set(node, '');
+				});
+			}
 		}
+		catch(err) {adapter.log.error(JSON.stringify(err.message))}
 	});
 	
-	// set preferences to states
-	var tmp, preference, index;
-	var pref = setTimeout(function()
-	{
-		retrieve = false;
-		adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
-		
-		// save raw preferences
-		library.set({'node': 'device._rawData', 'description': 'Raw preferences data as json', 'role': 'json'}, JSON.stringify(preferences));
-		
-		// update states
-		NODES.forEach(function(node)
-		{
-			try
-			{
-				// action
-				if (node.action !== undefined && listeners[node.node] === undefined)
-				{
-					adapter.log.debug('Subscribed to states ' + node.node + '.');
-					library.set(node, false);
-					adapter.subscribeStates(node.node); // attach state listener
-					listeners[node.node] = node;
-				}
-				
-				// preference
-				else if (node.preference !== undefined)
-				{
-					tmp = Object.assign({}, preferences);
-					preference = node.preference;
-					
-					// go through preferences
-					while (preference.indexOf('.') > -1)
-					{
-						try
-						{
-							index = preference.substr(0, preference.indexOf('.'));
-							preference = preference.substr(preference.indexOf('.')+1);
-							tmp = tmp[index];
-						}
-						catch(err) {adapter.log.debug(err.message);}
-					}
-					
-					// check value
-					if (tmp === undefined || tmp[preference] === undefined || tmp[preference] === 'aN.aN.NaN aN:aN:aN')
-						return;
-					
-					// convert value
-					if (node.kind !== undefined)
-					{
-						switch(node.kind.toLowerCase())
-						{
-							case "ip":
-								tmp[preference] = library.getIP(tmp[preference]);
-								break;
-							
-							case "datetime":
-								tmp[preference] = library.getDateTime(tmp[preference]*1000);
-								break;
-						}
-					}
-					
-					// write value
-					if (node.exception === undefined || tmp[preference] !== node.exception) // only write value if not defined as exceptional
-						library.set(node, node.type === 'boolean' && Number.isInteger(tmp[preference]) ? (tmp[preference] === 1) : tmp[preference]);
-				}
-				
-				// only state creation
-				else
-				{
-					adapter.getState(node.node, function(err, res)
-					{
-						if ((err !== null || !res) && (node.node !== undefined && node.description !== undefined))
-							library.set(node, '');
-					});
-				}
-			}
-			catch(err) {adapter.log.error(JSON.stringify(err.message))}
-		});
-		
-		library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
-		library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
-		setTimeout(updPreferences, adapter.config.refresh ? Math.round(parseInt(adapter.config.refresh)*1000) : 600000);
-		
-	}, 5000);
+	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
+	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
+	
+	let timerUpd = setTimeout(function() {_updating = false}, (adapter.config.refresh || 60)*1000);
+	return true;
 };
 
 
@@ -820,28 +816,10 @@ function endMission(mission)
  * Disconnects a Roomba.
  *
  */
-function disconnect(reconnect)
+function disconnect()
 {
 	connected = false;
 	library.set(nodeConnected, connected);
-	//robot.end();
-	
-	// reconnect
-	/*
-	if (adapter.config.reconnect !== 0)
-	{
-		if (reconnect === true)
-		{
-			adapter.log.info('Trying to reconnect in ' + adapter.config.reconnect + ' seconds..');
-			reconnectTimer = setTimeout(function()
-			{
-				robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip);
-			}, adapter.config.reconnect * 1000);
-		}
-		else
-			clearTimeout(reconnectTimer);
-	}
-	*/
 }
 
 

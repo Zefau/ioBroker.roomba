@@ -1,7 +1,8 @@
 {
     "auth": "Authentifizierung",
-    "auth_info": "Geben Sie die Authentifizierungsdaten Ihres Roboters ein oder rufen Sie die folgenden Schritte auf. <br /> <strong> ACHTUNG </ strong>: Die Authentifizierungsdaten sind nicht mit denen in der Smartphone-App identisch!",
+    "auth_info": "Füllen Sie die Anmeldeinformationen für die Authentifizierung des Roboters abrufen oder den nachfolgenden Schritten.<br /><strong>ACHTUNG</strong>: Die Anmeldeinformationen sind nicht die gleichen, wie Sie mit Hilfe der smartphone-app!",
     "button_getCredentials": "IP &amp; Zugangsdaten abrufen",
+    "debug": "Debug-Modus",
     "ip": "IP Adresse",
     "message_action-connecting": "Verbinde zum Adapter..",
     "message_action-getcredentials": "Lade Zugangsdaten..",

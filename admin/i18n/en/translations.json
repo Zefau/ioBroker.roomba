@@ -2,6 +2,7 @@
     "auth": "Authentication Credentials",
     "auth_info": "Fill in authentication credentials of your robot or retrieve following the subsequent steps.<br /><strong>ATTENTION</strong>: The authentication credentials are not the same as you are using in the smartphone app!",
     "button_getCredentials": "Retrieve IP &amp; Credentials",
+    "debug": "Debug Mode",
     "ip": "IP Address",
     "message_action-connecting": "Connecting to adapter..",
     "message_action-getcredentials": "Retrieve credentials..",

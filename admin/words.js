@@ -1,116 +1,34 @@
+/*global systemDictionary:true */
 'use strict';
 
 systemDictionary = {
-	"tab_config": {
-		"en": "Configuration",
-		"de": "Einstellungen"
-	},
-	"tab_roomba": {
-		"en": "Supported Roomba's",
-		"de": "Unterstützte Geräte"
-	},
-	"tab_alexa": {
-		"en": "Alexa integration",
-		"de": "Alexa Integration"
-	},
-	"tab_info": {
-		"en": "Information",
-		"de": "Informationen"
-	},
-	"message_action-connecting": {
-		"en": "Connecting to adapter..",
-		"de": "Verbinde zum Adapter.."
-	},
-	"message_error-noconnection": {
-		"en": "No connection to adapter! Please start adapter first.",
-		"de": "Keine Verbindung zum Adapter! Bitte zunächst den Adapter starten."
-	},
-	"message_info-connected": {
-		"en": "Connected to adapter. Retrieving credentials..",
-		"de": "Verbunden zum Adapter. Lade Zugangsdaten.."
-	},
-	"message_action-getcredentials": {
-		"en": "Retrieve credentials..",
-		"de": "Lade Zugangsdaten.."
-	},
-	"message_error-nocredentials": {
-		"en": "Could not retrieve credentials! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!",
-		"de": "Zugangsdaten konnten nicht geladen werden! Folge der Anleitung und versuche es nochmal."
-	},
-	"message_success-gotcredentials": {
-		"en": "Successfully retrieved credentials!",
-		"de": "Erfolgreich Zugangsdaten geladen!"
-	},
-	"message_action-getpassword": {
-		"en": "Get password..",
-		"de": "Lade Passwort.."
-	},
-	"message_error-nopassword": {
-		"en": "Could not retrieve password! Make sure to cut all other connections to Roomba!",
-		"de": "Passwort konnte nicht geladen werden! Unbedingt sicherstellen, dass alle andere Verbindungen zum Roomba unterbrochen sind!"
-	},
-	"message_error-nopasswordgiven": {
-		"en": "No password given to show / hide!",
-		"de": "Kein Passwort zum Zeigen / Verbergen!"
-	},
-	"message_success-gotpassword": {
-		"en": "Successfully retrieved password!",
-		"de": "Erfolgreich Passwort geladen!"
-	},
-	"message_action-getip": {
-		"en": "Get IP address..",
-		"de": "Lade IP Adresse.."
-	},
-	"message_error-noip": {
-		"en": "Could not retrieve IP address!",
-		"de": "IP Adresse konnte nicht geladen werden!"
-	},
-	"message_success-gotip": {
-		"en": "Successfully retrieved IP address!",
-		"de": "Erfolgreich IP Adresse geladen!"
-	},
-	"togglePassword": {
-		"en": "show / hide password",
-		"de": "Passwort zeigen / vergeben"
-	},
-	"auth": {
-		"en": "Authentication Credentials",
-		"de": "Authentifizierung"
-	},
-	"auth_info": {
-		"en": "Fill in authentication credentials of your robot or retrieve following the subsequent steps.<br /><strong>ATTENTION</strong>: The authentication credentials are not the same as you are using in the smartphone app!",
-		"de": ""
-	},
-    "username": {
-		"en": "Username",
-		"de": "Benutzer"
-	},
-    "password": {
-		"en": "Password",
-		"de": "Passwort"
-	},
-    "ip": {
-		"en": "IP Address",
-		"de": "IP Adresse"
-	},
-	"button_getCredentials": {
-		"en": "Retrieve IP &amp; Credentials",
-		"de": "IP &amp; Zugangsdaten abrufen"
-	},
-	"other": {
-		"en": "Other",
-		"de": "Sonstiges"
-	},
-    "reconnect": {
-		"en": "Reconnect time (in sec.), if connection is lost (0 = no reconnect)",
-		"de": "Intervall des Reconnects (in Sek.) bei verlorener Verbindung (0 = deaktiviert)"
-	},
-    "refresh": {
-		"en": "Refresh time (in sec.) preferences will be retrieved from robot",
-		"de": "Intervall (in Sek.) der Aktualisierung der Einstellungen"
-	},
-	"pathColor": {
-		"en": "Color of the drawn path",
-		"de": "Farbe des Wege"
-	},
+    "auth": {                                        "en": "Authentication Credentials",                      "de": "Authentifizierung",                               "ru": "Учетные Данные Для Проверки Подлинности ",        "pt": "As Credenciais De Autenticação",                  "nl": "Verificatiereferenties",                          "fr": "Les Informations D'Authentification",             "it": "Le Credenziali Di Autenticazione",                "es": "Las Credenciales De Autenticación",               "pl": "Poświadczenia Uwierzytelniania ",                 "zh-cn": "认证证书"},
+    "auth_info": {                                   "en": "Fill in authentication credentials of your robot or retrieve following the subsequent steps.<br /><strong>ATTENTION</strong>: The authentication credentials are not the same as you are using in the smartphone app!", "de": "Füllen Sie die Anmeldeinformationen für die Authentifizierung des Roboters abrufen oder den nachfolgenden Schritten.<br /><strong>ACHTUNG</strong>: Die Anmeldeinformationen sind nicht die gleichen, wie Sie mit Hilfe der smartphone-app!", "ru": "Заполнить учетные данные для проверки подлинности вашего робота или извлекать после последующих шагов.<БР /><сильный>внимание</Strong> в: учетные данные не совпадают, как вы используете в смартфоне приложение!", "pt": "Preencha as credenciais de autenticação de seu robô ou recuperar a seguir os passos subsequentes.<br /><strong>ATENÇÃO</strong>: As credenciais de autenticação não são o mesmo que você está usando o aplicativo de smartphone!", "nl": "Vul de verificatie van referenties van uw robot of ophalen na de daaropvolgende stappen.<br /><strong>let op</strong>: De aanmeldingsgegevens niet dezelfde als die u gebruikt in de smartphone app!", "fr": "Remplissez les informations d'authentification de votre robot ou de récupérer en suivant les étapes suivantes.<br /><strong>ATTENTION</strong>: Les informations d'authentification ne sont pas les mêmes que vous utilisez dans l'application smartphone!", "it": "Riempire le credenziali di autenticazione del vostro robot o di recuperare in seguito i passi successivi.<br /><strong>ATTENZIONE</strong>: Le credenziali di autenticazione non sono lo stesso come si utilizza l'applicazione per smartphone!", "es": "Rellenar las credenciales de autenticación de su robot o recuperar siguiendo los siguientes pasos.<br /><strong>ATENCIÓN</strong>: Las credenciales de autenticación no son los mismos que se están utilizando en la aplicación de teléfono inteligente!", "pl": "Wypełnić poświadczenia uwierzytelniania swojego robota lub usuwać po kolejnych kroków.<BR /><strong>uwaga</Strong>: poświadczenia nie są takie same, jak używasz w smartfonie aplikację!", "zh-cn": "填写身份验证的凭证的，你的机器人或检索以下后续步骤。<br/><强>的注意</强>：认证的凭证都是不一样的你正在使用智能手机！"},
+    "button_getCredentials": {                       "en": "Retrieve IP &amp; Credentials",                   "de": "IP &amp; Zugangsdaten abrufen",                   "ru": "Получение IP &амп; полномочия",                   "pt": "Obter IP &amp; Credenciais",                      "nl": "Het ophalen van IP &amp; Referenties",            "fr": "Récupérer les IP &amp; informations d'Identification", "it": "Recuperare IP &amp; Credenziali",                 "es": "Recuperar IP &amp; Credenciales",                 "pl": "Uzyskiwanie IP &amp; uprawnienia",                "zh-cn": "检索知识产权和amp;凭证"},
+    "ip": {                                          "en": "IP Address",                                      "de": "IP Adresse",                                      "ru": "IP-адрес",                                        "pt": "Endereço IP",                                     "nl": "IP-Adres",                                        "fr": "Adresse IP",                                      "it": "Indirizzo IP",                                    "es": "Dirección IP",                                    "pl": "Adres IP",                                        "zh-cn": "IP地址"},
+    "message_action-connecting": {                   "en": "Connecting to adapter..",                         "de": "Verbinde zum Adapter..",                          "ru": "Подключение к адаптеру..",                        "pt": "Ligar a placa..",                                 "nl": "Aansluiten op adapter..",                         "fr": "La connexion à la carte..",                       "it": "Collegamento alla scheda..",                      "es": "Conexión a un adaptador..",                       "pl": "Podłączenie do zasilacza..",                      "zh-cn": "连接到适配器.."},
+    "message_action-getcredentials": {               "en": "Retrieve credentials..",                          "de": "Lade Zugangsdaten..",                             "ru": "Извлечения учетных данных..",                     "pt": "Recuperar credenciais..",                         "nl": "Het ophalen van referenties..",                   "fr": "Récupérer les informations d'identification..",   "it": "Recuperare le credenziali..",                     "es": "Recuperar las credenciales..",                    "pl": "Pobierania danych logowania..",                   "zh-cn": "检索凭证.."},
+    "message_action-getip": {                        "en": "Get IP address..",                                "de": "Lade IP Adresse..",                               "ru": "Получить IP-адрес..",                             "pt": "Obter o endereço IP..",                           "nl": "Het IP-adres..",                                  "fr": "Obtenir l'adresse IP..",                          "it": "Ottenere un indirizzo IP..",                      "es": "Obtener la dirección IP..",                       "pl": "Uzyskaj adres IP..",                              "zh-cn": "得到IP地址。"},
+    "message_action-getpassword": {                  "en": "Get password..",                                  "de": "Lade Passwort..",                                 "ru": "Получить пароль..",                               "pt": "Receber a sua password.",                         "nl": "Wachtwoord ophalen..",                            "fr": "Obtenir le mot de passe..",                       "it": "Ottenere la password..",                          "es": "Obtener la contraseña..",                         "pl": "Zobacz hasło..",                                  "zh-cn": "获得密码.."},
+    "message_error-noconnection": {                  "en": "No connection to adapter! Please start adapter first.", "de": "Keine Verbindung zum Adapter! Bitte zunächst den Adapter starten.", "ru": "Нет связи с адаптером! Пожалуйста, начните адаптера.", "pt": "Não há ligação com o adaptador! Por favor, inicie o adaptador de primeira.", "nl": "Geen verbinding met adapter! Start de adapter eerste.", "fr": "Pas de connexion à la carte! S'il vous plaît commencer adaptateur.", "it": "Nessun collegamento alla scheda! Si prega di avviare prima l'adattatore.", "es": "No hay conexión con el adaptador! Por favor, inicie adaptador primero.", "pl": "Nie ma związku z adapterem! Proszę, zacznij od zasilacza.", "zh-cn": "没有连接到适配器了。 请启动器的第一个。"},
+    "message_error-nocredentials": {                 "en": "Could not retrieve credentials! MAKE SURE TO PRESS AND HOLD --HOME-- BUTTON 2 SECONDS (not the clean button)!", "de": "Zugangsdaten konnten nicht geladen werden! Folge der Anleitung und versuche es nochmal.", "ru": "Не удалось получить учетные данные! Убедитесь в том, нажмите и удерживайте ... домой, кнопку 2 секунд (не на кнопку Очистить)!", "pt": "Não foi possível obter credenciais! Certifique-se de PRESSIONAR E SEGURAR CASA ---- BOTÃO de 2 SEGUNDOS (não o botão limpeza)!", "nl": "Kan niet ophalen van referenties! ZORG ERVOOR dat HOUD --HOME-KNOP 2 SECONDEN ingedrukt (niet de clean-knop)!", "fr": "Impossible de récupérer les informations d'identification! ASSUREZ-vous D'APPUYEZ sur ET MAINTENEZ --MAISON-- BOUTON 2 SECONDES (pas le bouton nettoyer)!", "it": "Potrebbe non recuperare le credenziali! ASSICURARSI DI PREMERE E tenere PREMUTO --HOME-- PULSANTE per 2 SECONDI (non il pulsante clean)!", "es": "No podía recuperar las credenciales! ASEGÚRESE de PULSAR el botón DE-CASA-- BOTÓN por 2 SEGUNDOS (no el botón limpiar)!", "pl": "Nie udało się uzyskać poświadczenia! Upewnij się, naciśnij i przytrzymaj ... do domu, przycisk 2 sekundy (przycisk Usuń)!", "zh-cn": "不能检索凭证! 确保按住--家庭--按钮2秒钟(未清洁按钮)!"},
+    "message_error-noip": {                          "en": "Could not retrieve IP address!",                  "de": "IP Adresse konnte nicht geladen werden!",         "ru": "Не удалось получить IP-адрес!",                   "pt": "Não foi possível obter o endereço de IP!",        "nl": "Kan niet ophalen van IP-adres!",                  "fr": "N'a pas pu récupérer l'adresse IP de!",           "it": "Potrebbe non recuperare l'indirizzo IP!",         "es": "No pudo recuperar la dirección IP!",              "pl": "Nie udało się uzyskać adres IP!",                 "zh-cn": "不能检索的IP地址！"},
+    "message_error-nopassword": {                    "en": "Could not retrieve password! Make sure to cut all other connections to Roomba!", "de": "Passwort konnte nicht geladen werden! Unbedingt sicherstellen, dass alle andere Verbindungen zum Roomba unterbrochen sind!", "ru": "Не могу восстановить пароль! Убедитесь в том, чтобы вырезать все остальные подключения к румбу!", "pt": "Não pode recuperar a senha! Certifique-se de cortar todas as outras conexões para Roomba!", "nl": "Kan niet ophalen van een wachtwoord! Zorg ervoor om te snijden alle andere verbindingen naar de Roomba!", "fr": "N'a pas pu récupérer le mot de passe! Assurez-vous de couper toutes les autres connexions à Roomba!", "it": "Non è riuscito a recuperare la password! Assicuratevi di tagliare tutte le altre connessioni per Roomba!", "es": "No pudo recuperar la contraseña! Asegúrese de cortar todas las otras conexiones para Roomba!", "pl": "Nie mogę odzyskać hasło! Upewnij się, aby wyciąć wszystkie pozostałe połączenia do rumbę!", "zh-cn": "不能检索的密码！ 确保切断所有其他连伦巴!"},
+    "message_error-nopasswordgiven": {               "en": "No password given to show / hide!",               "de": "Kein Passwort zum Zeigen / Verbergen!",           "ru": "Пароль не дали, чтобы показать / скрыть!",        "pt": "Nenhuma palavra-passe dada para mostrar / esconder!", "nl": "Er is geen wachtwoord gegeven om aan te tonen / verbergen!", "fr": "Pas de mot de passe pour montrer / cacher!",      "it": "Nessuna password per mostrare / nascondere!",     "es": "La contraseña No da para mostrar / ocultar!",     "pl": "Hasło nie dali, aby pokazać / ukryć!",            "zh-cn": "没有密码显示/躲起来！"},
+    "message_info-connected": {                      "en": "Connected to adapter. Retrieving credentials..",  "de": "Verbunden zum Adapter. Lade Zugangsdaten..",      "ru": "Подключен к адаптеру. Получение учетных данных..", "pt": "Conectado ao adaptador. Recuperação de credenciais..", "nl": "Aangesloten op adapter. Het ophalen van referenties..", "fr": "Connecté à l'adaptateur. Récupération des informations d'identification..", "it": "Collegato all'adattatore. Il recupero delle credenziali..", "es": "Conectado al adaptador. La recuperación de credenciales..", "pl": "Podłączony do zasilacza. Uzyskanie poświadczenia..", "zh-cn": "连接器。 检索凭证.."},
+    "message_success-gotcredentials": {              "en": "Successfully retrieved credentials!",             "de": "Erfolgreich Zugangsdaten geladen!",               "ru": "Успешно получены учетные данные!",                "pt": "Recuperado com êxito credenciais!",               "nl": "Opgehaald referenties!",                          "fr": "Extrait des informations d'identification!",      "it": "Recuperati correttamente le credenziali!",        "es": "Recuperó correctamente las credenciales!",        "pl": "Z powodzeniem uzyskane dane logowania!",          "zh-cn": "成功地检索到的凭据！"},
+    "message_success-gotip": {                       "en": "Successfully retrieved IP address!",              "de": "Erfolgreich IP Adresse geladen!",                 "ru": "Успешно полученный IP-адрес!",                    "pt": "Recuperado com êxito endereço IP!",               "nl": "Opgehaald IP-adres!",                             "fr": "Extrait de l'adresse IP!",                        "it": "Recuperati indirizzo IP!",                        "es": "Recuperó correctamente la dirección IP!",         "pl": "Z powodzeniem otrzymany adres IP!",               "zh-cn": "成功地检索到IP地址！"},
+    "message_success-gotpassword": {                 "en": "Successfully retrieved password!",                "de": "Erfolgreich Passwort geladen!",                   "ru": "Успешно получен пароль!",                         "pt": "Recuperado com êxito senha!",                     "nl": "Opgehaald wachtwoord!",                           "fr": "Extrait de mot de passe!",                        "it": "Recuperati correttamente la password!",           "es": "Correctamente la contraseña recuperada!",         "pl": "Pomyślnie odebrany hasło!",                       "zh-cn": "成功地检索到的密码！"},
+    "other": {                                       "en": "Other",                                           "de": "Sonstiges",                                       "ru": "Другие",                                          "pt": "Outros",                                          "nl": "Andere",                                          "fr": "D'autres",                                        "it": "Altri",                                           "es": "Otros",                                           "pl": "Inne",                                            "zh-cn": "其他的"},
+    "password": {                                    "en": "Password",                                        "de": "Passwort",                                        "ru": "Пароль",                                          "pt": "Palavra-passe",                                   "nl": "Wachtwoord",                                      "fr": "Mot de passe",                                    "it": "Password",                                        "es": "Contraseña",                                      "pl": "Hasło",                                           "zh-cn": "密码"},
+    "pathColor": {                                   "en": "Color of the drawn path",                         "de": "Farbe des Wege",                                  "ru": "Цвет нарисованной траектории",                    "pt": "Cor do caminho desenhado",                        "nl": "Kleur van het getekende pad",                     "fr": "La couleur du chemin tracé",                      "it": "Colore delle tratte percorso",                    "es": "El Color de los tramos de ruta de acceso",        "pl": "Kolor narysowanej ścieżce",                       "zh-cn": "彩色绘制的路径"},
+    "reconnect": {                                   "en": "Reconnect time (in sec.), if connection is lost (0 = no reconnect)", "de": "Intervall des Reconnects (in Sek.) bei verlorener Verbindung (0 = deaktiviert)", "ru": "Подключите время (в сек.), если соединение потеряно (0 = Нет переподключить)", "pt": "Reconectar tempo (em seg.), se a conexão for perdida (0 = não reconnect)", "nl": "Sluit tijd (in sec.), als de verbinding is verbroken (0 = geen weer in)", "fr": "Rebranchez le temps (en sec), si la connexion est perdue (0 = pas de se reconnecter)", "it": "Ricollegare il tempo (in sec.), se la connessione viene persa (0 = no ricollegare)", "es": "Vuelva a conectar el tiempo (en seg.), si se pierde la conexión (0 = no conectar)", "pl": "Podłącz czas (w sek.), jeśli połączenie zostanie utracone (0 = Brak konfigurację)", "zh-cn": "重新连接时间(秒)， 如果失去连接(0=没有重新连接)"},
+    "refresh": {                                     "en": "Refresh time (in sec.) preferences will be retrieved from robot", "de": "Intervall (in Sek.) der Aktualisierung der Einstellungen", "ru": "Время обновления (сек.) предпочтения будут получены от робота", "pt": "Tempo de atualização (seg.) preferências serão recuperados a partir de robô", "nl": "Vernieuwen tijd (in sec.) de voorkeuren worden opgehaald uit de robot", "fr": "Le temps de rafraîchissement (sec.) les préférences seront récupérées à partir de robot", "it": "Tempo di Refresh (in sec.) le preferenze saranno recuperati dal robot", "es": "El tiempo de actualización (en seg.) las preferencias se recuperan de robot", "pl": "Czas aktualizacji (sek.) preferencje będą odbierane od robota", "zh-cn": "刷新时间(秒) 喜好会从机器人"},
+    "tab_alexa": {                                   "en": "Alexa integration",                               "de": "Alexa Integration",                               "ru": "Алекса интеграции",                               "pt": "Alexa integração",                                "nl": "Alexa integratie",                                "fr": "Alexa intégration",                               "it": "Alexa integrazione",                              "es": "Alexa integración",                               "pl": "Alexa integracji",                                "zh-cn": "Alexa的一体化"},
+    "tab_config": {                                  "en": "Configuration",                                   "de": "Einstellungen",                                   "ru": "Конфигурации",                                    "pt": "Configuração",                                    "nl": "Configuratie",                                    "fr": "Configuration",                                   "it": "Configurazione",                                  "es": "Configuración",                                   "pl": "Konfiguracji",                                    "zh-cn": "配置"},
+    "tab_info": {                                    "en": "Information",                                     "de": "Informationen",                                   "ru": "Информация",                                      "pt": "Informações",                                     "nl": "Informatie",                                      "fr": "Informations",                                    "it": "Informazioni",                                    "es": "Información",                                     "pl": "Informacje",                                      "zh-cn": "的信息"},
+    "tab_roomba": {                                  "en": "Supported Roomba's",                              "de": "Unterstützte Geräte",                             "ru": "Поддерживается робота по",                        "pt": "Suporte do Roomba",                               "nl": "Ondersteund Roomba ' s",                          "fr": "Pris en charge Roomba de la",                     "it": "Supportato Roomba",                               "es": "Compatible Roomba del",                           "pl": "Obsługiwane robota",                              "zh-cn": "支持扫地的"},
+    "togglePassword": {                              "en": "show / hide password",                            "de": "Passwort zeigen / vergeben",                      "ru": "Показать / Скрыть пароль",                        "pt": "mostrar / ocultar a senha",                       "nl": "tonen / verbergen van een wachtwoord",            "fr": "afficher / masquer le mot de passe",              "it": "mostra / nascondi la password",                   "es": "mostrar / ocultar la contraseña",                 "pl": "Pokaż / Ukryj hasło",                             "zh-cn": "显示出隐藏的密码"},
+    "username": {                                    "en": "Username",                                        "de": "Benutzer",                                        "ru": "Имя пользователя",                                "pt": "Nome de usuário",                                 "nl": "Gebruikersnaam",                                  "fr": "Nom d'utilisateur",                               "it": "Nome utente",                                     "es": "Nombre de usuario",                               "pl": "Nazwa użytkownika",                               "zh-cn": "用户名"},
+    "debug": {                                       "en": "Debug Mode",                                      "de": "Debug-Modus",                                     "ru": "Режим Отладки ",                                  "pt": "Modo De Depuração",                               "nl": "Debug Modus",                                     "fr": "Le Mode De Débogage",                             "it": "Modalità Di Debug",                               "es": "El Modo De Depuración",                           "pl": "Tryb Debugowania ",                               "zh-cn": "调试模式"},
 };
