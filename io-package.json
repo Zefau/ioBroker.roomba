@@ -18,7 +18,7 @@
         "news": {
             "0.4.5": {
 				"en": "Refactored retrieval of preferences and added debug mode"
-			}
+			},
             "0.4.4": {
                 "en": "(@Apollon77) Core Files/Testing Update and introduce adapter-core (#8)",
                 "de": "(@Apollon77) Core Files/Update Testen und einführen adapter-core (#8)",
