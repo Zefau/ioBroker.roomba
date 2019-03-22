@@ -1,6 +1,6 @@
 ![Logo](admin/roomba.png)
 # ioBroker.roomba
-ioBroker adapter for iRobot Roomba.
+Connect your iRobot Roomba to ioBroker.
 
 Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 
@@ -56,16 +56,26 @@ If the automated process fails retrieving your credentials, please use the manua
 For manual setup see https://github.com/koalazak/dorita980#how-to-get-your-usernameblid-and-password.
 
 
-## Supported Roomba's
+## Supported Roomba's / Firmware versions
+### Supported Firmware versions
+| Software-Version | Firmware Info | Supported |
+| ---------------- | ------------- | --------- |
+| v1.4 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/19549#rn_PageTitle) | **supported (incl. map)** |
+| v2.4.6-x | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/529#rn_PageTitle) | **supported (incl. map)** |
+| v3.2.xx | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/541#rn_PageTitle)  | **supported** (NO map) |
+
+### Supported Roomba's
+
 | Serie | Models _(incomplete)_ | Software-Version | Firmware Info | Supported |
 | ----- | --------------------- | ---------------- | ------------- | --------- |
-| Roomba® 6xx | 605, 606, 612, 616, 671, 675, 676, 680, 696 | v3.2.40 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/541#rn_PageTitle)  | _unknown_ |
+| Roomba® 6xx | 605, 606, 612, 616, 671, 676, 680, 696 | v3.2.40 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/541#rn_PageTitle)  | (most likely) |
+| Roomba® 6xx | 675 | v3.2.40 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/541#rn_PageTitle)  | **supported** (NO map) |
 | Roomba® 7xx | 774, 785, | - | | _unknown_ |
-| Roomba® 8xx | 880, 886, 891, 896 | - | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/541#rn_PageTitle) | (most likely not) |
-| Roomba® 8xx | 895 | v3.2.10 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/541#rn_PageTitle) | not yet supported |
+| Roomba® 8xx | 880, 886, 891, 896 | - | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/541#rn_PageTitle) | (most likely) |
+| Roomba® 8xx | [895]((https://forum.iobroker.net/post/245274)) | v3.2.10 / 40 / 69 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/541#rn_PageTitle) | **supported** (NO map) |
 | Roomba® 9xx | 965, 981 | - | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/529#rn_PageTitle) | (most likely) |
-| Roomba® 9xx | 960, 966, 980 | v2.4.6-3 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/529#rn_PageTitle) | **supported** |
-| Roomba® i | i7 (7150), i7+ (7550) | v1.4 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/19549#rn_PageTitle) | _unknown_ |
+| Roomba® 9xx | [960](https://forum.iobroker.net/user/jb_sullivan), [966](https://forum.iobroker.net/user/thomaslpz), 980 | v2.4.6-3 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/529#rn_PageTitle) | **supported (incl. map)** |
+| Roomba® i | [i7 (7150)](https://forum.iobroker.net/post/240589), i7+ (7550) | v1.4 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/19549#rn_PageTitle) | **supported (incl. map)** |
 | Roomba® e5 | e5 | v3.4.42 | [Release Notes](https://homesupport.irobot.com/app/answers/detail/a_id/6345#rn_PageTitle) | _unknown_ |
 
 Please help me regarding the supported devices and let me [know via an issue](https://github.com/Zefau/ioBroker.roomba/issues), whether your Roomba model is supported!
@@ -82,10 +92,10 @@ After sucessful setup the following channels and states will be created:
 | cleaning | last | timestamp | Timestamp last command was sent |
 | cleaning | last | datetime | DateTime last command was sent |
 | cleaning | last | initiator | Initiator of last command |
-| cleaning | last | cycle | Platzhalter |
-| cleaning | last | phase | Platzhalter |
+| cleaning | last | cycle | Cycle |
+| cleaning | last | phase | Phase |
 | cleaning | last | error | Indicates an error during last mission |
-| cleaning | schedule | - | Platzhalter |
+| cleaning | schedule | - | Schedule information |
 | cleaning | schedule | cycle | Schedule cycle (Sunday to Saturday) |
 | cleaning | schedule | hours | Hour to start cycle (Sunday to Saturday) |
 | cleaning | schedule | minutes | Minute to start cycle (Sunday to Saturday) |
@@ -127,6 +137,7 @@ After sucessful setup the following channels and states will be created:
 | device | - | \_rawData | Raw preferences data as json |
 | device | - | mac | Mac address of the robot |
 | device | - | name | Name of the robot |
+| device | - | type | Type of the robot |
 | states | - | - | Status information |
 | states | - | \_connected | Connection state |
 | states | - | battery | Battery level of the robot |
