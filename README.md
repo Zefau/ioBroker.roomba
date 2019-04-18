@@ -8,7 +8,7 @@ Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 [![Travis CI](https://travis-ci.org/Zefau/ioBroker.roomba.svg?branch=master)](https://travis-ci.org/Zefau/ioBroker.roomba)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.roomba.svg)](https://www.npmjs.com/package/iobroker.roomba)
 
-[![NPM](https://nodei.co/npm/iobroker.roomba.png?downloads=true)](https://nodei.co/npm/iobroker.roomba/)
+[![NPM](https://nodei.co/npm/iobroker.roomba.png?downloads=true)](https://nodei.co/npm/iobroker.roomba/) [![Greenkeeper badge](https://badges.greenkeeper.io/Zefau/ioBroker.roomba.svg)](https://greenkeeper.io/)
 
 **Table of contents**
 1. [Installation](#installation)
