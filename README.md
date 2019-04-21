@@ -269,6 +269,7 @@ You may edit the variable ```message``` to any notification you would like to re
 - (zefau) Added command buttons to map page / web interface ([#17](https://github.com/Zefau/ioBroker.roomba/issues/17))
 - (zefau) Removed button to end mission manually ```missions.current._endMission```
 - (zefau) Run ```stop``` command in the background when ```dock``` command is received ([#14](https://github.com/Zefau/ioBroker.roomba/issues/14))
+- (zefau) added Web Adapter as dependency
 
 ### 0.4.5 (2019-03-20)
 - Refactored retrieval of preferences and added debug mode
