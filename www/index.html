@@ -186,33 +186,33 @@
 			switch(status)
 			{
 				case 'stuck':
-					$('.start, .resume, .stop, .pause, .dock').addClass('hidden');
+					$('.start, .resume, .stop, .pause, .dock').addClass('disabled');
 					break;
 					
 				case 'run':
-					$('.start, .resume').addClass('hidden');
-					$('.stop, .pause, .dock').removeClass('hidden');
+					$('.start, .resume').addClass('disabled');
+					$('.stop, .pause, .dock').removeClass('disabled');
 					break;
 					
 				case 'docking':
-					$('.start, .resume, .pause, .dock').addClass('hidden');
+					$('.start, .resume, .pause, .dock').addClass('disabled');
 					$('.stop').addClass('removeClass');
 					break;
 					
 				case 'stop':
-					$('.stop, .pause').addClass('hidden');
-					$('.start, .resume, .dock').removeClass('hidden');
+					$('.stop, .pause').addClass('disabled');
+					$('.start, .resume, .dock').removeClass('disabled');
 					break;
 					
 				case 'finished':
-					$('.stop, .pause, .resume').addClass('hidden');
-					$('.start, .dock').removeClass('hidden');
+					$('.stop, .pause, .resume').addClass('disabled');
+					$('.start, .dock').removeClass('disabled');
 					break;
 					
 				case 'charge':
 				default:
-					$('.stop, .resume, .pause, .dock').addClass('hidden');
-					$('.start').removeClass('hidden');
+					$('.stop, .resume, .pause, .dock').addClass('disabled');
+					$('.start').removeClass('disabled');
 					break;
 			}
 		}
@@ -221,6 +221,7 @@
 		function setAction(action)
 		{
 			console.log('Run action: ' + action);
+			$('.' + action).addClass('disabled');
 			servConn.setState(servConn.namespace + '.commands.' + action, true, function() {console.log('Applied action: ' + action)});
 		}
 		
@@ -276,6 +277,13 @@
 			background-color: #eee;
 			border-radius: 3px;
 			cursor: pointer;
+		}
+		
+		.commands li.disabled,
+		.commands li.disabled:hover {
+			color: #aaa;
+			cursor: not-allowed;
+			background-color: transparent;
 		}
 		
 		.noselect {
