@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "0.4.5",
+        "version": "0.5.0",
         "title": "iRobot Roomba",
         "desc": {
             "en": "Connect your iRobot Roomba to ioBroker",
@@ -16,9 +16,30 @@
             "zh-cn": "连接你的主要扫地以ioBroker"
         },
         "news": {
+            "0.5.0": {
+                "en": "Added command buttons to map page / web interface (#17)",
+                "de": "Hinzugefügt Befehl Schaltflächen zum anzeigen der Seite / des web-Schnittstelle (#17)",
+                "ru": "Добавлены кнопки для карты интерфейс веб-страницы / (#17)",
+                "pt": "Adicionado botões de comando para a página de mapa / interface web (#17)",
+                "nl": "Toegevoegd knoppen op kaart pagina / web interface (#17)",
+                "fr": "Ajout des boutons de commande à la page carte / interface web (#17)",
+                "it": "Aggiunta di pulsanti di comando per la mappa pagina / interfaccia web (#17)",
+                "es": "Añadido botones de comando a la página del mapa de la interfaz web / (#17)",
+                "pl": "Dodane przyciski do karty interfejsu strony internetowej / (#17)",
+                "zh-cn": "加命令按钮地图页/web界面(第17)"
+            },
             "0.4.5": {
-				"en": "Refactored retrieval of preferences and added debug mode"
-			},
+                "en": "Refactored retrieval of preferences and added debug mode",
+                "de": "Umgestaltet Abruf von Einstellungen und debug-Modus Hinzugefügt",
+                "ru": "Рефакторинг получения преференций и добавлен режим отладки ",
+                "pt": "Refatorado obtenção de preferências e adicionado o modo de depuração",
+                "nl": "Refactoring van het ophalen van voorkeuren en toegevoegd debug modus",
+                "fr": "Refait la récupération des préférences et ajouté debug mode",
+                "it": "Rielaborato il recupero delle preferenze e ha aggiunto la modalità di debug",
+                "es": "Refactorizar la recuperación de las preferencias y el añadido el modo de depuración",
+                "pl": "Refaktoryzacja uzyskania preferencji i dodano tryb debugowania ",
+                "zh-cn": "重构检索的偏好和加入的调试模式"
+            },
             "0.4.4": {
                 "en": "(@Apollon77) Core Files/Testing Update and introduce adapter-core (#8)",
                 "de": "(@Apollon77) Core Files/Update Testen und einführen adapter-core (#8)",
@@ -171,7 +192,7 @@
             {
                 "web": ">=1.7.1"
             }
-	],
+        ],
         "localLink": "%web_protocol%://%ip%:%web_port%/roomba/index.html",
         "messagebox": true,
         "subscribe": "messagebox",

@@ -20,7 +20,7 @@ module.exports =
 	
 	// missions - current
 	{'node': 'missions.current', 'description': 'Mission information about current running mission', 'role': 'channel'},
-	{'node': 'missions.current._endMission', 'description': 'End mission and save to history', 'action': true, 'role': 'button', 'type': 'boolean'},
+	//{'node': 'missions.current._endMission', 'description': 'End mission and save to history', 'action': true, 'role': 'button', 'type': 'boolean'},
 	{'node': 'missions.current._data', 'description': 'All data of current mission', 'role': 'json'},
 	
 	{'node': 'missions.current.mapImage', 'description': 'Image of the map of current mission', 'role': 'text'},

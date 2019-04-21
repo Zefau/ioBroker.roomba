@@ -17,6 +17,7 @@
 	var socketConnected;
 	var show = 'current';
 	var current = {};
+	var _STATES;
 	
 	$(window).on('load', function()
 	{
@@ -50,6 +51,9 @@
 					{
 						servConn.getStates(states, function(err, _states)
 						{
+							_STATES = _states;
+							setActions(_states[servConn.namespace + '.missions.current.phase'] !== undefined ? _states[servConn.namespace + '.missions.current.phase'].val : undefined);
+							
 							for (var key in _states)
 							{
 								if (key === servConn.namespace + '.missions.history')
@@ -79,7 +83,6 @@
 		// paste value to document
 		function setValue(id, value)
 		{
-				console.log(JSON.stringify(id));
 			if (states.indexOf(id) > -1)
 			{
 				var elements = $('[data-state="' + id.replace(servConn.namespace + '.', '') + '"]');
@@ -154,6 +157,7 @@
 			}
 		});
 		
+		// set mission
 		function setMission(missionId)
 		{
 			history.forEach(function(mission)
@@ -175,11 +179,62 @@
 					setValue(servConn.namespace + '.' + key, elements[key]);
 			});
 		}
+		
+		// show / hide actions
+		function setActions(status)
+		{
+			switch(status)
+			{
+				case 'stuck':
+					$('.start, .resume, .stop, .pause, .dock').addClass('hidden');
+					break;
+					
+				case 'run':
+					$('.start, .resume').addClass('hidden');
+					$('.stop, .pause, .dock').removeClass('hidden');
+					break;
+					
+				case 'docking':
+					$('.start, .resume, .pause, .dock').addClass('hidden');
+					$('.stop').addClass('removeClass');
+					break;
+					
+				case 'stop':
+					$('.stop, .pause').addClass('hidden');
+					$('.start, .resume, .dock').removeClass('hidden');
+					break;
+					
+				case 'finished':
+					$('.stop, .pause, .resume').addClass('hidden');
+					$('.start, .dock').removeClass('hidden');
+					break;
+					
+				case 'charge':
+				default:
+					$('.stop, .resume, .pause, .dock').addClass('hidden');
+					$('.start').removeClass('hidden');
+					break;
+			}
+		}
+		
+		// apply an action
+		function setAction(action)
+		{
+			console.log('Run action: ' + action);
+			servConn.setState(servConn.namespace + '.commands.' + action, true, function() {console.log('Applied action: ' + action)});
+		}
+		
+		// actions
+		['start', 'stop', 'resume', 'pause', 'dock'].forEach(function(action)
+		{
+			$('.' + action).on('click', function() {setAction(action)});
+		});
 	});
 	// -->
 	</script>
 	<style>
 	<!--
+		.hidden {display: none !important}
 		body {font-family: Verdana, Tahoma}
 		hr {
 			margin-bottom: 10px;
@@ -187,12 +242,17 @@
 			border-bottom: 0;
 		}
 		
-		.small {font-size: 11px}
+		.small {font-size: 10px}
 		h2 {margin-bottom: 5px !important}
 		.material-icons {font-size: inherit}
 		
 		ul {margin-top: 10px}
-		li {margin: 5px 0;}
+		li {
+			margin: 2px 0;
+			padding: 4px 4px;
+			font-size: 13px;
+		}
+		
 		ul.list li {
 			list-style-type: square;
 			margin-left: 10px;
@@ -206,6 +266,25 @@
 		.setMission:hover {
 			text-decoration: underline;
 			cursor: pointer;
+		}
+		
+		.commands li {
+			display: block;
+		}
+		
+		.commands li:hover {
+			background-color: #eee;
+			border-radius: 3px;
+			cursor: pointer;
+		}
+		
+		.noselect {
+			-webkit-touch-callout: none; /* iOS Safari */
+			-webkit-user-select: none; /* Safari */
+			-khtml-user-select: none; /* Konqueror HTML */
+			-moz-user-select: none; /* Firefox */
+			-ms-user-select: none; /* Internet Explorer/Edge */
+			user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 		}
 	// -->
 	</style>
@@ -229,6 +308,16 @@
 			<ul>
 				<li><i class="material-icons">battery_full</i> Battery: <span data-state="states.battery">100</span>%</li>
 				<li><i class="material-icons">delete_outline</i> Bin full: <span data-state="states.binFull">false</span></li>
+			</ul>
+			
+			<hr />
+			<strong>Commands</strong>
+			<ul class="noselect commands">
+				<li class="start"><i class="material-icons">play_arrow</i> Start</li>
+				<li class="stop"><i class="material-icons">stop</i> Stop</li>
+				<li class="pause"><i class="material-icons">pause</i> Pause</li>
+				<li class="resume"><i class="material-icons">play_arrow</i> Resume</li>
+				<li class="dock"><i class="material-icons">replay</i> Dock</li>
 			</ul>
 			
 			<hr />

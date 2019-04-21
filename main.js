@@ -99,7 +99,10 @@ function startAdapter(options)
 		{
 			adapter.log.info('Triggered action -' + action + '- on Roomba.');
 			if (connected)
+			{
+				if (action == 'dock') robot.stop();
 				robot[action]();
+			}
 			else
 				adapter.log.warn('Roomba not online! Action not triggered.');
 		}
