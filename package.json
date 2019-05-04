@@ -1,33 +1,46 @@
 {
-  "name": "iobroker.roomba",
-  "version": "0.5.0",
-  "description": "Connect your iRobot Roomba to ioBroker",
+  "_from": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
+  "_id": "iobroker.roomba@0.5.0",
+  "_inBundle": false,
+  "_integrity": "sha512-A5LGBODBe33YhWQ49VaKBUiN6ZziRkJI4x/pNJqpTp+piKyJIGKAXW3R/uuE/7MCnaFLnpeLwNY7DOkFppcE5w==",
+  "_location": "/iobroker.roomba",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "remote",
+    "raw": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
+    "rawSpec": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
+    "saveSpec": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
+    "fetchSpec": "https://github.com/Zefau/ioBroker.roomba/tarball/master"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
+  "_shasum": "110c0bec38137a32d96e9d26d9a26325e332a755",
+  "_spec": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
+  "_where": "/opt/iobroker/node_modules/iobroker.roomba",
   "author": {
     "name": "zefau",
     "email": "zefau@mailbox.org"
   },
+  "bugs": {
+    "url": "https://github.com/Zefau/ioBroker.roomba/issues"
+  },
+  "bundleDependencies": false,
   "contributors": [
     {
       "name": "zefau",
       "email": "zefau@mailbox.org"
     }
   ],
-  "homepage": "https://github.com/Zefau/ioBroker.roomba",
-  "license": "MIT",
-  "keywords": [
-    "ioBroker",
-    "roomba",
-    "irobot"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Zefau/ioBroker.roomba"
-  },
   "dependencies": {
-    "dorita980": "^3.1.1",
+    "@iobroker/adapter-core": "^1.0.3",
     "canvas": "^2.3.1",
-    "@iobroker/adapter-core": "^1.0.3"
+    "dorita980": "^3.1.1"
   },
+  "deprecated": false,
+  "description": "Connect your iRobot Roomba to ioBroker",
   "devDependencies": {
     "@iobroker/testing": "^1.1.10",
     "axios": "^0.18.0",
@@ -35,15 +48,24 @@
     "gulp": "^4.0.0",
     "mocha": "^6.1.4"
   },
+  "homepage": "https://github.com/Zefau/ioBroker.roomba",
+  "keywords": [
+    "ioBroker",
+    "roomba",
+    "irobot"
+  ],
+  "license": "MIT",
   "main": "main.js",
+  "name": "iobroker.roomba",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zefau/ioBroker.roomba.git"
+  },
   "scripts": {
     "test": "npm run test:package && npm run test:unit",
+    "test:integration": "mocha test/integration --exit",
     "test:package": "mocha test/package --exit",
-    "test:unit": "mocha test/unit --exit",
-    "test:integration": "mocha test/integration --exit"
+    "test:unit": "mocha test/unit --exit"
   },
-  "bugs": {
-    "url": "https://github.com/Zefau/ioBroker.roomba/issues"
-  },
-  "readmeFilename": "README.md"
+  "version": "1.0.0"
 }
