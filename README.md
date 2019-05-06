@@ -240,7 +240,7 @@ on({id: ns + '.missions.current.ended', change: 'any'}, function(obj)
     log(message);
     
     // get image
-    var img = getState('roomba.0.missions.current.mapImage').val;
+    var img = getState(ns + '.missions.current.mapImage').val;
 
     if (img !== null && img.indexOf('data:image/png;base64,') > -1)
     {
