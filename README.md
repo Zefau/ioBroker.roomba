@@ -4,7 +4,9 @@ Connect your iRobot Roomba to ioBroker.
 
 Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 
-![Number of Installations](http://iobroker.live/badges/roomba-installed.svg) ![Stable version](http://iobroker.live/badges/roomba-stable.svg) [![NPM version](http://img.shields.io/npm/v/iobroker.roomba.svg)](https://www.npmjs.com/package/iobroker.roomba)
+[![Number of Installations](http://iobroker.live/badges/roomba-installed.svg)](http://iobroker.live/badges/roomba-installed.svg)
+[![Stable version](http://iobroker.live/badges/roomba-stable.svg)](http://iobroker.live/badges/roomba-stable.svg)
+[![NPM version](http://img.shields.io/npm/v/iobroker.roomba.svg)](https://www.npmjs.com/package/iobroker.roomba)
 [![Travis CI](https://travis-ci.org/Zefau/ioBroker.roomba.svg?branch=master)](https://travis-ci.org/Zefau/ioBroker.roomba)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.roomba.svg)](https://www.npmjs.com/package/iobroker.roomba)
 [![Greenkeeper badge](https://badges.greenkeeper.io/Zefau/ioBroker.roomba.svg)](https://greenkeeper.io/)
@@ -202,15 +204,16 @@ This requires the ioBroker adapter ioBroker.telegram to be installed (https://gi
 
 Create a script in the "common" folder of ioBroker.javascript and add the following listener to it:
 
-```
+```javascript
 var _fs = require('fs');
 
 /*
  * MISSION END: Send map
  * 
  */
-var ns = 'roomba.0';
 var message = "%device.name% finished at %missions.current.endedDateTime% cleaning %missions.current.sqm% sqm in %missions.current.runtime% seconds (%missions.current.error% errors).";
+var ns = 'roomba.0';
+var imagePath = 'tmp/';
 
 on({id: ns + '.missions.current.ended', change: 'any'}, function(obj)
 {
@@ -244,12 +247,12 @@ on({id: ns + '.missions.current.ended', change: 'any'}, function(obj)
 
     if (img !== null && img.indexOf('data:image/png;base64,') > -1)
     {
-        _fs.writeFile('/tmp/image.png', img.replace(/^data:image\/png;base64,/, ''), 'base64', function(err)
+        _fs.writeFile(imagePath + 'image.png', img.replace(/^data:image\/png;base64,/, ''), 'base64', function(err)
         {
             if (err !== null)
                 log(err.message, 'warn');
             else
-                sendTo('telegram', {text: '/tmp/image.png', message: message});
+                sendTo('telegram', {text: imagePath + 'image.png', message: message});
         });
     }
 });
