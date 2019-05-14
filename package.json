@@ -36,7 +36,7 @@
   ],
   "dependencies": {
     "@iobroker/adapter-core": "^1.0.3",
-    "canvas": "^2.3.1",
+    "canvas": "^2.5.0",
     "dorita980": "^3.1.1"
   },
   "deprecated": false,
