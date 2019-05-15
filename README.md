@@ -265,6 +265,10 @@ You may edit the variable ```message``` to any notification you would like to re
 
 ## Changelog
 
+### 1.0.1 (2019-05-15)
+- ([@Apollon77](https://github.com/Apollon77)) updated testing for Node.js v12 ([#18](https://github.com/Zefau/ioBroker.roomba/pull/18))
+- (Zefau) updated dependencies
+
 ### 1.0.0 (2019-05-04)
 - (zefau) No changes, only bump to stable release
 
