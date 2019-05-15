@@ -42,10 +42,10 @@
   "deprecated": false,
   "description": "Connect your iRobot Roomba to ioBroker",
   "devDependencies": {
-    "@iobroker/testing": "^1.1.10",
+    "@iobroker/testing": "^1.2.0",
     "axios": "^0.18.0",
-    "chai": "^4.1.2",
-    "gulp": "^4.0.0",
+    "chai": "^4.2.0",
+    "gulp": "^4.0.2",
     "mocha": "^6.1.4"
   },
   "homepage": "https://github.com/Zefau/ioBroker.roomba",
@@ -67,5 +67,5 @@
     "test:package": "mocha test/package --exit",
     "test:unit": "mocha test/unit --exit"
   },
-  "version": "1.0.0"
+  "version": "1.0.1"
 }

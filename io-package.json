@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "title": "iRobot Roomba",
         "desc": {
             "en": "Connect your iRobot Roomba to ioBroker",
@@ -16,6 +16,12 @@
             "zh-cn": "连接你的主要扫地以ioBroker"
         },
         "news": {
+            "1.0.1": {
+                "en": "(@Apollon77) updated testing for Node.js v12 (#25)\n(Zefau) updated dependencies"
+            },
+            "1.0.0": {
+                "en": "(Zefau) No changes, only bump to stable release"
+            },
             "0.5.0": {
                 "en": "Added command buttons to map page / web interface (#17)",
                 "de": "Hinzugefügt Befehl Schaltflächen zum anzeigen der Seite / des web-Schnittstelle (#17)",
