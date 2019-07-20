@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "title": "iRobot Roomba",
         "desc": {
             "en": "Connect your iRobot Roomba to ioBroker",
@@ -16,6 +16,9 @@
             "zh-cn": "连接你的主要扫地以ioBroker"
         },
         "news": {
+            "1.0.2": {
+                "en": "updated dependencies to fix security vulnerabilities in depending packages"
+            },
             "1.0.1": {
                 "en": "(@Apollon77) updated testing for Node.js v12 (#25)\n(Zefau) updated dependencies"
             },
