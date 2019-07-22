@@ -640,7 +640,7 @@ function mapMission(res)
 	mission.pos.current = {theta: 180-res.pose.theta, x: mapCenter.h + res.pose.point.x + nPos.x, y: mapCenter.v - res.pose.point.y + nPos.y};
 	
 	// place home icon
-	if (mission.pos && mission.pos.last.x && !mission.home)
+	if (mission.pos && mission.pos.last && mission.pos.last.x && !mission.home)
 	{
 		map.drawImage(icons.home.canvas, mapCenter.h + mission.pos.current.x - icons.home.width/2, mapCenter.v + mission.pos.current.y - icons.home.height/2, icons.home.width, icons.home.height);
 		mission.home = true;
