@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "title": "iRobot Roomba",
         "desc": {
             "en": "Connect your iRobot Roomba to ioBroker",

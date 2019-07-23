@@ -30,15 +30,9 @@ ioBroker.roomba needs [canvas](https://www.npmjs.com/package/canvas) in order to
 
 Though, you probably have to install package dependencies of canvas with the following command:
 
-__Linux__
 ```
 sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 ```
-
-__Windows__
-
-See https://github.com/Automattic/node-canvas/wiki/Installation:-Windows
-
 
 If you are receiving an error message that canvas is not installed, try to install it manually in the ioBroker.roomba folder (via SSH) by running:
 
@@ -270,6 +264,9 @@ You may edit the variable ```message``` to any notification you would like to re
 
 
 ## Changelog
+
+### 1.0.3 (2019-07-23)
+- (Zefau) fixed bug _uncaught exception: Cannot read property 'x' of undefined_
 
 ### 1.0.2 (2019-07-20)
 - (Zefau) reworked placing home icon ([#23](https://github.com/Zefau/ioBroker.roomba/issues/23))
