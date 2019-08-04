@@ -338,12 +338,18 @@ function main()
 				res.cleanMissionStatus.phase = getCleaningPhase(res.cleanMissionStatus.phase);
 				
 				// map mission
-				if ((['stop', 'charge', 'stuck', 'finished'].indexOf(res.cleanMissionStatus.phase) === -1) || (res.cleanMissionStatus.phase == 'finished' && (mission.time === undefined || mission.time.ended === undefined)))
+				if (['stop', 'charge', 'stuck'].indexOf(res.cleanMissionStatus.phase) === -1)
 					mapMission(res);
 				
 				// end mission after a while, if 'hmPostMsn' was not received
-				else if (mission !== null && mission.time !== undefined && mission.time.ended === undefined && res.cleanMissionStatus.phase !== 'finished')
+				else if (mission !== null && mission.time !== undefined && mission.time.ended === undefined && endLoop <= 1000)
 					endLoop++;
+				
+				else if (mission !== null && mission.time !== undefined && mission.time.ended === undefined && endLoop > 1000)
+				{
+					endMission(mission);
+					endLoop = 0;
+				}
 			});
 		});
 	}
@@ -720,10 +726,6 @@ function mapMission(res)
 	
 	// save data
 	library._setValue('missions.current._data', JSON.stringify(Object.assign(mission, {map: {img: canvas != undefined ? canvas.toDataURL() : '', size: mapSize}})));
-	
-	// save mission
-	if (mission.status.phase === 'finished')
-		endMission(mission);
 }
 
 
@@ -812,8 +814,6 @@ function endMission(mission)
 		// save history
 		library._setValue('missions.history', JSON.stringify(history));
 		adapter.log.info('Mission #' + mission.id + ' saved.');
-		endLoop = 0;
-		
 		return true;
 	});
 };
