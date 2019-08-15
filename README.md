@@ -4,6 +4,8 @@ Connect your iRobot Roomba to ioBroker.
 
 Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 
+[![Paypal Donation](https://img.shields.io/badge/paypal-donate%20|%20spenden-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=S45U45EHXGQHN&source=url)
+
 [![Number of Installations](http://iobroker.live/badges/roomba-installed.svg)](http://iobroker.live/badges/roomba-installed.svg)
 [![Stable version](http://iobroker.live/badges/roomba-stable.svg)](http://iobroker.live/badges/roomba-stable.svg)
 [![NPM version](http://img.shields.io/npm/v/iobroker.roomba.svg)](https://www.npmjs.com/package/iobroker.roomba)
