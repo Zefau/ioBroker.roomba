@@ -17,16 +17,52 @@
         },
         "news": {
             "1.0.4": {
-                "en": "updated dependencies"
+                "en": "- fixed password retrieval\n- fixed German translations\n- added donations button\n- updated dorita980 dependency to v3.1.3\n- updated canvas dependency to v2.6.0",
+                "de": "- fehlerhafter Passwort-Abruf behoben\n- Deutsche Übersetzungen korrigiert\n- Spenden-Button hinzugefügt\n- Paket dorita980 auf v3.1.3 aktualisiert\n- Paket canvas auf v2.6.0 aktualisiert",
+                "ru": "- Исправлена ошибка восстановления пароля \n- исправлен немецкий перевод\n- добавлена кнопка пожертвования \n- зависимость изменения обновленного dorita980 на В3.1.3\n- зависимость обновлено \"холст\" до V2.6.0",
+                "pt": "- corrigido recuperação de senha\n- corrigido traduções em alemão\n- adicionado botão de doações\n- atualizado dorita980 dependência para v3.1.3\n- atualizado lona dependência para v2.6.0",
+                "nl": "- vaste wachtwoord ophalen\n- vaste duitse vertalingen\n- extra giften knop\n- bijgewerkt dorita980 afhankelijkheid naar v3.1.3\n- bijgewerkt canvas afhankelijkheid naar v2.6.0",
+                "fr": "- correction de récupération de mot de passe\n- correction de traductions allemandes\n- ajout de bouton de dons\n- mise à jour \" dorita980 la dépendance à la v3.1.3\n- mise à jour de \"toile\" de la dépendance à la v2.6.0",
+                "it": "- risolto il recupero della password\n- fissa le traduzioni in tedesco\n- aggiunto pulsante donazioni\n- aggiornato dorita980 di dipendenza a v3.1.3\n- aggiornata la \"tela\" di dipendenza a v2.6.0",
+                "es": "- fijo de recuperación de contraseña\n- fija las traducciones alemán\n- añadido botón de donaciones\n- actualizado \" dorita980 la dependencia a la v3.1.3\n- actualizado el \"lienzo\" de la dependencia a v2.6.0",
+                "pl": "- Naprawiono błąd odzyskiwania hasła \n- poprawiono tłumaczenie niemieckie\n- dodano przycisk darowizny \n- zależność zmiany zaktualizowanego dorita980 na B3.1.3\n- zależność aktualizacja \"płótno\" do V2.6.0",
+                "zh-cn": "-固定密码检索\n-固定德语翻译\n-增加捐款按钮\n-更新的dorita980的依赖v3。1.3\n-更新的\"画布\"依赖v2。6.0"
             },
             "1.0.2": {
-                "en": "updated dependencies to fix security vulnerabilities in depending packages"
+                "en": "updated dependencies to fix security vulnerabilities in depending packages",
+                "de": "aktualisiert Abhängigkeiten, um Sicherheitslücken in je-Pakete",
+                "ru": "обновлено зависимостей для исправления уязвимостей в зависимости от пакетов",
+                "pt": "atualizado dependências para corrigir vulnerabilidades de segurança em pacotes de acordo",
+                "nl": "bijgewerkt afhankelijkheden op te lossen beveiligingsproblemen in afhankelijk van pakketten",
+                "fr": "mise à jour des dépendances à réparer les failles de sécurité en fonction des paquets",
+                "it": "aggiornato dipendenze per risolvere vulnerabilità di sicurezza in base pacchetti",
+                "es": "actualizado a las dependencias para corregir las vulnerabilidades de seguridad en función de los paquetes",
+                "pl": "aktualizacja zależności do poprawki eliminujące luki w zabezpieczeniach, w zależności od pakietów",
+                "zh-cn": "更新的依赖关系，以解决安全漏洞，根据包"
             },
             "1.0.1": {
-                "en": "(@Apollon77) updated testing for Node.js v12 (#25)\n(Zefau) updated dependencies"
+                "en": "(@Apollon77) updated testing for Node.js v12 (#25)\n(Zefau) updated dependencies",
+                "de": "(@Apollon77) aktualisierte Prüfung für Node.js v12 (#25)\n(Zefau) aktualisiert Abhängigkeiten",
+                "ru": "(@Apollon77) обновленное тестирование Node.js В12 (#25)\n(Zefau) обновлены зависимости",
+                "pt": "(@Apollon77) atualizado para testar Node.js v12 (#25)\n(Zefau) atualizado dependências",
+                "nl": "(@Apollon77) bijgewerkt testen voor Node.js v12 (#25)\n(Zefau) afhankelijkheden bijgewerkt",
+                "fr": "(@Apollon77) mise à jour de test pour Node.js v12 (#25)\n(Zefau) mise à jour des dépendances",
+                "it": "(@Apollon77) aggiornato il test per Node.js v12 (#25)\n(Zefau) aggiornato dipendenze",
+                "es": "(@Apollon77) actualizados de las pruebas para Node.js v12 (#25)\n(Zefau) actualizado dependencias",
+                "pl": "(@Apollon77) zaktualizowane testy Node.js B12 (#25)\n(Zefau) zaktualizowane zależności",
+                "zh-cn": "(@Apollon77)更新测试Node.js v12(第25)\n(Zefau)更新后的依赖"
             },
             "1.0.0": {
-                "en": "(Zefau) No changes, only bump to stable release"
+                "en": "(Zefau) No changes, only bump to stable release",
+                "de": "(Zefau) Keine änderungen, nur die Beule auf stable release",
+                "ru": "(Zefau) никаких изменений, только поднять до стабильного релиза",
+                "pt": "(Zefau) Sem alterações, apenas ressalto a versão estável",
+                "nl": "(Zefau) Geen wijzigingen, alleen bump naar 'stable' release",
+                "fr": "(Zefau) Aucun changement, seulement bosse pour la version stable",
+                "it": "(Zefau) Nessuna modifica, solo bump del rilascio stabile",
+                "es": "(Zefau) No cambios, sólo golpe a la versión estable",
+                "pl": "(Zefau) żadnych zmian, tylko podnieść do stabilnego wydania",
+                "zh-cn": "(Zefau)没有改变，只有碰到稳定释放"
             },
             "0.5.0": {
                 "en": "Added command buttons to map page / web interface (#17)",

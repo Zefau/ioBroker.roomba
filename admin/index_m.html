@@ -234,11 +234,40 @@
 		<!-- TABS -->
 		<div class="col s12">
 			<ul class="tabs">
-				<li class="tab col s3"><a class="active translate" href="#config">tab_config</a></li>
+				<li class="tab col s3"><a class="translate active" href="#donate">tab_donate</a></li>
+				<li class="tab col s3"><a class="translate" href="#config">tab_config</a></li>
 				<li class="tab col s3"><a target="_blank" class="translate" href="https://github.com/Zefau/ioBroker.roomba#supported-roombas">tab_roomba</a></li>
 				<li class="tab col s3"><a target="_blank" class="translate" href="https://github.com/Zefau/ioBroker.roomba#smart-home--alexa-integration-using-iobrokerjavascript">tab_alexa</a></li>
 				<li class="tab col s3"><a target="_blank" class="translate" href="https://github.com/Zefau/ioBroker.roomba#iobrokerroomba">tab_info</a></li>
 			</ul>
+		</div>
+		
+		<!-- DONATE -->
+		<div id="donate" class="col s12">
+		
+			<!-- Donation -->
+			<div class="row">
+				<div class="col s12 m12">
+					<div class="row" style="margin-bottom: 0">
+						<div class="col s12 m12">
+							<p class="translate title">donateTitle</p>
+						</div>
+					</div>
+					<div class="row box">
+						<p class="subtitle translate">donateInformation</p>
+						
+						<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="margin: 10 0 20 30">
+							<input type="hidden" name="cmd" value="_s-xclick" />
+							<input type="hidden" name="hosted_button_id" value="DJR9PHP53L8Q2" />
+							<input type="image" src="https://www.paypalobjects.com/webstatic/de_DE/i/de-pp-logo-200px.png" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+							<img alt="" border="0" src="https://www.paypal.com/en_DE/i/scr/pixel.gif" width="1" height="1" />
+						</form>
+						
+					</div>
+					
+				</div>
+			</div>
+			
 		</div>
 		
 		<!-- CONFIG -->
@@ -257,11 +286,11 @@
 								<div class="col s12 m12">
 									<p class="subtitle translate">auth_info</p>
 									<ol>
-										<li>Make sure this Adapter is started.</li>
-										<li>Make sure your robot is on the Home Base and powered on (green lights on).</li>
-										<li>Then press and hold the HOME button on your robot until it plays a series of tones (about 2 seconds).</li>
-										<li>Release the button and your robot will flash WIFI light.</li>
-										<li>Then come back here press the button to retrieve IP and credentials.</li>
+										<li class="translate">authStep1</li>
+										<li class="translate">authStep2</li>
+										<li class="translate">authStep3</li>
+										<li class="translate">authStep4</li>
+										<li class="translate">authStep5</li>
 									</ol>
 								</div>
 							</div>

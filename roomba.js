@@ -2,13 +2,13 @@
 const adapterName = require('./io-package.json').common.name;
 const utils = require('@iobroker/adapter-core'); // Get common adapter utils
 
-var _fs = require('fs');
-var _dgram = require('dgram');
-var _tls = require('tls');
-var _http = require('http');
-var _request = require('request');
-var _dorita980 = require('dorita980');
-var _canvas;
+let _fs = require('fs');
+let _dgram = require('dgram');
+let _tls = require('tls');
+let _http = require('http');
+let _request = require('request');
+let _dorita980 = require('dorita980');
+let _canvas;
 
 
 /*
@@ -16,31 +16,33 @@ var _canvas;
  */
 const Library = require(__dirname + '/lib/library.js');
 //const Encryption = require(__dirname + '/lib/encryption.js');
+const _NODES = require(__dirname + '/_NODES.js');
 
 
 /*
  * variables initiation
  */
-var Image, Canvas, createCanvas;
-var adapter;
-var library;
-//var encryptor = new Encryption(adapter);
+let Image, Canvas, createCanvas;
+let adapter;
+let library;
+//let encryptor = new Encryption(adapter);
+let unloaded;
+let refreshCycle;
 
-var _installed = false;
-var _updating = false;
+let _installed = false;
+let _updating = false;
 
-var robot, connected, mission, previous, icons, pathColor;
-var started, endLoop;
-var canvas, canvasTmp, map, mapTmp, image, img;
+let robot, connected, mission, previous, icons, pathColor;
+let started, endLoop;
+let canvas, canvasTmp, map, mapTmp, image, img;
 
-var mapSize = {width: 200, height: 200};
-var nPos = {x: 0, y: 0};
-var mapCenter = {h: Math.round(mapSize.width/2), v: Math.round(mapSize.height/2)};
-var offset = 10;
+let mapSize = {width: 200, height: 200};
+let nPos = {x: 0, y: 0};
+let mapCenter = {h: Math.round(mapSize.width/2), v: Math.round(mapSize.height/2)};
+let offset = 10;
 
-var listeners = {};
-var actions = ['start', 'stop', 'pause', 'resume', 'dock']; // states that trigger actions
-const NODES = require(__dirname + '/nodes.js');
+let listeners = {};
+let actions = ['start', 'stop', 'pause', 'resume', 'dock']; // states that trigger actions
 const nodeConnected = {'node': 'states._connected', 'description': 'Connection state'};
 
 
@@ -57,7 +59,8 @@ function startAdapter(options)
 	});
 	
 	adapter = new utils.Adapter(options);
-	library = new Library(adapter);
+	library = new Library(adapter, { updatesInLog: true });
+	unloaded = false;
 	
 	/*
 	 * ADAPTER READY
@@ -75,8 +78,10 @@ function startAdapter(options)
 		{
 			adapter.log.info('Adapter stopped und unloaded.');
 			
-			clearTimeout(timerUpd);
+			unloaded = true;
+			clearTimeout(refreshCycle);
 			disconnect();
+			
 			callback();
 		}
 		catch(e)
@@ -92,7 +97,7 @@ function startAdapter(options)
 	adapter.on('stateChange', function(node, state)
 	{
 		//adapter.log.debug('State of ' + node + ' has changed ' + JSON.stringify(state) + '.');
-		var action = node.substr(node.lastIndexOf('.')+1);
+		let action = node.substr(node.lastIndexOf('.')+1);
 		
 		// action on Roomba
 		if (actions.indexOf(action) > -1 && state.ack !== true)
@@ -144,7 +149,7 @@ function startAdapter(options)
 				break;
 		
 			case 'getStates':
-				var states = Array.isArray(msg.message.states) ? msg.message.states : [];
+				let states = Array.isArray(msg.message.states) ? msg.message.states : [];
 				states.forEach(function(state)
 				{
 					adapter.getState(state, function(err, res)
@@ -224,7 +229,7 @@ function main()
 	/*
 	if (adapter.config.encryptionKey === undefined || adapter.config.encryptionKey === '')
 	{
-		var key = encryptor.getEncryptionKey();
+		let key = encryptor.getEncryptionKey();
 		adapter.getForeignObject('system.adapter.roomba.0', function(err, obj)
 		{
 			obj.native.encryptionKey = key;
@@ -235,19 +240,16 @@ function main()
 		return;
 	}
 	else
-		var key = adapter.config.encryptionKey;
+		let key = adapter.config.encryptionKey;
 	*/
 	
 	// check if settings are set
 	if (!adapter.config.username || !adapter.config.password || !adapter.config.ip)
-	{
-		adapter.log.warn('Username, password and / or ip address missing!');
-		return;
-	}
+		return library.terminate('Username, password and / or ip address missing!');
 	
 	// decrypt password
 	/*
-	var decrypted = encryptor.decrypt(key, adapter.config.password);
+	let decrypted = encryptor.decrypt(key, adapter.config.password);
 	if (decrypted === false)
 	{
 		adapter.log.warn('Decrypting password failed!');
@@ -272,7 +274,6 @@ function main()
 	/*
 	 * ROBOT STATE UPDATE
 	 */
-	let timerPref;
 	robot.on('state', function(preferences)
 	{
 		updPreferences(preferences);
@@ -292,7 +293,8 @@ function main()
 	 */
 	robot.on('close', function(res)
 	{
-		//adapter.log.debug('Roomba Connection closed.');
+		adapter.log.debug('Roomba Connection closed.');
+		adapter.log.debug(JSON.stringify(res));
 		disconnect();
 	});
 	
@@ -302,6 +304,7 @@ function main()
 	robot.on('offline', function(res)
 	{
 		adapter.log.warn('Connection lost! Roomba offline.');
+		adapter.log.debug(JSON.stringify(res));
 		disconnect();
 	});
 	
@@ -325,6 +328,7 @@ function main()
 				mission = JSON.parse(state.val);
 				adapter.log.info('Restored last mission (#' + mission.id + ').');
 				adapter.log.debug('Restored mission: ' + state.val);
+				mission.restored = true;
 			}
 			
 			// robot mission
@@ -385,7 +389,7 @@ function getCleaningPhase(process)
 function getPassword(ip, callback)
 {
 	// connect
-	var client = _tls.connect(8883, ip, {rejectUnauthorized: false});
+	let client = _tls.connect(8883, ip, { rejectUnauthorized: false, ciphers: 'AES128-SHA256' });
 	client.once('secureConnect', function()
 	{
 		adapter.log.debug("Connected to Roomba!");
@@ -401,7 +405,7 @@ function getPassword(ip, callback)
 	// extract password
 	try
 	{
-		var sliceFrom = 13;
+		let sliceFrom = 13;
 		client.on('data', function(data)
 		{
 			if (data.length === 2)
@@ -485,14 +489,14 @@ function getRobotData(callback, ip)
  */
 function connect(user, password, ip)
 {
-	adapter.log.info('Connecting to Roomba..');
+	adapter.log.info('Connecting to Roomba (' + ip + ')..');
 	try
 	{
 		return new _dorita980.Local(user, password, ip);
 	}
 	catch(err)
 	{
-		adapter.log.warn(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75)
+		adapter.log.warn(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75 )
 	}
 }
 
@@ -516,7 +520,7 @@ function updPreferences(preferences)
 	
 	// update states
 	let tmp, preference, index;
-	NODES.forEach(function(node)
+	_NODES.forEach(function(node)
 	{
 		try
 		{
@@ -587,7 +591,19 @@ function updPreferences(preferences)
 	library.set({'node': 'refreshedTimestamp', 'description': 'Timestamp of last update', 'role': 'value'}, Math.floor(Date.now()/1000));
 	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
 	
-	let timerUpd = setTimeout(function() {_updating = false}, (adapter.config.refresh || 60)*1000);
+	// refresh
+	if (adapter.config.refresh === undefined || adapter.config.refresh === null)
+		adapter.config.refresh = 0;
+	
+	else if (adapter.config.refresh > 0 && adapter.config.refresh < 10)
+	{
+		adapter.log.warn('Due to performance reasons, the refresh rate can not be set to less than 10 seconds. Using 10 seconds now.');
+		adapter.config.refresh = 10;
+	}
+	
+	if (adapter.config.refresh > 0 && !unloaded)
+		refreshCycle = setTimeout(function() {_updating = false}, Math.round(parseInt(adapter.config.refresh)*1000));
+	
 	return true;
 };
 
@@ -601,7 +617,7 @@ function mapMission(res)
 	// create new map once mission starts
 	if (mission === null || mission.id !== res.cleanMissionStatus.nMssn)
 	{
-		mission = {id: res.cleanMissionStatus.nMssn, home: false, time: {}, status: {}, pos: {}, map: {}, path: []};
+		mission = {id: res.cleanMissionStatus.nMssn, restored: false, home: false, time: {}, status: {}, pos: {}, map: {}, path: []};
 		adapter.log.info('Roomba has started a new mission (#' + mission.id + ').');
 		
 		library._setValue('missions.current.id', mission.id);
@@ -658,8 +674,8 @@ function mapMission(res)
 		// resize image if robot moves outside
 		if (mission.pos.current.x < offset || mission.pos.current.y < offset || mission.pos.current.x > mapSize.width-offset || mission.pos.current.y > mapSize.height-offset)
 		{
-			var nSize = {width: mapSize.width, height: mapSize.height};
-			var d = {x: 0, y: 0};
+			let nSize = {width: mapSize.width, height: mapSize.height};
+			let d = {x: 0, y: 0};
 			
 			if (mission.pos.current.x > mapSize.width-offset) {nSize.width += 100}
 			if (mission.pos.current.y > mapSize.height-offset) {nSize.height += 100}
@@ -736,12 +752,12 @@ function mapMission(res)
 function getImage(path)
 {
 	// read as image
-	var img = new Image();
+	let img = new Image();
 	img.src = path.indexOf('data:image') > -1 && path.indexOf('base64') > -1 ? path : _fs.readFileSync(path);
 	
 	// read as canvas
-	var canvas = createCanvas(img.width, img.height);
-	var ctx = canvas.getContext('2d');
+	let canvas = createCanvas(img.width, img.height);
+	let ctx = canvas.getContext('2d');
 	ctx.drawImage(img, 0, 0);
 	
 	return {
@@ -761,8 +777,8 @@ function getImage(path)
  */
 function rotateImage(img, radiant)
 {
-	var canvas = createCanvas(img.width, img.height);
-	var ctx = canvas.getContext('2d');
+	let canvas = createCanvas(img.width, img.height);
+	let ctx = canvas.getContext('2d');
 	
 	ctx.clearRect(0, 0, img.width, img.height); // clear the canvas
 	ctx.translate(img.width/2, img.width/2); // move registration point to the center of the canvas
@@ -780,7 +796,7 @@ function rotateImage(img, radiant)
  */
 function endMission(mission)
 {
-	var history = []; 
+	let history = []; 
 	
 	// get history
 	adapter.getState('missions.history', function(err, state)
@@ -797,7 +813,7 @@ function endMission(mission)
 		library._setValue('missions.current._data', JSON.stringify(mission));
 		
 		// check for duplicates
-		var duplicate = false;
+		let duplicate = false;
 		history.forEach(function(entry, i)
 		{
 			if (entry.id == mission.id)
@@ -809,10 +825,13 @@ function endMission(mission)
 		});
 		
 		if (duplicate === false)
+		{
+			delete mission.path;
 			history.push(mission);
-			
+		}
+		
 		// save history
-		library._setValue('missions.history', JSON.stringify(history));
+		library._setValue('missions.history', JSON.stringify(history.slice(0, 199))); // only keep 200 entries
 		adapter.log.info('Mission #' + mission.id + ' saved.');
 		return true;
 	});

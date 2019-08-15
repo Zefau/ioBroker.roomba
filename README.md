@@ -265,7 +265,10 @@ You may edit the variable ```message``` to any notification you would like to re
 
 ## Changelog
 
-### 1.0.4 (2019-08-xx)
+### 1.0.4 (2019-08-15)
+- (Zefau) fixed password retrieval
+- (Zefau) fixed German translations
+- (Zefau) added donations button
 - (Zefau) updated `dorita980` dependency to v3.1.3
 - (Zefau) updated `canvas` dependency to v2.6.0
 
