@@ -26,7 +26,7 @@ let Image, Canvas, createCanvas;
 let adapter;
 let library;
 //let encryptor = new Encryption(adapter);
-let unloaded;
+let closed, unloaded;
 let refreshCycle;
 
 let _installed = false;
@@ -271,6 +271,7 @@ function main()
 	{
 		adapter.log.info('Roomba online. Connection established.');
 		
+		closed = false;
 		connected = true;
 		library.set(nodeConnected, connected);
 	});
@@ -296,6 +297,10 @@ function main()
 	 * ROBOT CLOSE
 	 */
 	robot.on('close', function(res)
+	{
+		if (closed) return;
+		closed = true;
+		
 		adapter.log.info('Roomba Connection closed.');
 		
 		if (res && res.errno == 'ECONNREFUSED')
@@ -312,7 +317,6 @@ function main()
 		
 		adapter.log.debug(JSON.stringify(res));
 		disconnect();
-		return;
 	});
 	
 	/*
