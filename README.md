@@ -29,9 +29,8 @@ Based on the dorita980 library https://github.com/koalazak/dorita980#readme
 
 
 ## Features
-
 The following features come with this adapter:
-- __Send commands__ (start, stop, resume, pause, dock) to your Roomba
+- __Send commands__ (`start`, `stop`, `resume`, `pause`, `dock`) to your Roomba
 - Retrieve __device states__, such as battery, docked, full / inserted bin (see [Channels & States](#channels--states) for full list)
 - Retrieve __device configuration__, such as preferences, network or schedule settings (see [Channels & States](#channels--states) for full list)
 - Retrieve __device statistics__, such as total missions, hours on docking station, etc. (see [Channels & States](#channels--states) for full list)
@@ -47,13 +46,13 @@ ioBroker.roomba needs [canvas](https://www.npmjs.com/package/canvas) in order to
 
 Though, you probably have to install package dependencies of canvas (and canvas itself) with the following command:
 
-__Linux__
+### Linux
 ```
 sudo apt-get install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 sudo npm install canvas --unsafe-perm=true
 ```
 
-__Windows__
+### Windows
 1. Make sure you have `node-gyp` installed via
    ```
    npm install -g node-gyp
@@ -301,6 +300,10 @@ You may edit the variable ```message``` to any notification you would like to re
 
 
 ## Changelog
+
+### 1.0.5 (2019-08-17)
+- (Zefau) fixed broken credential retrieval
+- (Zefau) fixed broken refresh
 
 ### 1.0.4 (2019-08-15)
 - (Zefau) fixed password retrieval

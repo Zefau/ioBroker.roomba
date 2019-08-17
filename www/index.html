@@ -58,11 +58,11 @@
 							{
 								if (key === servConn.namespace + '.missions.history')
 								{
-									value = _states[key].val != '' ? JSON.parse(_states[key].val) : [];
+									value = _states[key] && _states[key].val ? JSON.parse(_states[key].val) : [];
 									history = value;
 								}
 								else
-									value = _states[key].val;
+									value = _states[key] && _states[key].val ? _states[key].val : '';
 								
 								if (title.indexOf('<') > -1 && !Array.isArray(value))
 									title = title.replace(RegExp('<' + key.replace(servConn.namespace + '.', '') + '>', 'g'), value.toString().replace(/ /g, '_').replace(/:/g, '-'));

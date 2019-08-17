@@ -59,7 +59,7 @@ function startAdapter(options)
 	});
 	
 	adapter = new utils.Adapter(options);
-	library = new Library(adapter, { updatesInLog: true });
+	library = new Library(adapter, { updatesInLog: false });
 	unloaded = false;
 	
 	/*
@@ -245,7 +245,11 @@ function main()
 	
 	// check if settings are set
 	if (!adapter.config.username || !adapter.config.password || !adapter.config.ip)
-		return library.terminate('Username, password and / or ip address missing!');
+	{
+		//return library.terminate('Username, password and / or ip address missing!'); // will kill message-box
+		adapter.log.error('Username, password and / or ip address missing!');
+		return;
+	}
 	
 	// decrypt password
 	/*
@@ -292,10 +296,23 @@ function main()
 	 * ROBOT CLOSE
 	 */
 	robot.on('close', function(res)
-	{
-		adapter.log.debug('Roomba Connection closed.');
+		adapter.log.info('Roomba Connection closed.');
+		
+		if (res && res.errno == 'ECONNREFUSED')
+			adapter.log.warn('Connection to Roomba refused. Please close all other connections to the Roomba, e.g. Smartphone Apps!');
+		
+		else if (res && res.errno == 'EPROTO')
+			adapter.log.warn('Secure Connection to Roomba failed!');
+		
+		else if (res && res.errno == 'EPIPE')
+			;//adapter.log.warn('Secure Connection to Roomba failed!');
+		
+		else
+			adapter.log.warn('Unknown error! Please see debug log for details.');
+		
 		adapter.log.debug(JSON.stringify(res));
 		disconnect();
+		return;
 	});
 	
 	/*
@@ -304,7 +321,6 @@ function main()
 	robot.on('offline', function(res)
 	{
 		adapter.log.warn('Connection lost! Roomba offline.');
-		adapter.log.debug(JSON.stringify(res));
 		disconnect();
 	});
 	
