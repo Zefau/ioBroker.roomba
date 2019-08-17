@@ -37,8 +37,7 @@ The following features come with this adapter:
 - Retrieve information about __current mission__ (when your Roomba is cleaning), such as start and end time, total runtime, sqm cleaned, etc. (only on supported Roomba\'s see [Supported Roomba's / Firmware versions](#supported-roombas--firmware-versions))
 - __Draw map based on the mission data__ received (only on supported Roomba\'s)
 - __Web Interface__ that shows the status and map of the current as well as previous / archived missions: 
-
-![Roomba Interface](img/roomba.interface.png)
+  ![Roomba Interface](img/roomba.interface.png)
 
 
 ## Installation
