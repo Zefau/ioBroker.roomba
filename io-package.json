@@ -17,7 +17,7 @@
         },
         "news": {
             "1.0.5": {
-				"en": "- added missing _NODES.js"
+				"en": "- fixed failing secure connection\n- fixed broken credential retrieval\n- fixed broken refresh"
 			},
             "1.0.4": {
                 "en": "- fixed password retrieval\n- fixed German translations\n- added donations button\n- updated dorita980 dependency to v3.1.3\n- updated canvas dependency to v2.6.0",

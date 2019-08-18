@@ -245,11 +245,7 @@ function main()
 	
 	// check if settings are set
 	if (!adapter.config.username || !adapter.config.password || !adapter.config.ip)
-	{
-		//return library.terminate('Username, password and / or ip address missing!'); // will kill message-box
-		adapter.log.error('Username, password and / or ip address missing!');
-		return;
-	}
+		return library.terminate('Username, password and / or ip address missing!');
 	
 	// decrypt password
 	/*
@@ -274,6 +270,7 @@ function main()
 		closed = false;
 		connected = true;
 		library.set(nodeConnected, connected);
+		library.set(Library.CONNECTION, connected);
 	});
 	
 	/*
