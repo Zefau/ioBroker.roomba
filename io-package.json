@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "roomba",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "title": "iRobot Roomba",
         "desc": {
             "en": "Connect your iRobot Roomba to ioBroker",
@@ -16,6 +16,9 @@
             "zh-cn": "连接你的主要扫地以ioBroker"
         },
         "news": {
+            "1.0.6": {
+				"en": "- added loading screen to web interface"
+			},
             "1.0.5": {
 				"en": "- fixed failing secure connection\n- fixed broken credential retrieval\n- fixed broken refresh"
 			},

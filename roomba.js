@@ -276,10 +276,14 @@ function main()
 	/*
 	 * ROBOT STATE UPDATE
 	 */
-	robot.on('state', function(preferences)
+	setTimeout(() =>
 	{
-		updPreferences(preferences);
-	});
+		robot.on('state', function(preferences)
+		{
+			updPreferences(preferences);
+		});
+		
+	}, 5*1000); // wait a bit initially, so most data is available
 	
 	/*
 	 * ROBOT ERROR
@@ -609,8 +613,8 @@ function updPreferences(preferences)
 	library.set({'node': 'refreshedDateTime', 'description': 'DateTime of last update', 'role': 'text'}, library.getDateTime(Date.now()));
 	
 	// refresh
-	if (adapter.config.refresh === undefined || adapter.config.refresh === null)
-		adapter.config.refresh = 0;
+	if (!adapter.config.refresh)
+		adapter.config.refresh = 60;
 	
 	else if (adapter.config.refresh > 0 && adapter.config.refresh < 10)
 	{

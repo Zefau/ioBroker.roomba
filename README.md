@@ -300,6 +300,9 @@ You may edit the variable ```message``` to any notification you would like to re
 
 ## Changelog
 
+### 1.0.5 (2019-08-19)
+- (Zefau) added loading screen to web interface
+
 ### 1.0.5 (2019-08-18)
 - (Zefau) fixed failing secure connection
 - (Zefau) fixed broken credential retrieval
