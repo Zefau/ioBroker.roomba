@@ -259,6 +259,8 @@ function main()
 	
 	// connect to Roomba
 	robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip); // connect(adapter.config.username, decrypted, adapter.config.ip);
+	if (!robot)
+		return;
 	
 	/*
 	 * ROBOT CONNECT
@@ -290,7 +292,9 @@ function main()
 	 */
 	robot.on('error', function(err)
 	{
-		adapter.log.error(err.message);
+		adapter.log.error('An error occured and the adapter will be stopped! See debug for more details!');
+		adapter.log.debug(err.message);
+		adapter.log.debug(err.stack);
 		disconnect();
 	});
 	
@@ -304,13 +308,13 @@ function main()
 		
 		adapter.log.info('Roomba Connection closed.');
 		
-		if (res && res.errno == 'ECONNREFUSED')
+		if (res && (res.code == 'ECONNREFUSED' || res.errno == 'ECONNREFUSED'))
 			adapter.log.warn('Connection to Roomba refused. Please close all other connections to the Roomba, e.g. Smartphone Apps!');
 		
-		else if (res && res.errno == 'EPROTO')
+		else if (res && (res.code == 'EPROTO' || res.errno == 'EPROTO'))
 			adapter.log.warn('Secure Connection to Roomba failed!');
 		
-		else if (res && res.errno == 'EPIPE')
+		else if (res && (res.code == 'EPIPE' || res.errno == 'EPIPE'))
 			;//adapter.log.warn('Secure Connection to Roomba failed!');
 		
 		else
@@ -517,7 +521,9 @@ function connect(user, password, ip)
 	}
 	catch(err)
 	{
-		adapter.log.warn(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75 )
+		adapter.log.error('Could not connect to Roomba! See debug for more details.');
+		adapter.log.debug(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75 )
+		return false;
 	}
 }
 
@@ -533,7 +539,7 @@ function updPreferences(preferences)
 	if (_updating)
 		return false;
 	
-	adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
+	adapter.log.silly('Retrieved preferences: ' + JSON.stringify(preferences));
 	_updating = true;
 	
 	// save raw preferences
@@ -541,7 +547,7 @@ function updPreferences(preferences)
 	
 	// update states
 	let tmp, preference, index;
-	_NODES.forEach(function(node)
+	_NODES.forEach(node =>
 	{
 		try
 		{
@@ -722,7 +728,7 @@ function mapMission(res)
 		}
 		
 		// robot moving
-		else
+		else if (map)
 		{
 			map.lineWidth = 2;
 			map.strokeStyle = pathColor;
@@ -740,7 +746,11 @@ function mapMission(res)
 		img.drawImage(rotateImage(icons.roomba.canvas, mission.pos.current.theta), mission.pos.current.x - icons.roomba.width/2, mission.pos.current.y - icons.roomba.height/2, icons.roomba.width, icons.roomba.height);
 		mission.map = {img: image.toDataURL(), size: mapSize};
 	}
-	catch(e) {adapter.log.warn(e.message)}
+	catch(e)
+	{
+		adapter.log.warn(e.message);
+		adapter.log.warn(e.stack);
+	}
 	
 	
 	// add to path
