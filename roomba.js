@@ -26,7 +26,7 @@ let Image, Canvas, createCanvas;
 let adapter;
 let library;
 //let encryptor = new Encryption(adapter);
-let closed, unloaded;
+let unloaded;
 let refreshCycle;
 
 let _installed = false;
@@ -213,11 +213,18 @@ function main()
 	try
 	{
 		_canvas = require('canvas');
+		
+		adapter.log.warn(_canvas);
+		adapter.log.warn(JSON.stringify(_canvas));
+		
 		_installed = true;
 		
 		Canvas = _canvas.Canvas;
 		Image = _canvas.Image;
 		createCanvas = _canvas.createCanvas;
+		
+		adapter.log.warn(JSON.stringify(_canvas.Image));
+		adapter.log.warn(JSON.stringify(_canvas.Canvas));
 	}
 	catch(e)
 	{
@@ -245,7 +252,11 @@ function main()
 	
 	// check if settings are set
 	if (!adapter.config.username || !adapter.config.password || !adapter.config.ip)
-		return library.terminate('Username, password and / or ip address missing!');
+	{
+		//return library.terminate('Username, password and / or ip address missing!'); // will kill message-box
+		adapter.log.error('Username, password and / or ip address missing!');
+		return;
+	}
 	
 	// decrypt password
 	/*
@@ -259,8 +270,6 @@ function main()
 	
 	// connect to Roomba
 	robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip); // connect(adapter.config.username, decrypted, adapter.config.ip);
-	if (!robot)
-		return;
 	
 	/*
 	 * ROBOT CONNECT
@@ -269,32 +278,24 @@ function main()
 	{
 		adapter.log.info('Roomba online. Connection established.');
 		
-		closed = false;
 		connected = true;
 		library.set(nodeConnected, connected);
-		library.set(Library.CONNECTION, connected);
 	});
 	
 	/*
 	 * ROBOT STATE UPDATE
 	 */
-	setTimeout(() =>
+	robot.on('state', function(preferences)
 	{
-		robot.on('state', function(preferences)
-		{
-			updPreferences(preferences);
-		});
-		
-	}, 5*1000); // wait a bit initially, so most data is available
+		updPreferences(preferences);
+	});
 	
 	/*
 	 * ROBOT ERROR
 	 */
 	robot.on('error', function(err)
 	{
-		adapter.log.error('An error occured and the adapter will be stopped! See debug for more details!');
-		adapter.log.debug(err.message);
-		adapter.log.debug(err.stack);
+		adapter.log.error(err.message);
 		disconnect();
 	});
 	
@@ -303,18 +304,15 @@ function main()
 	 */
 	robot.on('close', function(res)
 	{
-		if (closed) return;
-		closed = true;
-		
 		adapter.log.info('Roomba Connection closed.');
 		
-		if (res && (res.code == 'ECONNREFUSED' || res.errno == 'ECONNREFUSED'))
+		if (res && res.errno == 'ECONNREFUSED')
 			adapter.log.warn('Connection to Roomba refused. Please close all other connections to the Roomba, e.g. Smartphone Apps!');
 		
-		else if (res && (res.code == 'EPROTO' || res.errno == 'EPROTO'))
+		else if (res && res.errno == 'EPROTO')
 			adapter.log.warn('Secure Connection to Roomba failed!');
 		
-		else if (res && (res.code == 'EPIPE' || res.errno == 'EPIPE'))
+		else if (res && res.errno == 'EPIPE')
 			;//adapter.log.warn('Secure Connection to Roomba failed!');
 		
 		else
@@ -322,6 +320,7 @@ function main()
 		
 		adapter.log.debug(JSON.stringify(res));
 		disconnect();
+		return;
 	});
 	
 	/*
@@ -521,9 +520,7 @@ function connect(user, password, ip)
 	}
 	catch(err)
 	{
-		adapter.log.error('Could not connect to Roomba! See debug for more details.');
-		adapter.log.debug(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75 )
-		return false;
+		adapter.log.warn(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75 )
 	}
 }
 
@@ -539,7 +536,7 @@ function updPreferences(preferences)
 	if (_updating)
 		return false;
 	
-	adapter.log.silly('Retrieved preferences: ' + JSON.stringify(preferences));
+	adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
 	_updating = true;
 	
 	// save raw preferences
@@ -547,7 +544,7 @@ function updPreferences(preferences)
 	
 	// update states
 	let tmp, preference, index;
-	_NODES.forEach(node =>
+	_NODES.forEach(function(node)
 	{
 		try
 		{
@@ -689,7 +686,7 @@ function mapMission(res)
 	mission.pos.current = {theta: 180-res.pose.theta, x: mapCenter.h + res.pose.point.x + nPos.x, y: mapCenter.v - res.pose.point.y + nPos.y};
 	
 	// place home icon
-	if (mission.pos && mission.pos.last && mission.pos.last.x && !mission.home)
+	if (map && mission.pos && mission.pos.last && mission.pos.last.x && !mission.home)
 	{
 		map.drawImage(icons.home.canvas, mapCenter.h + mission.pos.current.x - icons.home.width/2, mapCenter.v + mission.pos.current.y - icons.home.height/2, icons.home.width, icons.home.height);
 		mission.home = true;
@@ -728,7 +725,7 @@ function mapMission(res)
 		}
 		
 		// robot moving
-		else if (map)
+		else
 		{
 			map.lineWidth = 2;
 			map.strokeStyle = pathColor;
@@ -746,11 +743,7 @@ function mapMission(res)
 		img.drawImage(rotateImage(icons.roomba.canvas, mission.pos.current.theta), mission.pos.current.x - icons.roomba.width/2, mission.pos.current.y - icons.roomba.height/2, icons.roomba.width, icons.roomba.height);
 		mission.map = {img: image.toDataURL(), size: mapSize};
 	}
-	catch(e)
-	{
-		adapter.log.warn(e.message);
-		adapter.log.warn(e.stack);
-	}
+	catch(e) {adapter.log.warn(e.message)}
 	
 	
 	// add to path

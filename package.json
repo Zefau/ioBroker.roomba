@@ -1,31 +1,27 @@
 {
-  "_from": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
-  "_id": "iobroker.roomba@1.0.1",
+  "_from": "iobroker.roomba@1.0.4",
+  "_id": "iobroker.roomba@1.0.4",
   "_inBundle": false,
-  "_integrity": "sha512-79BLQ+zTeU32Tm/bmj2gv1THQKN+THx2XMlfl1FZwUl55IaPmHvsBXQpWqdmlbHxfqvOYPvdGbaEddhpOnocQw==",
+  "_integrity": "sha512-27rjICyOLAr/WIO/7lYUSlVTQYDXrceO+v5hRBmWXcmCCtKa/dSbDYf7jJPugThMoAjyT6MSwqSgpppPjaJ+Jw==",
   "_location": "/iobroker.roomba",
-  "_phantomChildren": {
-    "decompress-response": "3.3.0",
-    "nan": "2.13.2",
-    "node-pre-gyp": "0.11.0",
-    "once": "1.4.0",
-    "simple-concat": "1.0.0"
-  },
+  "_phantomChildren": {},
   "_requested": {
-    "type": "remote",
-    "raw": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
-    "rawSpec": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
-    "saveSpec": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
-    "fetchSpec": "https://github.com/Zefau/ioBroker.roomba/tarball/master"
+    "type": "version",
+    "registry": true,
+    "raw": "iobroker.roomba@1.0.4",
+    "name": "iobroker.roomba",
+    "escapedName": "iobroker.roomba",
+    "rawSpec": "1.0.4",
+    "saveSpec": null,
+    "fetchSpec": "1.0.4"
   },
   "_requiredBy": [
-    "#USER",
-    "/"
+    "#USER"
   ],
-  "_resolved": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
-  "_shasum": "39824a4ec9951acaffb218b622902ef9646c7013",
-  "_spec": "https://github.com/Zefau/ioBroker.roomba/tarball/master",
-  "_where": "/opt/iobroker",
+  "_resolved": "https://registry.npmjs.org/iobroker.roomba/-/iobroker.roomba-1.0.4.tgz",
+  "_shasum": "a14c62a0902c36f44eedc0b125d9dfbe62b36488",
+  "_spec": "iobroker.roomba@1.0.4",
+  "_where": "C:\\Users\\Zefau\\iobroker",
   "author": {
     "name": "zefau",
     "email": "zefau@mailbox.org"
@@ -43,7 +39,7 @@
   "dependencies": {
     "@iobroker/adapter-core": "^1.0.3",
     "canvas": "^2.6.0",
-    "dorita980": "^3.1.4"
+    "dorita980": "^3.1.3"
   },
   "deprecated": false,
   "description": "Connect your iRobot Roomba to ioBroker",
@@ -73,5 +69,5 @@
     "test:package": "mocha test/package --exit",
     "test:unit": "mocha test/unit --exit"
   },
-  "version": "1.0.6"
+  "version": "1.0.4"
 }
