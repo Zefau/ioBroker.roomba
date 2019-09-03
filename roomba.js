@@ -26,7 +26,7 @@ let Image, Canvas, createCanvas;
 let adapter;
 let library;
 //let encryptor = new Encryption(adapter);
-let unloaded;
+let closed, unloaded;
 let refreshCycle;
 
 let _installed = false;
@@ -213,18 +213,11 @@ function main()
 	try
 	{
 		_canvas = require('canvas');
-		
-		adapter.log.warn(_canvas);
-		adapter.log.warn(JSON.stringify(_canvas));
-		
 		_installed = true;
 		
 		Canvas = _canvas.Canvas;
 		Image = _canvas.Image;
 		createCanvas = _canvas.createCanvas;
-		
-		adapter.log.warn(JSON.stringify(_canvas.Image));
-		adapter.log.warn(JSON.stringify(_canvas.Canvas));
 	}
 	catch(e)
 	{
@@ -252,11 +245,7 @@ function main()
 	
 	// check if settings are set
 	if (!adapter.config.username || !adapter.config.password || !adapter.config.ip)
-	{
-		//return library.terminate('Username, password and / or ip address missing!'); // will kill message-box
-		adapter.log.error('Username, password and / or ip address missing!');
-		return;
-	}
+		return library.terminate('Username, password and / or ip address missing!');
 	
 	// decrypt password
 	/*
@@ -270,6 +259,8 @@ function main()
 	
 	// connect to Roomba
 	robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip); // connect(adapter.config.username, decrypted, adapter.config.ip);
+	if (!robot)
+		return;
 	
 	/*
 	 * ROBOT CONNECT
@@ -278,24 +269,32 @@ function main()
 	{
 		adapter.log.info('Roomba online. Connection established.');
 		
+		closed = false;
 		connected = true;
 		library.set(nodeConnected, connected);
+		library.set(Library.CONNECTION, connected);
 	});
 	
 	/*
 	 * ROBOT STATE UPDATE
 	 */
-	robot.on('state', function(preferences)
+	setTimeout(() =>
 	{
-		updPreferences(preferences);
-	});
+		robot.on('state', function(preferences)
+		{
+			updPreferences(preferences);
+		});
+		
+	}, 5*1000); // wait a bit initially, so most data is available
 	
 	/*
 	 * ROBOT ERROR
 	 */
 	robot.on('error', function(err)
 	{
-		adapter.log.error(err.message);
+		adapter.log.error('An error occured and the adapter will be stopped! See debug for more details!');
+		adapter.log.debug(err.message);
+		adapter.log.debug(err.stack);
 		disconnect();
 	});
 	
@@ -304,15 +303,18 @@ function main()
 	 */
 	robot.on('close', function(res)
 	{
+		if (closed) return;
+		closed = true;
+		
 		adapter.log.info('Roomba Connection closed.');
 		
-		if (res && res.errno == 'ECONNREFUSED')
+		if (res && (res.code == 'ECONNREFUSED' || res.errno == 'ECONNREFUSED'))
 			adapter.log.warn('Connection to Roomba refused. Please close all other connections to the Roomba, e.g. Smartphone Apps!');
 		
-		else if (res && res.errno == 'EPROTO')
+		else if (res && (res.code == 'EPROTO' || res.errno == 'EPROTO'))
 			adapter.log.warn('Secure Connection to Roomba failed!');
 		
-		else if (res && res.errno == 'EPIPE')
+		else if (res && (res.code == 'EPIPE' || res.errno == 'EPIPE'))
 			;//adapter.log.warn('Secure Connection to Roomba failed!');
 		
 		else
@@ -320,7 +322,6 @@ function main()
 		
 		adapter.log.debug(JSON.stringify(res));
 		disconnect();
-		return;
 	});
 	
 	/*
@@ -520,7 +521,9 @@ function connect(user, password, ip)
 	}
 	catch(err)
 	{
-		adapter.log.warn(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75 )
+		adapter.log.error('Could not connect to Roomba! See debug for more details.');
+		adapter.log.debug(err.message); // this will not be trigged due to an issue in dorita980 library (see https://github.com/koalazak/dorita980/issues/75 )
+		return false;
 	}
 }
 
@@ -536,7 +539,7 @@ function updPreferences(preferences)
 	if (_updating)
 		return false;
 	
-	adapter.log.debug('Retrieved preferences: ' + JSON.stringify(preferences));
+	adapter.log.silly('Retrieved preferences: ' + JSON.stringify(preferences));
 	_updating = true;
 	
 	// save raw preferences
@@ -544,7 +547,7 @@ function updPreferences(preferences)
 	
 	// update states
 	let tmp, preference, index;
-	_NODES.forEach(function(node)
+	_NODES.forEach(node =>
 	{
 		try
 		{
@@ -638,8 +641,23 @@ function updPreferences(preferences)
  */
 function mapMission(res)
 {
+	// restore last session
+	if (mission !== null && mission.id === res.cleanMissionStatus.nMssn && !mission.time.ended && !canvas)
+	{
+		adapter.log.info('Roomba has resumed a previous mission (#' + mission.id + ').');
+		mission.pos = {
+			last: {theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y}
+		};
+		
+		// create canvas for map
+		previous = getImage(mission.map.img);
+		canvas = previous.canvas;
+		map = previous.ctx;
+		map.beginPath();
+	}
+	
 	// create new map once mission starts
-	if (mission === null || mission.id !== res.cleanMissionStatus.nMssn)
+	if (!canvas || mission === null || mission.id !== res.cleanMissionStatus.nMssn)
 	{
 		mission = {id: res.cleanMissionStatus.nMssn, restored: false, home: false, time: {}, status: {}, pos: {}, map: {}, path: []};
 		adapter.log.info('Roomba has started a new mission (#' + mission.id + ').');
@@ -662,24 +680,9 @@ function mapMission(res)
 		map.beginPath();
 	}
 	
-	// restore last session
-	else if (mission !== null && mission.id === res.cleanMissionStatus.nMssn && mission.time.ended === undefined && (canvas === undefined || !canvas))
-	{
-		adapter.log.info('Roomba has resumed a previous mission (#' + mission.id + ').');
-		mission.pos = {
-			last: {theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y}
-		};
-		
-		// create canvas for map
-		previous = getImage(mission.map.img);
-		canvas = previous.canvas;
-		map = previous.ctx;
-		map.beginPath();
-	}
-	
-	//
-	else
-		mission.pos.last = {theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y};
+	// last position
+	if (mission && mission.pos && mission.pos.theta && mission.pos.current.x && mission.pos.current.y)
+		mission.pos.last = { theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y };
 	
 	// add information to payload
 	mission.status = Object.assign({}, res.cleanMissionStatus, {sqm: parseFloat((res.cleanMissionStatus.sqft / 10.764).toFixed(2))});
@@ -709,7 +712,8 @@ function mapMission(res)
 			// resize map
 			canvasTmp = createCanvas(nSize.width, nSize.height);
 			mapTmp = canvasTmp.getContext('2d');
-			mapTmp.drawImage(canvas, d.x, d.y);
+			if (canvas)
+				mapTmp.drawImage(canvas, d.x, d.y);
 			
 			// remap canvas and set new size
 			canvas = canvasTmp;
@@ -725,7 +729,7 @@ function mapMission(res)
 		}
 		
 		// robot moving
-		else
+		else if (map)
 		{
 			map.lineWidth = 2;
 			map.strokeStyle = pathColor;
@@ -743,11 +747,16 @@ function mapMission(res)
 		img.drawImage(rotateImage(icons.roomba.canvas, mission.pos.current.theta), mission.pos.current.x - icons.roomba.width/2, mission.pos.current.y - icons.roomba.height/2, icons.roomba.width, icons.roomba.height);
 		mission.map = {img: image.toDataURL(), size: mapSize};
 	}
-	catch(e) {adapter.log.warn(e.message)}
+	catch(e)
+	{
+		adapter.log.warn(e.message);
+		adapter.log.warn(e.stack);
+	}
 	
 	
 	// add to path
-	mission.path.push(mission.pos.current);
+	if (mission && mission.path)
+		mission.path.push(mission.pos.current);
 	
 	// save map and path
 	library._setValue('missions.current.mapImage', mission.map.img);
