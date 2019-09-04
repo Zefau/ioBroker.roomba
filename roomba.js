@@ -260,7 +260,7 @@ function main()
 	// connect to Roomba
 	robot = connect(adapter.config.username, adapter.config.password, adapter.config.ip); // connect(adapter.config.username, decrypted, adapter.config.ip);
 	if (!robot)
-		return;
+		return library.terminate('Could not connect to Roomba!');
 	
 	/*
 	 * ROBOT CONNECT
@@ -641,23 +641,8 @@ function updPreferences(preferences)
  */
 function mapMission(res)
 {
-	// restore last session
-	if (mission !== null && mission.id === res.cleanMissionStatus.nMssn && !mission.time.ended && !canvas)
-	{
-		adapter.log.info('Roomba has resumed a previous mission (#' + mission.id + ').');
-		mission.pos = {
-			last: {theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y}
-		};
-		
-		// create canvas for map
-		previous = getImage(mission.map.img);
-		canvas = previous.canvas;
-		map = previous.ctx;
-		map.beginPath();
-	}
-	
 	// create new map once mission starts
-	if (!canvas || mission === null || mission.id !== res.cleanMissionStatus.nMssn)
+	if (mission === null || mission.id !== res.cleanMissionStatus.nMssn)
 	{
 		mission = {id: res.cleanMissionStatus.nMssn, restored: false, home: false, time: {}, status: {}, pos: {}, map: {}, path: []};
 		adapter.log.info('Roomba has started a new mission (#' + mission.id + ').');
@@ -680,16 +665,38 @@ function mapMission(res)
 		map.beginPath();
 	}
 	
+	// restore last session
+	else if (mission !== null && mission.id === res.cleanMissionStatus.nMssn && !mission.time.ended && (!canvas || !map))
+	{
+		adapter.log.info('Roomba has resumed a previous mission (#' + mission.id + ').');
+		mission.pos = {
+			last: {theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y}
+		};
+		
+		// create canvas for map
+		previous = getImage(mission.map.img);
+		canvas = previous.canvas;
+		map = previous.ctx;
+		map.beginPath();
+	}
+	
 	// last position
-	if (mission && mission.pos && mission.pos.theta && mission.pos.current.x && mission.pos.current.y)
+	else
 		mission.pos.last = { theta: mission.pos.current.theta, x: mission.pos.current.x, y: mission.pos.current.y };
 	
 	// add information to payload
 	mission.status = Object.assign({}, res.cleanMissionStatus, {sqm: parseFloat((res.cleanMissionStatus.sqft / 10.764).toFixed(2))});
 	mission.pos.current = {theta: 180-res.pose.theta, x: mapCenter.h + res.pose.point.x + nPos.x, y: mapCenter.v - res.pose.point.y + nPos.y};
 	
+	//
+	if (!canvas || !map)
+	{
+		adapter.log.warn('Error: No map given to draw on!');
+		return false;
+	}
+	
 	// place home icon
-	if (map && mission.pos && mission.pos.last && mission.pos.last.x && !mission.home)
+	if (mission.pos && mission.pos.last && mission.pos.last.x && !mission.home)
 	{
 		map.drawImage(icons.home.canvas, mapCenter.h + mission.pos.current.x - icons.home.width/2, mapCenter.v + mission.pos.current.y - icons.home.height/2, icons.home.width, icons.home.height);
 		mission.home = true;
@@ -712,8 +719,7 @@ function mapMission(res)
 			// resize map
 			canvasTmp = createCanvas(nSize.width, nSize.height);
 			mapTmp = canvasTmp.getContext('2d');
-			if (canvas)
-				mapTmp.drawImage(canvas, d.x, d.y);
+			mapTmp.drawImage(canvas, d.x, d.y);
 			
 			// remap canvas and set new size
 			canvas = canvasTmp;
@@ -729,7 +735,7 @@ function mapMission(res)
 		}
 		
 		// robot moving
-		else if (map)
+		else
 		{
 			map.lineWidth = 2;
 			map.strokeStyle = pathColor;
@@ -775,6 +781,7 @@ function mapMission(res)
 	
 	// save data
 	library._setValue('missions.current._data', JSON.stringify(Object.assign(mission, {map: {img: canvas != undefined ? canvas.toDataURL() : '', size: mapSize}})));
+	return true;
 }
 
 
