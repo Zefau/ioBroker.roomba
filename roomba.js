@@ -692,6 +692,8 @@ function mapMission(res)
 	if (!canvas || !map)
 	{
 		adapter.log.warn('Error: No map given to draw on!');
+		adapter.log.debug('Adapter Mission data: ' + JSON.stringify(mission));
+		adapter.log.debug('Roomba mission data: ' + JSON.stringify(res));
 		return false;
 	}
 	
@@ -846,8 +848,8 @@ function endMission(mission)
 		// add end time
 		mission.time.ended = Math.floor(Date.now()/1000);
 		mission.time.endedDateTime = library.getDateTime(mission.time.ended*1000);
-		library._setValue('missions.current.ended', mission.time.ended);
 		library._setValue('missions.current.endedDateTime', mission.time.endedDateTime);
+		library._setValue('missions.current.ended', mission.time.ended);
 		
 		// save data
 		library._setValue('missions.current._data', JSON.stringify(mission));
@@ -873,6 +875,12 @@ function endMission(mission)
 		// save history
 		library._setValue('missions.history', JSON.stringify(history.slice(0, 199))); // only keep 200 entries
 		adapter.log.info('Mission #' + mission.id + ' saved.');
+		
+		// reset mission
+		mission = null;
+		canvas = null;
+		map = null;
+		
 		return true;
 	});
 };
