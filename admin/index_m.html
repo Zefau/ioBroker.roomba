@@ -102,7 +102,7 @@
 				// error
 				else
 				{
-					_log(translateWord('message_error-nocredentials')+' ('+res.error+')', 'error');
+					_log(translateWord('message_error-nocredentials')+' ('+JSON.stringify(res.error)+')', 'error');
 					
 					// get IP
 					_log(translateWord('message_action-getip'));
