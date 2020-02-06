@@ -2,6 +2,7 @@ module.exports =
 [
 	// commands
 	{'node': 'commands', 'description': 'Actions and information of the cleaning process', 'role': 'channel'},
+	{'node': 'commands._runCommand', 'description': 'Run any command (see https://bit.ly/2S57cgM)', 'role': 'text', 'type': 'string', 'common': { 'write': true } },
 	{'node': 'commands.start', 'description': 'Start a cleaning process', 'action': 'start', 'role': 'button.start', 'type': 'boolean'},
 	{'node': 'commands.stop', 'description': 'Stop the current cleaning process', 'action': 'stop', 'role': 'button.stop', 'type': 'boolean'},
 	{'node': 'commands.pause', 'description': 'Pause the current cleaning process', 'action': 'pause', 'role': 'button.pause', 'type': 'boolean'},
@@ -9,8 +10,9 @@ module.exports =
 	{'node': 'commands.dock', 'description': 'Send the robot to the docking station', 'action': 'dock', 'role': 'button', 'type': 'boolean'},
 	
 	// commands - last command
+	{'node': 'commands.last', 'description': 'Last processed command', 'role': 'channel'},
 	{'node': 'commands.last.command', 'description': 'Last command sent to robot', 'preference': 'lastCommand.command', 'role': 'text'},
-	{'node': 'commands.last.timestamp', 'description': 'Timestamp last command was sent', 'preference': 'lastCommand.time', 'role': 'value'},
+	{'node': 'commands.last.timestamp', 'description': 'Timestamp last command was sent', 'preference': 'lastCommand.time', 'kind': 'timestamp', 'role': 'value'},
 	{'node': 'commands.last.dateTime', 'description': 'DateTime last command was sent', 'preference': 'lastCommand.time', 'kind': 'datetime', 'role': 'text'},
 	{'node': 'commands.last.initiator', 'description': 'Initiator of last command', 'preference': 'lastCommand.initiator', 'role': 'text'},
 	
@@ -43,9 +45,9 @@ module.exports =
 	
 	// missions - schedule
 	{'node': 'missions.schedule', 'description': 'Schedule of the cleaning process', 'role': 'channel'},
-	{'node': 'missions.schedule.cycle', 'description': 'Schedule cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.cycle', 'role': 'text'},
-	{'node': 'missions.schedule.hours', 'description': 'Hour to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.h', 'role': 'text'},
-	{'node': 'missions.schedule.minutes', 'description': 'Minute to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.m', 'role': 'text'},
+	{'node': 'missions.schedule.cycle', 'description': 'Schedule cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.cycle', 'role': 'text', 'common': { 'write': true } },
+	{'node': 'missions.schedule.hours', 'description': 'Hour to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.h', 'role': 'text', 'common': { 'write': true } },
+	{'node': 'missions.schedule.minutes', 'description': 'Minute to start cycle (Sunday to Saturday)', 'preference': 'cleanSchedule.m', 'role': 'text', 'common': { 'write': true } },
 	
 	// device
 	{'node': 'device', 'description': 'Device information', 'role': 'channel'},
@@ -92,10 +94,10 @@ module.exports =
 	
 	// states
 	{'node': 'states', 'description': 'Status information', 'role': 'channel'},
-	{'node': 'states.battery', 'description': 'Battery level of the robot', 'preference': 'batPct', 'role': 'value'},
-	{'node': 'states.docked', 'description': 'State whether robot is docked', 'preference': 'dock.known', 'role': 'state', 'type': 'boolean'},
-	{'node': 'states.binInserted', 'description': 'State whether bin is inserted', 'preference': 'bin.present', 'role': 'state', 'type': 'boolean'},
-	{'node': 'states.binFull', 'description': 'State whether bin status is full', 'preference': 'bin.full', 'role': 'state', 'type': 'boolean'},
+	{'node': 'states.battery', 'description': 'Battery level of the robot', 'preference': 'batPct', 'role': 'value.battery'},
+	{'node': 'states.docked', 'description': 'State whether robot is docked', 'preference': 'dock.known', 'role': 'indicator', 'type': 'boolean'},
+	{'node': 'states.binInserted', 'description': 'State whether bin is inserted', 'preference': 'bin.present', 'role': 'indicator', 'type': 'boolean'},
+	{'node': 'states.binFull', 'description': 'State whether bin status is full', 'preference': 'bin.full', 'role': 'indicator', 'type': 'boolean'},
 	{'node': 'states.status', 'description': 'Current status of the robot', 'preference': 'cleanMissionStatus.phase', 'role': 'text'},
 	{'node': 'states.signal', 'description': 'Signal strength', 'preference': 'signal.snr', 'role': 'value'},
 	

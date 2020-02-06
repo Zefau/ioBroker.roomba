@@ -42,14 +42,14 @@
   ],
   "dependencies": {
     "@iobroker/adapter-core": "^2.2.1",
-    "canvas": "^2.6.0",
-    "dorita980": "^3.1.4"
+    "canvas": "^2.6.1",
+    "dorita980": "^3.1.7"
   },
   "deprecated": false,
   "description": "Connect your iRobot Roomba to ioBroker",
   "devDependencies": {
     "@iobroker/testing": "^2.0.2",
-    "axios": "^0.19.0",
+    "axios": "^0.19.2",
     "chai": "^4.2.0",
     "gulp": "^4.0.2",
     "mocha": "^7.0.1"
@@ -73,5 +73,5 @@
     "test:package": "mocha test/package --exit",
     "test:unit": "mocha test/unit --exit"
   },
-  "version": "1.0.7"
+  "version": "1.1.0"
 }
